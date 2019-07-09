@@ -80,8 +80,8 @@ There are several in-game units.
 
 Unit             |Short         |Type      |Description
 -----------------|--------------|----------|-----------
-Tile             |t             |Distance  |Distance between two [tiles](#tile)
-Tile<sup>2</sup> |t<sup>2</sup> |Area      |Area
+Meter            |m             |Distance  |Distance between two [tiles](#tile). One tile is 1x1 meter
+Meter<sup>2</sup>|m<sup>2</sup> |Area      |Area
 People           |p             |Population|Amount of people
 Ton              |t             |Weight    |Weight of a [cargo](#cargo)
 
