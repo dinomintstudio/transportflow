@@ -5,7 +5,6 @@ import {AppComponent} from './app.component';
 import {GuiComponent} from './web/gui/gui.component';
 import {MenuComponent} from './web/menu/menu.component';
 import {CanvasComponent} from './web/canvas/canvas.component';
-import {ResizableModule} from "angular-resizable-element";
 
 @NgModule({
 	declarations: [
@@ -15,8 +14,7 @@ import {ResizableModule} from "angular-resizable-element";
 		CanvasComponent
 	],
 	imports: [
-		BrowserModule,
-		ResizableModule
+		BrowserModule
 	],
 	providers: [],
 	bootstrap: [AppComponent]
