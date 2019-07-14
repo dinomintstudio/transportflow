@@ -1,4 +1,4 @@
-import {StreetGeneratorConfig} from "./StreetGeneratorConfig";
+import {StreetGenerationConfig} from "../config/StreetGenerationConfig";
 import {Position} from "../../common/model/Position";
 import {Range} from "../../common/model/Range";
 import {Injectable} from "@angular/core";
@@ -14,14 +14,14 @@ export class Road {
 	public angle: number;
 	public length: number;
 
-	public config: StreetGeneratorConfig;
+	public config: StreetGenerationConfig;
 
 	public startPoint: Position;
 	public endPoint: Position;
 
 	constructor(
 		private randomService: RandomService,
-		center, centerOffset, angle, length, config: StreetGeneratorConfig
+		center, centerOffset, angle, length, config: StreetGenerationConfig
 	) {
 		this.center = center;
 		this.centerOffset = parseFloat(centerOffset);

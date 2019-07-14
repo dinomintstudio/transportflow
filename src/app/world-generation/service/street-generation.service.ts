@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {StreetGeneratorConfig} from "../model/StreetGeneratorConfig";
+import {StreetGenerationConfig} from "../config/StreetGenerationConfig";
 import {Road} from "../model/Road";
 import {RandomService} from "../../random/service/random.service";
 import {Range} from "../../common/model/Range";
@@ -15,7 +15,7 @@ export class StreetGenerationService {
 	) {
 	}
 
-	generate(config: StreetGeneratorConfig): Road[] {
+	generate(config: StreetGenerationConfig): Road[] {
 		const mainRoad: Road = new Road(
 			this.randomService,
 			config.mainRoadCenterPosition,

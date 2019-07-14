@@ -31,4 +31,13 @@ export class Range {
 		return value >= this.from && value <= this.to;
 	}
 
+	/**
+	 * Map certain value [0, 1] to range
+	 * @param value value
+	 * @param range range
+	 */
+	static map(value: number, range: Range): number {
+		return value * (range.to - range.from) + range.from;
+	}
+
 }

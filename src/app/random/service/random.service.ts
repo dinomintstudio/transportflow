@@ -11,6 +11,7 @@ import {Range} from "../../common/model/Range";
 })
 export class RandomService {
 
+	seed: string;
 	/**
 	 * `seedrandom` instance of PRNG
 	 */
@@ -24,6 +25,7 @@ export class RandomService {
 	 * @param seed seed string
 	 */
 	setSeed(seed: string): void {
+		this.seed = seed;
 		this.generator = seedrandom(seed);
 	}
 
