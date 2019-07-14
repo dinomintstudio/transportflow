@@ -23,4 +23,12 @@ export class Range {
 		this.to = to;
 	}
 
+	/**
+	 * Checks whether given value is in range
+	 * @param value value
+	 */
+	in(value: number): boolean {
+		return value >= this.from && value <= this.to;
+	}
+
 }
