@@ -13,7 +13,7 @@ export class ClockService {
 	private intervalId: number;
 
 	constructor() {
-		this.tick = new ObservableData<number>(0);
+		this.tick = new ObservableData<number>(null);
 		this.intervalId = setInterval(() => this.loop(), 1000 / config.ups);
 	}
 
