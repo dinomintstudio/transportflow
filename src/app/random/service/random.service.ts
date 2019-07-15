@@ -1,6 +1,7 @@
 import {Injectable} from '@angular/core';
 import seedrandom from "seedrandom";
 import {Range} from "../../common/model/Range";
+import {ObservableData} from "../../common/model/ObservableData";
 
 /**
  * Service that responsible for PRNG (Pseudorandom number generation) within the application. It uses `seedrandom`
@@ -11,13 +12,14 @@ import {Range} from "../../common/model/Range";
 })
 export class RandomService {
 
-	seed: string;
+	seed: ObservableData<string>;
 	/**
 	 * `seedrandom` instance of PRNG
 	 */
 	private generator = seedrandom();
 
 	constructor() {
+		this.seed = new ObservableData();
 	}
 
 	/**
@@ -25,8 +27,10 @@ export class RandomService {
 	 * @param seed seed string
 	 */
 	setSeed(seed: string): void {
-		this.seed = seed;
-		this.generator = seedrandom(seed);
+		this.seed.set(seed);
+		this.seed.observable.subscribe(s => {
+			this.generator = seedrandom(s);
+		});
 	}
 
 	/**
