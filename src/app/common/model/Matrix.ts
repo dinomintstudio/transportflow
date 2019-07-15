@@ -17,12 +17,16 @@ export class Matrix<T> {
 			this.shape = new Shape(value[0] ? value[0].length : 0, value.length)
 		}
 		if (value.length === 0) {
-			this.value = new Array(this.shape.height).fill(new Array(this.shape.width).fill(null));
+			this.value = new Array(this.shape.height).fill([]);
+			this.value.forEach((__, i) => {
+				this.value[i] = new Array(this.shape.width).fill(null);
+			});
 		}
+
 	}
 
 	at(position: Position): T {
-		return this.value[position.x][position.y];
+		return this.value[position.y][position.x];
 	}
 
 	set(position: Position, value: T) {

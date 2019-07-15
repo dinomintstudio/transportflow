@@ -15,11 +15,13 @@ export class FractionService {
 			return cumulativeSum[i] = a + b;
 		}, 0);
 
+		const sum = cumulativeSum[cumulativeSum.length - 1];
+
 		return cumulativeSum.map((fr, i) => {
 			if (i === 0) {
-				return new Range(0, fr);
+				return new Range(0, fr / sum);
 			} else {
-				return new Range(fr, cumulativeSum[i + 1]);
+				return new Range(cumulativeSum[i - 1] / sum, fr / sum);
 			}
 		})
 	}
