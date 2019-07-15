@@ -1,5 +1,5 @@
-import {Position} from "../../common/model/Position";
-import {Range} from "../../common/model/Range";
+import {Position} from "../../../common/model/Position";
+import {Range} from "../../../common/model/Range";
 
 /**
  * Configuration of street generation
@@ -28,7 +28,7 @@ export class StreetGenerationConfig {
 	/**
 	 * if true the main road will have angle 0, otherwise random from 0 to 2PI
 	 */
-	mainRoadHorizontal: boolean;
+	mainRoadHorizontal: Boolean;
 
 	/**
 	 * center of the main road relative to canvas
@@ -45,7 +45,7 @@ export class StreetGenerationConfig {
 	 */
 	totalRoadCount: Range;
 
-	constructor(roadLength: Range, propagationSteps: Range, distanceBetweenParallelRoads: number, angularDeviation: Range, mainRoadHorizontal: boolean = true, mainRoadCenterPosition: Position = new Position(0, 0), roadEdgeStickiness: number = 0, totalRoadCount: Range = null) {
+	constructor(roadLength: Range, propagationSteps: Range, distanceBetweenParallelRoads: number, angularDeviation: Range, mainRoadHorizontal: Boolean = true, mainRoadCenterPosition: Position = new Position(0, 0), roadEdgeStickiness: number = 0, totalRoadCount: Range = null) {
 		this.roadLength = roadLength;
 		this.propagationSteps = propagationSteps;
 		this.distanceBetweenParallelRoads = distanceBetweenParallelRoads;

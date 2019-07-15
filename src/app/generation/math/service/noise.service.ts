@@ -1,9 +1,9 @@
 import {Injectable} from '@angular/core';
-import {RandomService} from "../../random/service/random.service";
+import {RandomService} from "../../../random/service/random.service";
 import {NoiseConfig} from "../config/NoiseConfig";
-import {Position} from "../../common/model/Position";
+import {Position} from "../../../common/model/Position";
 import * as SimplexNoise from "simplex-noise";
-import {Range} from "../../common/model/Range";
+import {Range} from "../../../common/model/Range";
 
 @Injectable({
 	providedIn: 'root'

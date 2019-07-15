@@ -1,4 +1,4 @@
-import {Shape} from "../../common/model/Shape";
+import {Shape} from "../../../common/model/Shape";
 import {TemperatureMapConfig} from "./TemperatureMapConfig";
 import {AltitudeMapConfig} from "./AltitudeMapConfig";
 import {HumidityMapConfig} from "./HumidityMapConfig";
@@ -38,4 +38,13 @@ export class TerrainGenerationConfig {
 	 */
 	humidityMapConfig: HumidityMapConfig;
 
+
+	constructor(mapSize: Shape, cityPerTile: number, plantPerTile: number, altitudeMapConfig: AltitudeMapConfig, temperatureMapConfig: TemperatureMapConfig, humidityMapConfig: HumidityMapConfig) {
+		this.mapSize = mapSize;
+		this.cityPerTile = cityPerTile;
+		this.plantPerTile = plantPerTile;
+		this.altitudeMapConfig = altitudeMapConfig;
+		this.temperatureMapConfig = temperatureMapConfig;
+		this.humidityMapConfig = humidityMapConfig;
+	}
 }

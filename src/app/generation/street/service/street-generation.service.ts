@@ -1,8 +1,8 @@
 import {Injectable} from '@angular/core';
 import {StreetGenerationConfig} from "../config/StreetGenerationConfig";
-import {Road} from "../model/Road";
-import {RandomService} from "../../random/service/random.service";
-import {Range} from "../../common/model/Range";
+import {Road} from "../Road";
+import {RandomService} from "../../../random/service/random.service";
+import {Range} from "../../../common/model/Range";
 
 // TODO: docs
 @Injectable({
