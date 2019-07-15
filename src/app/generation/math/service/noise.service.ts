@@ -10,18 +10,21 @@ import {Range} from "../../../common/model/Range";
 })
 export class NoiseService {
 
+	private simplexNoise;
+
 	constructor(
 		private randomService: RandomService
 	) {
+		this.randomService.seed.observable.subscribe(seed => {
+			this.simplexNoise = seed
+				? new SimplexNoise(seed)
+				: new SimplexNoise();
+		});
 	}
 
 	generate(position: Position, config: NoiseConfig): number {
-		const simplexNoise = this.randomService.seed
-			? new SimplexNoise(this.randomService.seed)
-			: new SimplexNoise();
-
 		// getting value in range of [-sqrt(n)/2, sqrt(n)/2]
-		let noiseValue = simplexNoise.noise2D(position.x * config.scale, position.y * config.scale);
+		let noiseValue = this.simplexNoise.noise2D(position.x * config.scale, position.y * config.scale);
 
 		// mapping it to range [0, 1]
 		noiseValue = (noiseValue + 1) / 2;

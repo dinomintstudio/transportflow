@@ -20,7 +20,7 @@ export class ObservableData<T> {
 	 * Construct new ObservableData instance. Initial value can be null
 	 * @param initialValue initial value
 	 */
-	constructor(initialValue: T) {
+	constructor(initialValue: T = null) {
 		this.subject = new BehaviorSubject<T>(initialValue);
 		this.observable = this.subject.asObservable();
 	}
