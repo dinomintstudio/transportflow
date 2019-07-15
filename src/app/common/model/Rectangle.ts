@@ -36,6 +36,13 @@ export class Rectangle {
 	}
 
 	/**
+	 * Calculates rectangle area
+	 */
+	area(): number {
+		return this.shape.width * this.shape.height;
+	}
+
+	/**
 	 * Define rectangle by two points
 	 * @param p1 upper left point
 	 * @param p2 bottom right point

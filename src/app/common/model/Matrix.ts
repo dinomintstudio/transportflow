@@ -16,7 +16,7 @@ export class Matrix<T> {
 		if (!shape) {
 			this.shape = new Shape(value[0] ? value[0].length : 0, value.length)
 		}
-		if (!value) {
+		if (value.length === 0) {
 			this.value = new Array(this.shape.height).fill(new Array(this.shape.width).fill(null));
 		}
 	}
@@ -26,7 +26,8 @@ export class Matrix<T> {
 	}
 
 	set(position: Position, value: T) {
-		if (!(this.value[position.y] && this.value[position.y][position.x])) throw new Error('invalid position');
+		if (position.x < 0 || position.x > this.shape.width ||
+			position.y < 0 || position.y > this.shape.height) throw new Error('invalid position');
 
 		this.value[position.y][position.x] = value;
 	}
@@ -45,6 +46,14 @@ export class Matrix<T> {
 		}
 
 		return result;
+	}
+
+	map<D>(func: (t: T) => D): Matrix<D> {
+		return new Matrix<D>(
+			this.shape,
+			this.value
+				.map(row => row.map(e => func(e)))
+		);
 	}
 
 }
