@@ -52,6 +52,10 @@ export class Maybe<T> {
 		consumer(this.value);
 	}
 
+	map<D>(func: (T) => D): Maybe<D> {
+		return this.isPresent() ? new Maybe<D>(func(this.get())) : Maybe.empty();
+	}
+
 	/**
 	 * If present returns value, otherwise returns elseValue
 	 * @param elseValue returned value if current is not present

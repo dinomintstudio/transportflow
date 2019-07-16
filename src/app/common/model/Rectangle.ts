@@ -35,13 +35,19 @@ export class Rectangle {
 		this.bottomRight = new Position(this.topLeft.x + this.shape.width, this.topLeft.y + this.shape.height);
 	}
 
+	translate(position: Position): Rectangle {
+		return new Rectangle(this.topLeft.add(position), this.shape);
+	}
+
 	/**
 	 * Define rectangle by two points
 	 * @param p1 upper left point
 	 * @param p2 bottom right point
 	 */
 	static rectangleByTwoPoints(p1: Position, p2: Position): Rectangle {
-		if (p1.x > p2.x || p1.y > p2.y) throw new TypeError('invalid parameters');
+		if (p1.x > p2.x || p1.y > p2.y) {
+			[p1, p2] = [p2, p1];
+		}
 
 		const width = p2.x - p1.x;
 		const height = p2.y - p1.y;
