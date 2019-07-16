@@ -1,4 +1,5 @@
 {
+  "$schema": "scheduling.config-schema.json",
   "ups": 60,
   "shortTermK": 1,
   "longTermK": 60

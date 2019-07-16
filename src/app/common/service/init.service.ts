@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {WorldGenerationService} from "../../world-generation/service/world-generation.service";
+import {WorldGenerationService} from "../../generation/world/service/world-generation.service";
 import {ClockService} from "../../scheduling/service/clock.service";
 import {LongTermSchedulingService} from "../../scheduling/service/long-term-scheduling.service";
 import {ShortTermSchedulingService} from "../../scheduling/service/short-term-scheduling.service";

@@ -5,13 +5,22 @@ import {Position} from "../../../common/model/Position";
 import * as SimplexNoise from "simplex-noise";
 import {Range} from "../../../common/model/Range";
 
+/**
+ * Responsible for generating simplex noise
+ */
 @Injectable({
 	providedIn: 'root'
 })
 export class NoiseService {
 
+	/**
+	 * Simplex noise library instance
+	 */
 	private simplexNoise;
 
+	/**
+	 * Constructs service
+	 */
 	constructor(
 		private randomService: RandomService
 	) {
@@ -22,6 +31,11 @@ export class NoiseService {
 		});
 	}
 
+	/**
+	 * Generate simplex noise
+	 * @param position position
+	 * @param config noise config
+	 */
 	generate(position: Position, config: NoiseConfig): number {
 		// getting value in range of [-sqrt(n)/2, sqrt(n)/2]
 		let noiseValue = this.simplexNoise.noise2D(position.x * config.scale, position.y * config.scale);

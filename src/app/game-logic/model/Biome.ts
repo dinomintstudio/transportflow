@@ -8,7 +8,10 @@ export class Biome {
 	 */
 	type: 'taiga' | 'desert' | 'jungle';
 
-
+	/**
+	 * Constructs new Biome instance
+	 * @param type biome type. Null by default
+	 */
 	constructor(type: "taiga" | "desert" | "jungle" = null) {
 		this.type = type;
 	}

@@ -1,5 +1,4 @@
 import {Injectable} from '@angular/core';
-import * as config from '../config/world-generation.config.json'
 
 @Injectable({
 	providedIn: 'root'
@@ -7,7 +6,6 @@ import * as config from '../config/world-generation.config.json'
 export class WorldGenerationService {
 
 	constructor() {
-		config;
 	}
 
 }

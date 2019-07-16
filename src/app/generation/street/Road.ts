@@ -4,21 +4,61 @@ import {Range} from "../../common/model/Range";
 import {Injectable} from "@angular/core";
 import {RandomService} from "../../random/service/random.service";
 
-// TODO: docs
+/**
+ * Generated road instance. Output of city street generator
+ */
 @Injectable({
 	providedIn: 'root'
 })
 export class Road {
+
+	/**
+	 * Center position
+	 */
 	public center: Position;
+
+	/**
+	 * Center offset. Value between `[0, 1]`.
+	 * If 0 - center in start point
+	 * If 0.5 - center in the middle
+	 * If 1 - center in end point etc.
+	 */
 	public centerOffset: number;
+
+	/**
+	 * Road angle
+	 */
 	public angle: number;
+
+	/**
+	 * Road length
+	 */
 	public length: number;
 
+	/**
+	 * Config by which street where generated
+	 */
 	public config: StreetGenerationConfig;
 
+	/**
+	 * Road start point
+	 */
 	public startPoint: Position;
+
+	/**
+	 * Road end point
+	 */
 	public endPoint: Position;
 
+	/**
+	 * Constructs new Road instance
+	 * @param randomService
+	 * @param center
+	 * @param centerOffset
+	 * @param angle
+	 * @param length
+	 * @param config
+	 */
 	constructor(
 		private randomService: RandomService,
 		center, centerOffset, angle, length, config: StreetGenerationConfig
@@ -34,20 +74,11 @@ export class Road {
 		this.endPoint = this.endPointPosition();
 	}
 
-	private startPointPosition(): Position {
-		const x = this.center.x + (this.centerOffset * -this.length * Math.cos(this.angle));
-		const y = this.center.y + (this.centerOffset * -this.length * Math.sin(this.angle));
-
-		return new Position(x, y);
-	}
-
-	private endPointPosition(): Position {
-		const x = this.center.x + ((1 - this.centerOffset) * this.length * Math.cos(this.angle));
-		const y = this.center.y + ((1 - this.centerOffset) * this.length * Math.sin(this.angle));
-
-		return new Position(x, y);
-	}
-
+	/**
+	 * Recursive method that generates branch roads until @param propagationSteps exceed
+	 * @param propagationSteps recursion depth
+	 * @param roads shared road list for recursion
+	 */
 	generateIntersecting(propagationSteps: number, roads: Road[] = []): Road[] {
 		let offset: number = this.randomService.random();
 		if (offset < 0.1) offset = 0;
@@ -80,15 +111,22 @@ export class Road {
 		}
 	}
 
-	private randomPointOnRoad(): Position {
-		const startPoint = this.startPointPosition();
+	/**
+	 * Get start road point
+	 */
+	private startPointPosition(): Position {
+		const x = this.center.x + (this.centerOffset * -this.length * Math.cos(this.angle));
+		const y = this.center.y + (this.centerOffset * -this.length * Math.sin(this.angle));
 
-		let offset = this.randomService.random();
-		if (offset < this.config.roadEdgeStickiness) offset = 0;
-		if (offset > 1 - this.config.roadEdgeStickiness) offset = 1;
+		return new Position(x, y);
+	}
 
-		let x = startPoint.x + (offset * this.length * Math.cos(this.angle));
-		let y = startPoint.y + (offset * this.length * Math.sin(this.angle));
+	/**
+	 * Get end road point
+	 */
+	private endPointPosition(): Position {
+		const x = this.center.x + ((1 - this.centerOffset) * this.length * Math.cos(this.angle));
+		const y = this.center.y + ((1 - this.centerOffset) * this.length * Math.sin(this.angle));
 
 		return new Position(x, y);
 	}
@@ -96,9 +134,10 @@ export class Road {
 	// TODO: refactor
 	/**
 	 * Works only for such config where `angularDeviation` is set to 0
-	 * @returns {Boolean}
+	 * @return true if road is too close to another parallel one
+	 * @throws Error when config is illegal for this operation
 	 */
-	isCloseToParallel(roads: Road[]): Boolean {
+	private isCloseToParallel(roads: Road[]): Boolean {
 		if (this.randomService.randomRange(this.config.angularDeviation) !== 0) throw new Error('illegal config');
 
 		const rangeX: Range = new Range(this.startPointPosition().x, this.endPointPosition().x);
@@ -133,10 +172,36 @@ export class Road {
 		return false;
 	}
 
+	/**
+	 * Get random point on road
+	 */
+	private randomPointOnRoad(): Position {
+		const startPoint = this.startPointPosition();
+
+		let offset = this.randomService.random();
+		if (offset < this.config.roadEdgeStickiness) offset = 0;
+		if (offset > 1 - this.config.roadEdgeStickiness) offset = 1;
+
+		let x = startPoint.x + (offset * this.length * Math.cos(this.angle));
+		let y = startPoint.y + (offset * this.length * Math.sin(this.angle));
+
+		return new Position(x, y);
+	}
+
+	/**
+	 * Whether roads are parallel
+	 * @param r1
+	 * @param r2
+	 */
 	private static isParallel(r1: Road, r2: Road): Boolean {
 		return (r1.angle % Math.PI === r2.angle % Math.PI)
 	}
 
+	/**
+	 * Whether roads are horizontal
+	 * @param r road
+	 * @return true if horizontal, else if vertical
+	 */
 	private static isHorizontal(r: Road): Boolean {
 		return r.startPointPosition().y === r.endPointPosition().y
 	}

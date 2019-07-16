@@ -17,17 +17,29 @@ import {HumidityMapConfig} from "../config/HumidityMapConfig";
 import {TemperatureMapConfig} from "../config/TemperatureMapConfig";
 import {Maybe} from "../../../common/model/Maybe";
 
+/**
+ * Terrain generation service. Responsible for terrain generation
+ */
 @Injectable({
 	providedIn: 'root'
 })
 export class TerrainGenerationService {
 
+	/**
+	 * Constructs service
+	 * @param noiseService
+	 * @param fractionService
+	 */
 	constructor(
 		private noiseService: NoiseService,
 		private fractionService: FractionService
 	) {
 	}
 
+	/**
+	 * Generates tiled terrain by specified config
+	 * @param config terrain generation config
+	 */
 	generate(config: TerrainGenerationConfig): TiledTerrain {
 		const tiledTerrain = new TiledTerrain();
 		tiledTerrain.tilemap = new Matrix<TerrainTile>(config.mapSize);
@@ -43,6 +55,11 @@ export class TerrainGenerationService {
 		return tiledTerrain;
 	}
 
+	/**
+	 * Generates tile
+	 * @param config
+	 * @param position
+	 */
 	private generateTile(config: TerrainGenerationConfig, position: Position): TerrainTile {
 		let terrainTile = new TerrainTile();
 
@@ -54,11 +71,15 @@ export class TerrainGenerationService {
 		}
 		terrainTile.isSnow = this.tileIsSnow(config.temperatureMapConfig, position);
 
-		// TODO: complete
 
 		return terrainTile;
 	}
 
+	/**
+	 * Generates surface
+	 * @param config
+	 * @param position
+	 */
 	private tileSurface(config: AltitudeMapConfig, position: Position): Surface {
 		const pattern = this.fractionService.in(
 			this.fractionService.calculateRanges([
@@ -76,6 +97,11 @@ export class TerrainGenerationService {
 		);
 	}
 
+	/**
+	 * Generates biome
+	 * @param config
+	 * @param position
+	 */
 	private tileBiome(config: HumidityMapConfig, position: Position): Biome {
 		const pattern = this.fractionService.in(
 			this.fractionService.calculateRanges([
@@ -93,6 +119,11 @@ export class TerrainGenerationService {
 		);
 	}
 
+	/**
+	 * Generates is tile is in snow
+	 * @param config
+	 * @param position
+	 */
 	private tileIsSnow(config: TemperatureMapConfig, position: Position): Boolean {
 		const pattern = this.fractionService.in(
 			this.fractionService.calculateRanges([

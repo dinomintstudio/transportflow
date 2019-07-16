@@ -18,6 +18,9 @@ export class RandomService {
 	 */
 	private generator = seedrandom();
 
+	/**
+	 * Construct service
+	 */
 	constructor() {
 		this.seed = new ObservableData();
 	}

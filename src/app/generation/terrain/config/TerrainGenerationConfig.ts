@@ -38,7 +38,15 @@ export class TerrainGenerationConfig {
 	 */
 	humidityMapConfig: HumidityMapConfig;
 
-
+	/**
+	 * Constructs config
+	 * @param mapSize
+	 * @param cityPerTile
+	 * @param plantPerTile
+	 * @param altitudeMapConfig
+	 * @param temperatureMapConfig
+	 * @param humidityMapConfig
+	 */
 	constructor(mapSize: Shape, cityPerTile: number, plantPerTile: number, altitudeMapConfig: AltitudeMapConfig, temperatureMapConfig: TemperatureMapConfig, humidityMapConfig: HumidityMapConfig) {
 		this.mapSize = mapSize;
 		this.cityPerTile = cityPerTile;

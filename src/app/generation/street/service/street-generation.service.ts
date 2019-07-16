@@ -4,17 +4,27 @@ import {Road} from "../Road";
 import {RandomService} from "../../../random/service/random.service";
 import {Range} from "../../../common/model/Range";
 
-// TODO: docs
+/**
+ * Responsible for city street generation
+ */
 @Injectable({
 	providedIn: 'root'
 })
 export class StreetGenerationService {
 
+	/**
+	 * Constructs service
+	 */
 	constructor(
 		private randomService: RandomService,
 	) {
 	}
 
+	/**
+	 * Generate one city's streets
+	 * @param config generation config
+	 * @return list of generated roads
+	 */
 	generate(config: StreetGenerationConfig): Road[] {
 		const mainRoad: Road = new Road(
 			this.randomService,

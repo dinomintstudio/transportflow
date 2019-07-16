@@ -45,6 +45,17 @@ export class StreetGenerationConfig {
 	 */
 	totalRoadCount: Range;
 
+	/**
+	 * Constructs config
+	 * @param roadLength
+	 * @param propagationSteps
+	 * @param distanceBetweenParallelRoads
+	 * @param angularDeviation
+	 * @param mainRoadHorizontal
+	 * @param mainRoadCenterPosition
+	 * @param roadEdgeStickiness
+	 * @param totalRoadCount
+	 */
 	constructor(roadLength: Range, propagationSteps: Range, distanceBetweenParallelRoads: number, angularDeviation: Range, mainRoadHorizontal: Boolean = true, mainRoadCenterPosition: Position = new Position(0, 0), roadEdgeStickiness: number = 0, totalRoadCount: Range = null) {
 		this.roadLength = roadLength;
 		this.propagationSteps = propagationSteps;

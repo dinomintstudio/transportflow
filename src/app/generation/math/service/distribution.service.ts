@@ -7,18 +7,30 @@ import _ from 'lodash'
 import {Position} from "../../../common/model/Position";
 import {Range} from "../../../common/model/Range";
 
+/**
+ * Responsible for equal distribution of points within specified rectangle
+ */
 @Injectable({
 	providedIn: 'root'
 })
 export class DistributionService {
 
+	/**
+	 * Constructs service
+	 */
 	constructor(
 		private randomService: RandomService
 	) {
 	}
 
+	/**
+	 * Equally distribute points within specified rectangle
+	 * @param rectangle rectangle
+	 * @param density distribution density (points per grid cell, where grid is
+	 * `rectangle.shape.width x rectangle.shape.height`)
+	 */
 	distribute(rectangle: Rectangle, density: number): Position[] {
-		const gridShape = this.estimateGridShape(rectangle, density);
+		const gridShape = this.gridShape(rectangle, density);
 		const sizeLength = rectangle.shape.width / gridShape.width;
 
 		const points: Position[] = [];
@@ -39,7 +51,13 @@ export class DistributionService {
 		return points;
 	}
 
-	estimateGridShape(rectangle: Rectangle, density: number): Shape {
+	/**
+	 * Calculate grid shape of specified rectangle with point distribution density
+	 * @param rectangle rectangle
+	 * @param density distribution density
+	 * @return `(m, n), m = n = round(sqrt(rectangle.area * density))`
+	 */
+	gridShape(rectangle: Rectangle, density: number): Shape {
 		const n = rectangle.area() * density;
 
 		const squareGridSize = Math.round(Math.sqrt(n));
