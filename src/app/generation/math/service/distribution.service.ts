@@ -1,5 +1,4 @@
 import {Injectable} from '@angular/core';
-import {Rectangle} from "../../../common/model/Rectangle";
 import {Shape} from "../../../common/model/Shape";
 import {RandomService} from "../../../random/service/random.service";
 
@@ -25,13 +24,13 @@ export class DistributionService {
 
 	/**
 	 * Equally distribute points within specified rectangle
-	 * @param rectangle rectangle
+	 * @param shape shape
 	 * @param density distribution density (points per grid cell, where grid is
 	 * `rectangle.shape.width x rectangle.shape.height`)
 	 */
-	distribute(rectangle: Rectangle, density: number): Position[] {
-		const gridShape = this.gridShape(rectangle, density);
-		const sizeLength = rectangle.shape.width / gridShape.width;
+	distribute(shape: Shape, density: number): Position[] {
+		const gridShape = this.gridShape(shape, density);
+		const sizeLength = shape.width / gridShape.width;
 
 		const points: Position[] = [];
 
@@ -39,10 +38,10 @@ export class DistributionService {
 			_.range(gridShape.height).forEach(i => {
 				points.push(
 					new Position(
-						j * sizeLength +
-						this.randomService.randomRangeInteger(new Range(0, sizeLength)),
-						i * sizeLength +
-						this.randomService.randomRangeInteger(new Range(0, sizeLength)),
+						Math.floor(j * sizeLength +
+							this.randomService.randomRange(new Range(0, sizeLength))),
+						Math.floor(i * sizeLength +
+							this.randomService.randomRange(new Range(0, sizeLength))),
 					)
 				)
 			});
@@ -53,12 +52,12 @@ export class DistributionService {
 
 	/**
 	 * Calculate grid shape of specified rectangle with point distribution density
-	 * @param rectangle rectangle
+	 * @param shape initial shape
 	 * @param density distribution density
 	 * @return `(m, n), m = n = round(sqrt(rectangle.area * density))`
 	 */
-	gridShape(rectangle: Rectangle, density: number): Shape {
-		const n = rectangle.area() * density;
+	gridShape(shape: Shape, density: number): Shape {
+		const n = shape.area() * density;
 
 		const squareGridSize = Math.round(Math.sqrt(n));
 		return new Shape(squareGridSize, squareGridSize);
