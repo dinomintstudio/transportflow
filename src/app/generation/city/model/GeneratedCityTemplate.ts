@@ -1,5 +1,5 @@
 import {Building} from "../../../game-logic/model/Building";
-import {Road} from "../../street/Road";
+import {Road} from "../../street/model/Road";
 
 /**
  * Output of the city generator. City in it does not applied to terrain underneath (There is no terrain where it will be

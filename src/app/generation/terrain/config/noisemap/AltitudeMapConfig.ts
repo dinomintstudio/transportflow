@@ -1,4 +1,4 @@
-import {NoiseConfig} from "../../../math/config/NoiseConfig";
+import {NoiseConfig} from "../../../../math/config/NoiseConfig";
 
 /**
  * Options for altitude noise map generation

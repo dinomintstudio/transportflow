@@ -1,8 +1,8 @@
-import {StreetGenerationConfig} from "./config/StreetGenerationConfig";
-import {Position} from "../../common/model/Position";
-import {Range} from "../../common/model/Range";
+import {StreetGenerationConfig} from "../config/StreetGenerationConfig";
+import {Position} from "../../../common/model/Position";
+import {Range} from "../../../common/model/Range";
 import {Injectable} from "@angular/core";
-import {RandomService} from "../../random/service/random.service";
+import {RandomService} from "../../../random/service/random.service";
 
 /**
  * Generated road instance. Output of city street generator

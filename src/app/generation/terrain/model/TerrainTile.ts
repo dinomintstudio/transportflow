@@ -13,9 +13,9 @@ export class TerrainTile {
 	surface: Surface;
 
 	/**
-	 * Biome of tile. Will be present only if surface type is `land`
+	 * Biome of tile
 	 */
-	biome: Maybe<Biome>;
+	biome: Biome;
 
 	/**
 	 * Is tile covered in snow

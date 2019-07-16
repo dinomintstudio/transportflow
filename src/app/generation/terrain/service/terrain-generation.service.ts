@@ -6,18 +6,17 @@ import {Matrix} from "../../../common/model/Matrix";
 
 import _ from 'lodash'
 import {Position} from "../../../common/model/Position";
-import {NoiseService} from "../../math/service/noise.service";
-import {FractionService} from "../../math/service/fraction.service";
+import {NoiseService} from "../../../math/service/noise.service";
+import {FractionService} from "../../../math/service/fraction.service";
 import {Surface} from "../../../game-logic/model/Surface";
 import {AltitudeMapConfig} from "../config/noisemap/AltitudeMapConfig";
 
 import {matches} from 'z';
 import {Biome} from "../../../game-logic/model/Biome";
 import {TemperatureMapConfig} from "../config/noisemap/TemperatureMapConfig";
-import {Maybe} from "../../../common/model/Maybe";
 import {RandomService} from "../../../random/service/random.service";
 import {BiomeConfig} from "../config/biome/BiomeConfig";
-import {DistributionService} from "../../math/service/distribution.service";
+import {DistributionService} from "../../../math/service/distribution.service";
 
 /**
  * Terrain generation service. Responsible for terrain generation
@@ -75,11 +74,7 @@ export class TerrainGenerationService {
 		let terrainTile = new TerrainTile();
 
 		terrainTile.surface = this.tileSurface(config.altitudeMapConfig, position);
-		if (terrainTile.surface.type === 'land') {
-			terrainTile.biome = new Maybe<Biome>(this.tileBiome(config, position));
-		} else {
-			terrainTile.biome = new Maybe<Biome>();
-		}
+		terrainTile.biome = this.tileBiome(config, position);
 		terrainTile.isSnow = this.tileIsSnow(config.temperatureMapConfig, position);
 		terrainTile.isPlant = this.tileIsPlant(config, terrainTile.biome);
 		terrainTile.isCity = this.tileIsCity(position, cityPoints);
@@ -156,9 +151,8 @@ export class TerrainGenerationService {
 	 * @param config
 	 * @param biome
 	 */
-	private tileIsPlant(config: TerrainGenerationConfig, biome: Maybe<Biome>): Boolean {
-		if (!biome.isPresent()) return false;
-		let biomeConfig: BiomeConfig = matches(biome.get().type)(
+	private tileIsPlant(config: TerrainGenerationConfig, biome: Biome): Boolean {
+		let biomeConfig: BiomeConfig = matches(biome.type)(
 			(x = 'desert') => config.biomesConfig.desertBiomeConfig,
 			(x = 'taiga') => config.biomesConfig.taigaBiomeConfig,
 			(x = 'jungle') => config.biomesConfig.jungleBiomeConfig
