@@ -59,4 +59,12 @@ export class RandomService {
 		return Math.floor(this.randomRange(range));
 	}
 
+	/**
+	 * Return `true` with specified probability
+	 * @param probability chance of getting true. Between `[0, 1]`
+	 */
+	withProbability(probability: number): Boolean {
+		return this.random() < probability;
+	}
+
 }

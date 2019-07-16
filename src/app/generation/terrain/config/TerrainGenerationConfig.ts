@@ -1,7 +1,8 @@
 import {Shape} from "../../../common/model/Shape";
-import {TemperatureMapConfig} from "./TemperatureMapConfig";
-import {AltitudeMapConfig} from "./AltitudeMapConfig";
-import {HumidityMapConfig} from "./HumidityMapConfig";
+import {TemperatureMapConfig} from "./noisemap/TemperatureMapConfig";
+import {AltitudeMapConfig} from "./noisemap/AltitudeMapConfig";
+import {HumidityMapConfig} from "./noisemap/HumidityMapConfig";
+import {BiomesConfig} from "./biome/BiomesConfig";
 
 /**
  * Configuration of terrain generation
@@ -39,6 +40,11 @@ export class TerrainGenerationConfig {
 	humidityMapConfig: HumidityMapConfig;
 
 	/**
+	 * Biomes configuration
+	 */
+	biomesConfig: BiomesConfig;
+
+	/**
 	 * Constructs config
 	 * @param mapSize
 	 * @param cityPerTile
@@ -46,13 +52,15 @@ export class TerrainGenerationConfig {
 	 * @param altitudeMapConfig
 	 * @param temperatureMapConfig
 	 * @param humidityMapConfig
+	 * @param biomesConfig
 	 */
-	constructor(mapSize: Shape, cityPerTile: number, plantPerTile: number, altitudeMapConfig: AltitudeMapConfig, temperatureMapConfig: TemperatureMapConfig, humidityMapConfig: HumidityMapConfig) {
+	constructor(mapSize: Shape, cityPerTile: number, plantPerTile: number, altitudeMapConfig: AltitudeMapConfig, temperatureMapConfig: TemperatureMapConfig, humidityMapConfig: HumidityMapConfig, biomesConfig: BiomesConfig) {
 		this.mapSize = mapSize;
 		this.cityPerTile = cityPerTile;
 		this.plantPerTile = plantPerTile;
 		this.altitudeMapConfig = altitudeMapConfig;
 		this.temperatureMapConfig = temperatureMapConfig;
 		this.humidityMapConfig = humidityMapConfig;
+		this.biomesConfig = biomesConfig;
 	}
 }

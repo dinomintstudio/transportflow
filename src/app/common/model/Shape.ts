@@ -14,6 +14,13 @@ export class Shape {
 	height: number;
 
 	/**
+	 * Calculates shape area
+	 */
+	area(): number {
+		return this.width * this.height;
+	}
+
+	/**
 	 * Construct new Shape instance
 	 * @param width object width
 	 * @param height object height
