@@ -6,42 +6,48 @@ import {Range} from "../../../common/model/Range";
  */
 export class StreetGenerationConfig {
 	/**
-	 * length of the branch road
+	 * Length of the branch road
 	 */
 	roadLength: Range;
 
 	/**
-	 * describes how deep generator create branches
+	 * Describes how deep generator create branches
 	 */
 	propagationSteps: Range;
 
 	/**
-	 * distance between parallel roads if they are adjacent
+	 * Distance between parallel roads if they are adjacent
 	 */
 	distanceBetweenParallelRoads: number;
 
 	/**
-	 * describes on what amount of radians branch road can be rotated from perpendicular
+	 * Describes the amount of roads to be branches to current road. Must satisfy
+	 * `branchRoadsCount < roadLength.from / distanceBetweenParallelRoads`
+	 */
+	branchRoadsCount: Range;
+
+	/**
+	 * Describes on what amount of radians branch road can be rotated from perpendicular
 	 */
 	angularDeviation: Range;
 
 	/**
-	 * if true the main road will have angle 0, otherwise random from 0 to 2PI
+	 * If true the main road will have angle 0, otherwise random from 0 to 2PI
 	 */
 	mainRoadHorizontal: Boolean;
 
 	/**
-	 * center of the main road relative to canvas
+	 * Center of the main road relative to canvas
 	 */
 	mainRoadCenterPosition: Position;
 
 	/**
-	 * value between 0 and 0.5 specifying how close branch road end should be to 'stick' with edge
+	 * Value between 0 and 0.5 specifying how close branch road end should be to 'stick' with edge
 	 */
 	roadEdgeStickiness: number;
 
 	/**
-	 * amount of roads in total
+	 * Amount of roads in total
 	 */
 	totalRoadCount: Range;
 
@@ -51,16 +57,18 @@ export class StreetGenerationConfig {
 	 * @param propagationSteps
 	 * @param distanceBetweenParallelRoads
 	 * @param angularDeviation
+	 * @param branchRoadsCount
 	 * @param mainRoadHorizontal
 	 * @param mainRoadCenterPosition
 	 * @param roadEdgeStickiness
 	 * @param totalRoadCount
 	 */
-	constructor(roadLength: Range, propagationSteps: Range, distanceBetweenParallelRoads: number, angularDeviation: Range, mainRoadHorizontal: Boolean = true, mainRoadCenterPosition: Position = new Position(0, 0), roadEdgeStickiness: number = 0, totalRoadCount: Range = null) {
+	constructor(roadLength: Range, propagationSteps: Range, distanceBetweenParallelRoads: number, branchRoadsCount: Range, angularDeviation: Range = new Range(0, 0), mainRoadHorizontal: Boolean = true, mainRoadCenterPosition: Position = new Position(0, 0), roadEdgeStickiness: number = 0, totalRoadCount: Range = null) {
 		this.roadLength = roadLength;
 		this.propagationSteps = propagationSteps;
 		this.distanceBetweenParallelRoads = distanceBetweenParallelRoads;
 		this.angularDeviation = angularDeviation;
+		this.branchRoadsCount = branchRoadsCount;
 		this.mainRoadHorizontal = mainRoadHorizontal;
 		this.mainRoadCenterPosition = mainRoadCenterPosition;
 		this.roadEdgeStickiness = roadEdgeStickiness;

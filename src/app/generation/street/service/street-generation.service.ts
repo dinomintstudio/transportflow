@@ -30,9 +30,10 @@ export class StreetGenerationService {
 	/**
 	 * Generate one city's streets
 	 * @param config generation config
+	 * @param center
 	 * @return list of generated roads
 	 */
-	generate(config: StreetGenerationConfig): Road[] {
+	generate(config: StreetGenerationConfig, center: Position = config.mainRoadCenterPosition): Road[] {
 		const mainRoad: Road = new Road(
 			this.randomService,
 			config.mainRoadCenterPosition,
@@ -43,10 +44,13 @@ export class StreetGenerationService {
 			this.randomService.randomRange(config.roadLength),
 			config
 		);
-		const roads = mainRoad.generateIntersecting(
-			this.randomService.randomRange(config.propagationSteps),
-			[]
+		let roads = mainRoad.generateBranchRoads(
+			this.randomService.randomRangeInteger(config.propagationSteps)
 		);
+
+		if (config.distanceBetweenParallelRoads !== 1) {
+			roads = this.filterCloseRoads(roads, config.distanceBetweenParallelRoads);
+		}
 
 		if (!config.totalRoadCount || config.totalRoadCount.in(roads.length)) {
 			return roads;
@@ -69,17 +73,8 @@ export class StreetGenerationService {
 			false
 		);
 
-		console.log('tm', tilemap.shape);
-
 		roadRectangles
 			.forEach(rect => {
-				console.log('to pos:', rect.topLeft.add(new Position(
-					-tilemapRectangle.topLeft.x,
-					-tilemapRectangle.topLeft.y
-				)));
-
-				console.log('with shape', rect.shape);
-
 				return tilemap.insert(
 					rect.topLeft.add(new Position(
 						-tilemapRectangle.topLeft.x,
@@ -97,6 +92,49 @@ export class StreetGenerationService {
 			});
 
 		return tilemap;
+	}
+
+	private filterCloseRoads(roads: Road[], minimumDistance: number): Road[] {
+		const horizontal = roads
+			.filter(r => r.angle % Math.PI === 0);
+		const vertical = roads
+			.filter(r => r.angle % Math.PI === Math.PI / 2);
+
+		return this.filterHorizontalCloseRoads(horizontal, minimumDistance).concat(this.filterVerticalCloseRoads(vertical, minimumDistance));
+	}
+
+	private filterHorizontalCloseRoads(roads: Road[], minimumDistance: number): Road[] {
+		const result: Road[] = [];
+
+		roads
+			.sort((r1, r2) => r1.startPoint.y - r2.startPoint.y)
+			.forEach((r, i) => {
+				if (i === 0) result.push(r);
+
+				const prev = result[result.length - 1];
+				if (r.startPoint.y - prev.startPoint.y >= minimumDistance) {
+					result.push(r);
+				}
+			});
+
+		return result;
+	}
+
+	private filterVerticalCloseRoads(roads: Road[], minimumDistance: number): Road[] {
+		const result: Road[] = [];
+
+		roads
+			.sort((r1, r2) => r1.startPoint.x - r2.startPoint.x)
+			.forEach((r, i) => {
+				if (i === 0) result.push(r);
+
+				const prev = result[result.length - 1];
+				if (r.startPoint.x - prev.startPoint.x >= minimumDistance) {
+					result.push(r);
+				}
+			});
+
+		return result;
 	}
 
 	private roadToRectangle(road: TiledRoad): Rectangle {

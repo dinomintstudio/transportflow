@@ -4,6 +4,8 @@ import {Range} from "../../../common/model/Range";
 import {Injectable} from "@angular/core";
 import {RandomService} from "../../../random/service/random.service";
 
+import _ from 'lodash'
+
 /**
  * Generated road instance. Output of city street generator
  */
@@ -74,41 +76,34 @@ export class Road {
 		this.endPoint = this.endPointPosition();
 	}
 
-	/**
-	 * Recursive method that generates branch roads until @param propagationSteps exceed
-	 * @param propagationSteps recursion depth
-	 * @param roads shared road list for recursion
-	 */
-	generateIntersecting(propagationSteps: number, roads: Road[] = []): Road[] {
+	generateBranchRoads(propagationSteps: number): Road[] {
+		if (propagationSteps <= 0) return [this];
+
 		let offset: number = this.randomService.random();
-		if (offset < 0.1) offset = 0;
-		if (offset > 0.9) offset = 1;
+		if (offset < this.config.roadEdgeStickiness) offset = 0;
+		if (offset > 1 - this.config.roadEdgeStickiness) offset = 1;
 
-		let road: Road = new Road(
-			this.randomService,
-			this.randomPointOnRoad(),
-			offset,
-			this.randomService.randomRange(
-				new Range(
-					this.angle + Math.PI / 2 - this.randomService.randomRange(this.config.angularDeviation),
-					this.angle + Math.PI / 2 + this.randomService.randomRange(this.config.angularDeviation)
-				)
-			),
-			this.randomService.randomRange(this.config.roadLength),
-			this.config
-		);
-
-		if (road.isCloseToParallel(roads)) {
-			road = null;
-		} else {
-			roads.push(road);
-		}
-
-		if (road && propagationSteps > 0) {
-			return road.generateIntersecting(propagationSteps - 1, roads);
-		} else {
-			return roads;
-		}
+		return this.randomBranchRoadCenterPositions(
+			this.randomService.randomRangeInteger(this.config.branchRoadsCount)
+		)
+			.map(cp => {
+					return new Road(
+						this.randomService,
+						cp,
+						offset,
+						this.randomService.randomRange(
+							new Range(
+								this.angle + Math.PI / 2 - this.randomService.randomRange(this.config.angularDeviation),
+								this.angle + Math.PI / 2 + this.randomService.randomRange(this.config.angularDeviation)
+							)
+						),
+						this.randomService.randomRange(this.config.roadLength),
+						this.config
+					).generateBranchRoads(propagationSteps - 1);
+				}
+			)
+			.flatMap(rs => rs)
+			.concat([this]);
 	}
 
 	/**
@@ -131,56 +126,40 @@ export class Road {
 		return new Position(x, y);
 	}
 
-	// TODO: refactor
-	/**
-	 * Works only for such config where `angularDeviation` is set to 0
-	 * @return true if road is too close to another parallel one
-	 * @throws Error when config is illegal for this operation
-	 */
-	private isCloseToParallel(roads: Road[]): Boolean {
-		if (this.randomService.randomRange(this.config.angularDeviation) !== 0) throw new Error('illegal config');
+	private randomBranchRoadCenterPositions(numberOfBranches: number): Position[] {
+		return this.generateRoadPieceRanges(numberOfBranches)
+			.map(r => this.randomPointOnRoadPiece(r));
+	}
 
-		const rangeX: Range = new Range(this.startPointPosition().x, this.endPointPosition().x);
-		const rangeY: Range = new Range(this.startPointPosition().y, this.endPointPosition().y);
+	private generateRoadPieceRanges(numberOfBranches: number): Range[] {
+		if (numberOfBranches >= this.length / this.config.distanceBetweenParallelRoads)
+			throw Error('invalid config. the amount of roads to be branches must satisfy: branchRoadsCount < roadLength.from / distanceBetweenParallelRoads');
 
-		for (let r of roads) {
-			if (Road.isParallel(r, this)) {
-				if (Road.isHorizontal(r)) {
-					const range = new Range(r.startPointPosition().x, r.endPointPosition().x);
-					// if adjacent
-					if (range.in(this.startPointPosition().x) || range.in(this.endPointPosition().x) ||
-						rangeX.in(r.startPointPosition().x) || rangeX.in(r.endPointPosition().x)) {
-						// if too close to each other
-						if (Math.abs(r.startPointPosition().y - this.startPointPosition().y) < this.config.distanceBetweenParallelRoads) {
-							return true;
-						}
-					}
-				} else {
-					const range = new Range(r.startPointPosition().y, r.endPointPosition().y);
-					// if adjacent
-					if (range.in(this.startPointPosition().y) || range.in(this.endPointPosition().y) ||
-						rangeY.in(r.startPointPosition().y) || rangeX.in(r.endPointPosition().y)) {
-						// if too close to each other
-						if (Math.abs(r.startPointPosition().x - this.startPointPosition().x) < this.config.distanceBetweenParallelRoads) {
-							return true;
-						}
-					}
+		const diff: number = this.length / numberOfBranches;
+		const gap = this.config.distanceBetweenParallelRoads / 2;
+
+		return _.range(numberOfBranches)
+			.map((i, _, a) => {
+				if (i === 0) {
+					return new Range(0, ((i + 1) * diff - gap) / this.length);
 				}
-			}
-		}
-
-		return false;
+				if (i === numberOfBranches - 1) {
+					return new Range((i * diff + gap) / this.length, 1);
+				}
+				return new Range((i * diff + gap) / this.length, ((i + 1) * diff - gap) / this.length);
+			});
 	}
 
 	/**
-	 * Get random point on road
+	 * Get random point on road piece
 	 */
-	private randomPointOnRoad(): Position {
+	private randomPointOnRoadPiece(piece: Range): Position {
 		const startPoint = this.startPointPosition();
 
-		let offset = this.randomService.random();
-		if (offset < this.config.roadEdgeStickiness) offset = 0;
-		if (offset > 1 - this.config.roadEdgeStickiness) offset = 1;
+		let offset = piece.map(this.randomService.random());
+
+		if (piece.to < this.config.roadEdgeStickiness && offset < this.config.roadEdgeStickiness) offset = 0;
+		if (piece.from > this.config.roadEdgeStickiness && offset > 1 - this.config.roadEdgeStickiness) offset = 1;
 
 		let x = startPoint.x + (offset * this.length * Math.cos(this.angle));
 		let y = startPoint.y + (offset * this.length * Math.sin(this.angle));
@@ -188,21 +167,4 @@ export class Road {
 		return new Position(x, y);
 	}
 
-	/**
-	 * Whether roads are parallel
-	 * @param r1
-	 * @param r2
-	 */
-	private static isParallel(r1: Road, r2: Road): Boolean {
-		return (r1.angle % Math.PI === r2.angle % Math.PI)
-	}
-
-	/**
-	 * Whether roads are horizontal
-	 * @param r road
-	 * @return true if horizontal, else if vertical
-	 */
-	private static isHorizontal(r: Road): Boolean {
-		return r.startPointPosition().y === r.endPointPosition().y
-	}
 }
