@@ -32,12 +32,28 @@ export class Range {
 	}
 
 	/**
+	 * Delta value (distance) of range
+	 */
+	delta(): number {
+		return this.to - this.from;
+	}
+
+	/**
 	 * Map certain value [0, 1] to range
 	 * @param value value
-	 * @param range range
 	 */
-	static map(value: number, range: Range): number {
-		return value * (range.to - range.from) + range.from;
+	map(value: number): number {
+		return value * (this.to - this.from) + this.from;
+	}
+
+	/**
+	 * Weather two ranges have common values
+	 * @param r1 range
+	 * @param r2 range
+	 */
+	static areIntersect(r1: Range, r2: Range): Boolean {
+		return r2.in(r1.from) || r2.in(r1.to) ||
+			r1.in(r2.from) || r1.in(r2.to);
 	}
 
 }
