@@ -3,7 +3,6 @@ import {RandomService} from "../../random/service/random.service";
 import {NoiseConfig} from "../config/NoiseConfig";
 import {Position} from "../../common/model/Position";
 import * as SimplexNoise from "simplex-noise";
-import {Range} from "../../common/model/Range";
 
 /**
  * Responsible for generating simplex noise
@@ -43,7 +42,7 @@ export class NoiseService {
 		// mapping it to range [0, 1]
 		noiseValue = (noiseValue + 1) / 2;
 
-		return Range.map(noiseValue, config.range);
+		return config.range.map(noiseValue);
 	}
 
 }
