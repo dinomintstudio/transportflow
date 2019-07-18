@@ -14,6 +14,8 @@ import {StreetGenerationConfig} from "./generation/street/config/StreetGeneratio
 import {Range} from "./common/model/Range";
 import {Road} from "./generation/street/model/Road";
 import {RandomService} from "./random/service/random.service";
+import {CityGenerationConfig} from "./generation/city/config/CityGenerationConfig";
+import {CityGenerationService} from "./generation/city/service/city-generation.service";
 
 @Component({
 	selector: 'app-root',
@@ -27,7 +29,8 @@ export class AppComponent {
 		private terrainGenerationService: TerrainGenerationService,
 		private streetGenerationService: StreetGenerationService,
 		private log: LoggingService,
-		private randomService: RandomService
+		private randomService: RandomService,
+		private cityGenerationService: CityGenerationService
 	) {
 		let tiledTerrain = this.terrainGenerationService.generate(
 			new TerrainGenerationConfig(
@@ -69,7 +72,15 @@ export class AppComponent {
 
 		let roads: Road[] = this.streetGenerationService.generate(config);
 		let tilemap = this.streetGenerationService.toTilemap(roads);
-		console.table(tilemap.map(v => v ? 'ROAD' : '').value)
+		console.table(tilemap.map(v => v ? 'ROAD' : '').value);
+
+		this.cityGenerationService.generate(
+			new CityGenerationConfig(
+				2,
+				0.5,
+				config
+			)
+		)
 	}
 
 }
