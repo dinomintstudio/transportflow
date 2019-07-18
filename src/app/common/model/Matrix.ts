@@ -90,12 +90,12 @@ export class Matrix<T> {
 	of(rectangle: Rectangle, outFill: T = null): Matrix<T> {
 		const result = new Matrix<T>(rectangle.shape);
 
-		for (let i = rectangle.topLeft.y; i <= rectangle.bottomRight.y; i++) {
-			for (let j = rectangle.topLeft.x; j <= rectangle.bottomRight.x; j++) {
+		for (let i = rectangle.topLeft.y; i < rectangle.bottomRight.y; i++) {
+			for (let j = rectangle.topLeft.x; j < rectangle.bottomRight.x; j++) {
 				if (this.value[i] && this.value[i][j]) {
-					result[i][j] = this.value[i][j];
+					result.value[i - rectangle.topLeft.y][j - rectangle.topLeft.x] = this.value[i][j];
 				} else {
-					result[i][j] = outFill;
+					result.value[i - rectangle.topLeft.y][j - rectangle.topLeft.x] = outFill;
 				}
 			}
 		}
@@ -114,6 +114,14 @@ export class Matrix<T> {
 			this.value
 				.map(row => row.map(e => func(e)))
 		);
+	}
+
+	forEach(func: (e: T, i: number, j: number) => void): void {
+		_.range(this.shape.height).forEach(i => {
+			_.range(this.shape.width).forEach(j => {
+				func(this.value[i][j], i, j);
+			})
+		});
 	}
 
 }

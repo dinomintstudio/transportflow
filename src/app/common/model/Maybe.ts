@@ -56,6 +56,14 @@ export class Maybe<T> {
 		return this.isPresent() ? new Maybe<D>(func(this.get())) : Maybe.empty();
 	}
 
+	filter(predicate: (T) => Boolean): Maybe<T> {
+		if (this.isPresent()) {
+			return this;
+		} else {
+			return predicate(this) ? this : Maybe.empty();
+		}
+	}
+
 	/**
 	 * If present returns value, otherwise returns elseValue
 	 * @param elseValue returned value if current is not present
