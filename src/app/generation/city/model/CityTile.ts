@@ -8,4 +8,8 @@ export class CityTile {
 	 */
 	type: 'building' | 'road';
 
+	constructor(type: "building" | "road") {
+		this.type = type;
+	}
+
 }
