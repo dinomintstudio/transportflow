@@ -1,4 +1,5 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {RenderService} from "../../visualization/service/render.service";
 
 @Component({
 	selector: 'app-canvas',
@@ -7,10 +8,18 @@ import {Component, OnInit} from '@angular/core';
 })
 export class CanvasComponent implements OnInit {
 
-	constructor() {
+	@ViewChild('canvasContainer', {static: true}) container: ElementRef;
+
+	constructor(
+		private renderService: RenderService
+	) {
 	}
 
 	ngOnInit() {
+		this.renderService.initializeCanvas(
+			<HTMLCanvasElement>document.getElementById('canvas'),
+			this.container.nativeElement
+		);
 	}
 
 }
