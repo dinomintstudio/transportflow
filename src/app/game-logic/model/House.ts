@@ -5,4 +5,8 @@ export class House implements Building {
 
 	position: Rectangle;
 
+	constructor(position: Rectangle) {
+		this.position = position;
+	}
+
 }
