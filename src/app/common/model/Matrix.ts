@@ -93,7 +93,7 @@ export class Matrix<T> {
 		for (let i = rectangle.topLeft.y; i < rectangle.bottomRight.y; i++) {
 			for (let j = rectangle.topLeft.x; j < rectangle.bottomRight.x; j++) {
 				if (this.value[i] && this.value[i][j]) {
-					result.value[i - rectangle.topLeft.y][j - rectangle.topLeft.x] = this.value[i][j];
+					result.value[i - rectangle.topLeft.y][j - rectangle.topLeft.x] = _.cloneDeep(<any>this.value[i][j]);
 				} else {
 					result.value[i - rectangle.topLeft.y][j - rectangle.topLeft.x] = outFill;
 				}
@@ -108,20 +108,40 @@ export class Matrix<T> {
 	 * @param func mapping function
 	 * @return mapped matrix
 	 */
-	map<D>(func: (t: T) => D): Matrix<D> {
+	map<D>(func: (t: T, position: Position) => D): Matrix<D> {
 		return new Matrix<D>(
 			this.shape,
 			this.value
-				.map(row => row.map(e => func(e)))
+				.map((row, i) => row.map((e, j) => func(e, new Position(j, i))))
 		);
 	}
 
-	forEach(func: (e: T, i: number, j: number) => void): void {
+	forEach(func: (e: T, position: Position) => void): void {
 		_.range(this.shape.height).forEach(i => {
 			_.range(this.shape.width).forEach(j => {
-				func(this.value[i][j], i, j);
+				func(this.value[i][j], new Position(j, i));
 			})
 		});
+	}
+
+	rotateClockwise(): Matrix<T> {
+		const result = new Matrix<T>(this.shape);
+
+		const n = this.value[0].length;
+
+		const center = new Position(Math.floor(n / 2), Math.floor(n / 2));
+		result.set(center, this.at(center));
+
+		_.range(n / 2).forEach(i => {
+			_.range(i, n - i - 1).forEach(j => {
+				result.value[i][j] = this.value[n - 1 - j][i];
+				result.value[n - 1 - j][i] = this.value[n - 1 - i][n - 1 - j];
+				result.value[n - 1 - i][n - 1 - j] = this.value[j][n - 1 - i];
+				result.value[j][n - 1 - i] = this.value[i][j];
+			})
+		});
+
+		return result;
 	}
 
 }
