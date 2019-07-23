@@ -1,4 +1,4 @@
-import {Injectable, OnInit} from '@angular/core';
+import {Injectable} from '@angular/core';
 import {CameraService} from "./camera.service";
 import {Camera} from "../model/Camera";
 import {Position} from "../../common/model/Position";
