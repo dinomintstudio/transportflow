@@ -17,4 +17,9 @@ export class GeneratedCityTemplate {
 	 */
 	buildings: Building[];
 
+	constructor(roads: Road[], buildings: Building[]) {
+		this.roads = roads;
+		this.buildings = buildings;
+	}
+
 }

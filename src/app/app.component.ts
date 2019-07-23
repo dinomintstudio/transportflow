@@ -66,22 +66,24 @@ export class AppComponent {
 		);
 
 		const config: StreetGenerationConfig = new StreetGenerationConfig(
-			new Range(6, 9),
-			new Range(3, 3),
+			new Range(1, 5),
+			new Range(1, 1),
 			2,
-			new Range(1, 3)
+			new Range(1, 2)
 		);
 
 		let roads: Road[] = this.streetGenerationService.generate(config);
 		let tilemap = this.streetGenerationService.toTilemap(roads);
 
-		this.cityGenerationService.generate(
+		let tiledCity = this.cityGenerationService.generate(
 			new CityGenerationConfig(
 				2,
 				0.5,
 				config
 			)
-		)
+		);
+
+		console.log(tiledCity.generatedCityTemplate.buildings);
 	}
 
 }
