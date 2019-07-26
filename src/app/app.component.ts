@@ -66,10 +66,10 @@ export class AppComponent {
 		);
 
 		const config: StreetGenerationConfig = new StreetGenerationConfig(
-			new Range(1, 5),
+			new Range(2, 3),
 			new Range(1, 1),
-			2,
-			new Range(1, 2)
+			1,
+			new Range(2, 3)
 		);
 
 		let roads: Road[] = this.streetGenerationService.generate(config);

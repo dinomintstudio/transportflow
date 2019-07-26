@@ -5,6 +5,8 @@ import {AppComponent} from './app.component';
 import {GuiComponent} from './web/gui/gui.component';
 import {MenuComponent} from './web/menu/menu.component';
 import {CanvasComponent} from './web/canvas/canvas.component';
+import {KeyService} from "./input/service/key.service";
+import {MouseService} from "./input/service/mouse.service";
 
 @NgModule({
 	declarations: [
@@ -16,7 +18,10 @@ import {CanvasComponent} from './web/canvas/canvas.component';
 	imports: [
 		BrowserModule
 	],
-	providers: [],
+	providers: [
+		KeyService,
+		MouseService
+	],
 	bootstrap: [AppComponent]
 })
 export class AppModule {
