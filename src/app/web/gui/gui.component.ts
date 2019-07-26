@@ -1,7 +1,6 @@
 import {Component, HostListener, OnInit} from '@angular/core';
 import {MouseService} from "../../input/service/mouse.service";
 import {KeyService} from "../../input/service/key.service";
-import {fromEvent, Observable, of} from "rxjs";
 
 @Component({
 	selector: 'app-gui',
