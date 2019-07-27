@@ -19,8 +19,6 @@ import {MouseService} from "./input/service/mouse.service";
 		BrowserModule
 	],
 	providers: [
-		KeyService,
-		MouseService
 	],
 	bootstrap: [AppComponent]
 })

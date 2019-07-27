@@ -24,9 +24,9 @@ export class Matrix<T> {
 	 * When both params `null` then empty matrix is constructed
 	 * @param shape matrix shape. When `null` then shape is automatically calculated from given @param value
 	 * @param value matrix internal value. When `null` then matrix automatically filled with nulls by given @param shape
-	 * @param outFill default value for matrix initialization, if @param value was not set
+	 * @param fill default value for matrix initialization, if @param value was not set
 	 */
-	constructor(shape: Shape = null, value: T[][] = null, outFill: T = null) {
+	constructor(shape: Shape = null, value: T[][] = null, fill: T = null) {
 		this.shape = shape;
 		this.value = value;
 
@@ -38,7 +38,7 @@ export class Matrix<T> {
 		if (!value || value.length !== this.shape.height) {
 			this.value = new Array(this.shape.height).fill([]);
 			this.value.forEach((__, i) => {
-				this.value[i] = new Array(this.shape.width).fill(outFill);
+				this.value[i] = new Array(this.shape.width).fill(fill);
 			});
 		}
 

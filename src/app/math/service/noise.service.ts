@@ -23,6 +23,8 @@ export class NoiseService {
 	constructor(
 		private randomService: RandomService
 	) {
+		this.simplexNoise = new SimplexNoise();
+
 		this.randomService.seed.observable.subscribe(seed => {
 			this.simplexNoise = seed
 				? new SimplexNoise(seed)

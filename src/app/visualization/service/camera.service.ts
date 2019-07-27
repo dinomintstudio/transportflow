@@ -11,7 +11,7 @@ import {MouseService} from "../../input/service/mouse.service";
 })
 export class CameraService {
 
-	camera: ObservableData<Camera> = new ObservableData(new Camera(new Position(0, 0)));
+	camera: ObservableData<Camera> = new ObservableData();
 
 	constructor(
 		private keyService: KeyService,
@@ -30,7 +30,8 @@ export class CameraService {
 									0,
 									-1
 								)
-							)
+							),
+							camera.zoom
 						));
 					}
 					if (e.code === 'KeyS') {
@@ -40,7 +41,8 @@ export class CameraService {
 									0,
 									1
 								)
-							)
+							),
+							camera.zoom
 						));
 					}
 					if (e.code === 'KeyA') {
@@ -50,7 +52,8 @@ export class CameraService {
 									-1,
 									0
 								)
-							)
+							),
+							camera.zoom
 						));
 					}
 					if (e.code === 'KeyD') {
@@ -60,7 +63,8 @@ export class CameraService {
 									1,
 									0
 								)
-							)
+							),
+							camera.zoom
 						));
 					}
 				});

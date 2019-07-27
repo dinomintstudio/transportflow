@@ -16,4 +16,9 @@ export class WorldGenerationConfig {
 	 */
 	cityGenerationConfig: CityGenerationConfig;
 
+	constructor(terrainGenerationConfig: TerrainGenerationConfig, cityGenerationConfig: CityGenerationConfig) {
+		this.terrainGenerationConfig = terrainGenerationConfig;
+		this.cityGenerationConfig = cityGenerationConfig;
+	}
+
 }

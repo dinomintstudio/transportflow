@@ -9,9 +9,6 @@ import _ from 'lodash'
 /**
  * Generated road instance. Output of city street generator
  */
-@Injectable({
-	providedIn: 'root'
-})
 export class Road {
 
 	/**

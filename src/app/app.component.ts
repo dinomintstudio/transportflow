@@ -17,6 +17,8 @@ import {RandomService} from "./random/service/random.service";
 import {CityGenerationConfig} from "./generation/city/config/CityGenerationConfig";
 import {CityGenerationService} from "./generation/city/service/city-generation.service";
 import {RenderService} from "./visualization/service/render.service";
+import {WorldService} from "./game-logic/service/world.service";
+import {WorldGenerationConfig} from "./generation/world/config/WorldGenerationConfig";
 
 @Component({
 	selector: 'app-root',
@@ -32,37 +34,40 @@ export class AppComponent {
 		private log: LoggingService,
 		private randomService: RandomService,
 		private cityGenerationService: CityGenerationService,
-		private renderService: RenderService
+		private renderService: RenderService,
+		private worldService: WorldService
 	) {
+		const terrainGenerationConfig = new TerrainGenerationConfig(
+			new Shape(
+				100,
+				100
+			),
+			0.01,
+			0.25,
+			new AltitudeMapConfig(
+				new NoiseConfig(
+					0.03
+				),
+				1,
+				2,
+				1
+			),
+			new TemperatureMapConfig(
+				new NoiseConfig(),
+				1,
+				1
+			),
+			new HumidityMapConfig(
+				new NoiseConfig(),
+				1,
+				1,
+				1
+			),
+			new BiomesConfig()
+		);
+
 		let tiledTerrain = this.terrainGenerationService.generate(
-			new TerrainGenerationConfig(
-				new Shape(
-					10,
-					10
-				),
-				0.01,
-				0.25,
-				new AltitudeMapConfig(
-					new NoiseConfig(
-						0.05
-					),
-					1,
-					1,
-					1
-				),
-				new TemperatureMapConfig(
-					new NoiseConfig(),
-					1,
-					1
-				),
-				new HumidityMapConfig(
-					new NoiseConfig(),
-					1,
-					1,
-					1
-				),
-				new BiomesConfig()
-			)
+			terrainGenerationConfig
 		);
 
 		const config: StreetGenerationConfig = new StreetGenerationConfig(
@@ -75,15 +80,26 @@ export class AppComponent {
 		let roads: Road[] = this.streetGenerationService.generate(config);
 		let tilemap = this.streetGenerationService.toTilemap(roads);
 
+		const cityGenerationConfig = new CityGenerationConfig(
+			2,
+			0.5,
+			config
+		);
+
 		let tiledCity = this.cityGenerationService.generate(
-			new CityGenerationConfig(
-				2,
-				0.5,
-				config
-			)
+			cityGenerationConfig
 		);
 
 		console.log(tiledCity.generatedCityTemplate.buildings);
+
+		this.worldService.world.set(this.worldService.merge(
+			tiledTerrain,
+			tiledCity,
+			new WorldGenerationConfig(
+				terrainGenerationConfig,
+				cityGenerationConfig
+			)
+		))
 	}
 
 }

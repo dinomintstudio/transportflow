@@ -43,8 +43,6 @@ export class MouseService {
 		this.zoomIn = new ObservableData<void>();
 		this.zoomOut = new ObservableData<void>();
 		this.mouseWheel.observable.subscribe(e => {
-			if (!e) return;
-
 			if (e.deltaY < 0) {
 				this.zoomIn.set();
 			} else {

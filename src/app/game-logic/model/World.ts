@@ -7,4 +7,9 @@ export class World {
 	tilemap: Matrix<Tile>;
 	worldGenerationConfig: WorldGenerationConfig;
 
+	constructor(tilemap: Matrix<Tile>, worldGenerationConfig: WorldGenerationConfig) {
+		this.tilemap = tilemap;
+		this.worldGenerationConfig = worldGenerationConfig;
+	}
+
 }

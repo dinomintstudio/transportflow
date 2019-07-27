@@ -1,4 +1,5 @@
 import {BehaviorSubject, Observable} from "rxjs";
+import {filter} from "rxjs/operators";
 
 /**
  * Object wrapper for reactive use. Set object value with `set()` method. Subscribe to it's value using `observable`
@@ -17,12 +18,16 @@ export class ObservableData<T> {
 	observable: Observable<T>;
 
 	/**
-	 * Construct new ObservableData instance. Initial value can be null
+	 * Construct new ObservableData instance. Initial value cannot be null. Any null value will not be emitted
 	 * @param initialValue initial value
 	 */
 	constructor(initialValue: T = null) {
 		this.subject = new BehaviorSubject<T>(initialValue);
-		this.observable = this.subject.asObservable();
+		this.observable = this.subject
+			.asObservable()
+			.pipe(
+				filter(x => x !== null)
+			);
 	}
 
 	/**

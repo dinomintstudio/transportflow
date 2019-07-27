@@ -3,6 +3,8 @@ import {WorldGenerationService} from "../../generation/world/service/world-gener
 import {ClockService} from "../../scheduling/service/clock.service";
 import {LongTermSchedulingService} from "../../scheduling/service/long-term-scheduling.service";
 import {ShortTermSchedulingService} from "../../scheduling/service/short-term-scheduling.service";
+import {KeyService} from "../../input/service/key.service";
+import {MouseService} from "../../input/service/mouse.service";
 
 @Injectable({
 	providedIn: 'root'
@@ -13,6 +15,8 @@ export class InitService {
 		private clockService: ClockService,
 		private longTermSchedulingService: LongTermSchedulingService,
 		private shortTermSchedulingService: ShortTermSchedulingService,
+		private keyService: KeyService,
+		private mouseService: MouseService
 	) {
 	}
 }
