@@ -1,0 +1,4 @@
+{
+  "$schema": "render.config-schema.json",
+  "tileResolution": 128
+}

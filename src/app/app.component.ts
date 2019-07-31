@@ -39,10 +39,10 @@ export class AppComponent {
 	) {
 		const terrainGenerationConfig = new TerrainGenerationConfig(
 			new Shape(
-				100,
-				100
+				50,
+				50
 			),
-			0.01,
+			0.001,
 			0.25,
 			new AltitudeMapConfig(
 				new NoiseConfig(

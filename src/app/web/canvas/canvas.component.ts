@@ -16,8 +16,8 @@ export class CanvasComponent implements OnInit {
 	}
 
 	ngOnInit() {
-		this.renderService.initializeCanvas(
-			<HTMLCanvasElement>document.getElementById('canvas'),
+		this.renderService.initView(
+			<HTMLCanvasElement>document.getElementById('viewCanvas'),
 			this.container.nativeElement
 		);
 	}

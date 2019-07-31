@@ -1,5 +1,5 @@
 import {BehaviorSubject, Observable} from "rxjs";
-import {filter} from "rxjs/operators";
+import {filter, first} from "rxjs/operators";
 
 /**
  * Object wrapper for reactive use. Set object value with `set()` method. Subscribe to it's value using `observable`
@@ -36,6 +36,14 @@ export class ObservableData<T> {
 	 */
 	set(value: T) {
 		this.subject.next(value);
+	}
+
+	update(): void {
+		this.observable
+			.pipe(first())
+			.subscribe(value => {
+				this.subject.next(value);
+			});
 	}
 
 }

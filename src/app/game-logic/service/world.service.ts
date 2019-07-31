@@ -6,6 +6,7 @@ import {TiledCity} from "../../generation/city/model/TiledCity";
 import {WorldGenerationConfig} from "../../generation/world/config/WorldGenerationConfig";
 import {Tile} from "../model/Tile";
 import {Maybe} from "../../common/model/Maybe";
+import {City} from "../model/City";
 
 @Injectable({
 	providedIn: 'root'
@@ -29,7 +30,7 @@ export class WorldService {
 			e.surface,
 			e.biome,
 			e.isPlant,
-			Maybe.empty(),
+			new Maybe<City>(e.isCity ? new City() : null),
 			Maybe.empty(),
 			Maybe.empty()
 		));

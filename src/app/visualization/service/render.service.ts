@@ -2,93 +2,102 @@ import {Injectable} from '@angular/core';
 import {CameraService} from "./camera.service";
 import {Camera} from "../model/Camera";
 import {Position} from "../../common/model/Position";
-import {Shape} from "../../common/model/Shape";
-import {Tile} from "../../game-logic/model/Tile";
 import {WorldService} from "../../game-logic/service/world.service";
-import {Rectangle} from "../../common/model/Rectangle";
 import {SpriteService} from "./sprite.service";
-import {matches} from 'z'
 import {first} from "rxjs/operators";
+import {World} from "../../game-logic/model/World";
+
+import * as config from '../config/render.config.json'
+import {Tile} from "../../game-logic/model/Tile";
+import {Rectangle} from "../../common/model/Rectangle";
+import {Shape} from "../../common/model/Shape";
+
+import {matches} from 'z'
 
 @Injectable({
 	providedIn: 'root'
 })
 export class RenderService {
 
-	private canvas: HTMLCanvasElement;
-	private ctx: CanvasRenderingContext2D;
+	private mapCanvas: HTMLCanvasElement;
+	private mapCtx: CanvasRenderingContext2D;
+
+	private viewCanvas: HTMLCanvasElement;
+	private viewCtx: CanvasRenderingContext2D;
 
 	constructor(
 		private cameraService: CameraService,
 		private worldService: WorldService,
 		private spriteService: SpriteService
 	) {
-		cameraService.camera.set(new Camera(
-			new Position(0, 0),
-			1
-		));
+		this.initMap();
+		this.drawView();
 	}
 
-	initializeCanvas(canvas: HTMLCanvasElement, canvasContainer: HTMLElement): void {
-		this.canvas = canvas;
+	initView(canvas: HTMLCanvasElement, canvasContainer: HTMLElement): void {
+		this.viewCanvas = canvas;
+		this.viewCtx = this.viewCanvas.getContext('2d');
 
-		this.resizeCanvas(canvas, new Shape(canvasContainer.offsetWidth, canvasContainer.offsetHeight));
+		this.resizeCanvas(this.viewCanvas, new Shape(canvasContainer.offsetWidth, canvasContainer.offsetHeight));
 
 		window.addEventListener('resize', () => {
-			this.resizeCanvas(canvas, new Shape(canvasContainer.offsetWidth, canvasContainer.offsetHeight));
+			this.resizeCanvas(this.viewCanvas, new Shape(canvasContainer.offsetWidth, canvasContainer.offsetHeight));
 		});
 	}
 
-	resetCanvas(): void {
-		this.canvas.width = 0;
-		this.canvas.height = 0;
+	initMap(): void {
+		this.mapCanvas = document.createElement('canvas');
+		this.mapCtx = this.mapCanvas.getContext('2d');
 
-		this.canvas = null;
-		this.ctx = null;
+		this.worldService.world.observable
+			.pipe(first())
+			.subscribe(world => {
+				this.mapCanvas.width = config.tileResolution * world.tilemap.shape.width;
+				this.mapCanvas.height = config.tileResolution * world.tilemap.shape.height;
 
-		window.addEventListener('resize', (e) => {
-			e.stopPropagation();
+				this.cameraService.camera.set(new Camera(
+					new Position(
+						world.tilemap.shape.width / 2,
+						world.tilemap.shape.height / 2
+					),
+					config.tileResolution
+				));
+
+				this.drawMap(world, () => this.cameraService.camera.update());
+			})
+	}
+
+	private resizeCanvas(canvas: HTMLCanvasElement, shape: Shape): void {
+		this.viewCanvas.width = shape.width;
+		this.viewCanvas.height = shape.height;
+
+		this.cameraService.camera.update();
+	}
+
+	private drawMap(world: World, drawn?: () => void): void {
+		let counter = 0;
+
+		world.tilemap.forEach((tile, position) => {
+			this.drawMapTile(tile, position, () => {
+				counter++;
+				if (counter === world.tilemap.shape.area()) {
+					drawn();
+				}
+			});
 		});
 	}
 
-	resizeCanvas(canvas: HTMLCanvasElement, shape: Shape): void {
-		this.canvas.width = shape.width;
-		this.canvas.height = shape.height;
-
-		this.ctx = this.canvas.getContext('2d');
-		this.draw();
-	}
-
-	draw(): void {
-		this.cameraService.camera.observable.subscribe(camera => {
-			this.worldService.world.observable
-				.pipe(first())
-				.subscribe(world => {
-					this.ctx.fillStyle = 'white';
-					this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-					const cameraPos = new Position(this.canvas.width / 2, this.canvas.height / 2);
-
-					world.tilemap.forEach((tile, position) => {
-						this.drawTile(tile, position, camera, cameraPos);
-					});
-				});
-		});
-	}
-
-	drawTile(tile: Tile, position: Position, camera: Camera, cameraPos: Position): void {
+	private drawMapTile(tile: Tile, position: Position, drawn?: () => void) {
 		const tileRect = Rectangle.rectangleByOnePoint(
-			new Position((
-				(position.x - camera.position.x) * 64 * camera.zoom) + cameraPos.x,
-				((position.y - camera.position.y) * 64 * camera.zoom) + cameraPos.y
+			new Position(
+				position.x * config.tileResolution,
+				position.y * config.tileResolution
 			),
 			new Shape(
-				64 * camera.zoom,
-				64 * camera.zoom
+				config.tileResolution,
+				config.tileResolution
 			)
 		);
-
-		if (!this.isVisible(tileRect)) return;
 
 		this.spriteService.fetch(
 			matches(tile.surface.type)(
@@ -97,23 +106,43 @@ export class RenderService {
 				(x = 'mountain') => 'assets/sprite/terrain/mountain.svg'
 			),
 			(sprite) => {
-				this.ctx.drawImage(
+				this.mapCtx.drawImage(
 					sprite,
 					tileRect.topLeft.x,
 					tileRect.topLeft.y,
 					tileRect.shape.width,
 					tileRect.shape.height
-				)
+				);
+				drawn();
 			}
-		)
-
+		);
 	}
 
-	private isVisible(tileRect: Rectangle) {
-		return tileRect.bottomRight.x >= 0 &&
-			tileRect.bottomRight.y >= 0 &&
-			tileRect.topLeft.x < this.canvas.width &&
-			tileRect.topLeft.y < this.canvas.height;
-	}
+	private drawView() {
+		this.cameraService.camera.observable.subscribe(camera => {
+			if (!this.viewCtx) return;
 
+			console.log(camera.zoom);
+
+			this.viewCtx.fillStyle = 'white';
+			this.viewCtx.fillRect(0, 0, this.viewCanvas.width, this.viewCanvas.height);
+
+			const viewShape = new Shape(
+				(this.viewCanvas.width * config.tileResolution) / camera.zoom,
+				(this.viewCanvas.height * config.tileResolution) / camera.zoom
+			);
+
+			this.viewCtx.drawImage(
+				this.mapCanvas,
+				(camera.position.x * config.tileResolution) - (viewShape.width / 2),
+				(camera.position.y * config.tileResolution) - (viewShape.height / 2),
+				viewShape.width,
+				viewShape.height,
+				0,
+				0,
+				this.viewCanvas.width,
+				this.viewCanvas.height
+			)
+		});
+	}
 }
