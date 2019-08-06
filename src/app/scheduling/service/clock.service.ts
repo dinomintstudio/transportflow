@@ -30,7 +30,7 @@ export class ClockService {
 	 * Construct service
 	 */
 	constructor() {
-		this.tick = new ObservableData<number>(null);
+		this.tick = new ObservableData<number>();
 		this.intervalId = setInterval(() => this.loop(), 1000 / config.ups);
 	}
 

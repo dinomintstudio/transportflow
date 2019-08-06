@@ -122,8 +122,6 @@ export class RenderService {
 		this.cameraService.camera.observable.subscribe(camera => {
 			if (!this.viewCtx) return;
 
-			console.log(camera.zoom);
-
 			this.viewCtx.fillStyle = 'white';
 			this.viewCtx.fillRect(0, 0, this.viewCanvas.width, this.viewCanvas.height);
 
