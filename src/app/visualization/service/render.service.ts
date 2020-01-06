@@ -101,9 +101,9 @@ export class RenderService {
 
 		this.spriteService.fetch(
 			matches(tile.surface.type)(
-				(x = 'water') => 'assets/sprite/terrain/water.svg',
-				(x = 'land') => 'assets/sprite/terrain/taiga.svg',
-				(x = 'mountain') => 'assets/sprite/terrain/mountain.svg'
+				(_ = 'water') => 'assets/sprite/terrain/water.svg',
+				(_ = 'land') => 'assets/sprite/terrain/taiga.svg',
+				(_ = 'mountain') => 'assets/sprite/terrain/mountain.svg'
 			),
 			(sprite) => {
 				this.mapCtx.drawImage(

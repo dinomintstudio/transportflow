@@ -2,11 +2,10 @@ import {Injectable} from '@angular/core';
 import {ObservableData} from "../../common/model/ObservableData";
 import {World} from "../model/World";
 import {TiledTerrain} from "../../generation/terrain/model/TiledTerrain";
-import {TiledCity} from "../../generation/city/model/TiledCity";
 import {WorldGenerationConfig} from "../../generation/world/config/WorldGenerationConfig";
 import {Tile} from "../model/Tile";
 import {Maybe} from "../../common/model/Maybe";
-import {City} from "../model/City";
+import {CityGenerationService} from "../../generation/city/service/city-generation.service";
 
 @Injectable({
 	providedIn: 'root'
@@ -15,25 +14,47 @@ export class WorldService {
 
 	world: ObservableData<World> = new ObservableData<World>();
 
-	constructor() {
+	constructor(
+		private cityGenerationService: CityGenerationService
+	) {
 	}
 
-	merge(tiledTerrain: TiledTerrain, tiledCity: TiledCity, config: WorldGenerationConfig): World {
+	generate(tiledTerrain: TiledTerrain, config: WorldGenerationConfig): World {
+		console.debug('generate world');
+		const tilemap = tiledTerrain.tilemap
+			.map(terrainTile => new Tile(
+				terrainTile.surface,
+				terrainTile.biome,
+				terrainTile.isPlant,
+				Maybe.empty(),
+				Maybe.empty(),
+				Maybe.empty()
+			));
+
+		// tiledTerrain.cityPoints.forEach(cityPoint => {
+		// 	const city = this.cityGenerationService.generate(config.cityGenerationConfig);
+		// 	city.generatedCityTemplate.buildings.forEach((building) => {
+		// 			const worldTile = tilemap.at(building.position.topLeft);
+		// 			tilemap.set(
+		// 				tilePosition,
+		// 				new Tile(
+		// 					worldTile.surface,
+		// 					worldTile.biome,
+		// 					worldTile.isPlant,
+		// 					new Maybe<TiledCity>(city),
+		// 					new Maybe<Building>(cityTile.get().type === 'building' ? new House(tilePosition) : null),
+		// 					new Maybe<RoadTile>(cityTile.get().type === 'building' ? new RoadTile(
+		//
+		// 					) : null)
+		// 				)
+		// 			)
+		// 		});
+		// });
+
 		return new World(
-			this.mergeTilemap(tiledTerrain, tiledCity),
+			tilemap,
 			config
-		);
-	}
-
-	private mergeTilemap(tiledTerrain: TiledTerrain, tiledCity: TiledCity) {
-		return tiledTerrain.tilemap.map(e => new Tile(
-			e.surface,
-			e.biome,
-			e.isPlant,
-			new Maybe<City>(e.isCity ? new City() : null),
-			Maybe.empty(),
-			Maybe.empty()
-		));
+		)
 	}
 
 }

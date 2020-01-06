@@ -48,12 +48,15 @@ export class TerrainGenerationService {
 	 * @param config terrain generation config
 	 */
 	generate(config: TerrainGenerationConfig): TiledTerrain {
+		console.debug('distribute city points');
 		const cityPoints = this.distributionService.distribute(config.mapSize, config.cityPerTile);
 
 		const tiledTerrain = new TiledTerrain(null, cityPoints);
 		tiledTerrain.tilemap = new Matrix<TerrainTile>(config.mapSize);
 
+		console.debug('generate terrain tilemap');
 		_.range(config.mapSize.width).forEach(x => {
+			console.debug(`generate tiles in row ${x}`);
 			_.range(config.mapSize.height).forEach(y => {
 				const position = new Position(x, y);
 				const terrainTile = this.generateTile(config, position, tiledTerrain.cityPoints);
@@ -65,7 +68,7 @@ export class TerrainGenerationService {
 	}
 
 	/**
-	 * Generates tile
+	 * Generate terrain tile
 	 * @param config
 	 * @param position
 	 * @param cityPoints
@@ -98,9 +101,9 @@ export class TerrainGenerationService {
 		);
 
 		return matches(pattern)(
-			(x = 0) => new Surface('water'),
-			(x = 1) => new Surface('land'),
-			(x = 2) => new Surface('mountain')
+			(_ = 0) => new Surface('water'),
+			(_ = 1) => new Surface('land'),
+			(_ = 2) => new Surface('mountain')
 		);
 	}
 
@@ -120,14 +123,14 @@ export class TerrainGenerationService {
 		);
 
 		return matches(pattern)(
-			(x = 0) => new Biome('desert', config.biomesConfig.desertBiomeConfig),
-			(x = 1) => new Biome('taiga', config.biomesConfig.taigaBiomeConfig),
-			(x = 2) => new Biome('jungle', config.biomesConfig.jungleBiomeConfig)
+			(_ = 0) => new Biome('desert', config.biomesConfig.desertBiomeConfig),
+			(_ = 1) => new Biome('taiga', config.biomesConfig.taigaBiomeConfig),
+			(_ = 2) => new Biome('jungle', config.biomesConfig.jungleBiomeConfig)
 		);
 	}
 
 	/**
-	 * Defines is tile is in snow
+	 * Is tile is in snow
 	 * @param config
 	 * @param position
 	 */
@@ -141,27 +144,27 @@ export class TerrainGenerationService {
 		);
 
 		return matches(pattern)(
-			(x = 0) => false,
-			(x = 1) => true
+			(_ = 0) => false,
+			(_ = 1) => true
 		);
 	}
 
 	/**
-	 * Defines is tile has plant
+	 * Is tile has plant
 	 * @param config
 	 * @param biome
 	 */
 	private tileIsPlant(config: TerrainGenerationConfig, biome: Biome): Boolean {
 		let biomeConfig: BiomeConfig = matches(biome.type)(
-			(x = 'desert') => config.biomesConfig.desertBiomeConfig,
-			(x = 'taiga') => config.biomesConfig.taigaBiomeConfig,
-			(x = 'jungle') => config.biomesConfig.jungleBiomeConfig
+			(_ = 'desert') => config.biomesConfig.desertBiomeConfig,
+			(_ = 'taiga') => config.biomesConfig.taigaBiomeConfig,
+			(_ = 'jungle') => config.biomesConfig.jungleBiomeConfig
 		);
 		return this.randomService.withProbability(config.plantPerTile * biomeConfig.plantK);
 	}
 
 	/**
-	 * Defines is specified tile match city starting point
+	 * Is specified tile match city starting point
 	 * @param position
 	 * @param cityPoints
 	 */

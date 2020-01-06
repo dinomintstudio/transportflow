@@ -98,8 +98,8 @@ export class CityGenerationService {
 
 			const neighboursSubmatrix = this.neighbourSubmatrix(tilemap, p, config.closestRoadDistance);
 
-			let hasNeighbourRoad = neighboursSubmatrix.value
-				.flatMap(e => e)
+			let hasNeighbourRoad = neighboursSubmatrix
+				.flatMap()
 				.filter(e => e)
 				.filter(e => e.isPresent())
 				.map(e => e.get())
