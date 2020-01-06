@@ -124,6 +124,10 @@ export class Matrix<T> {
 		});
 	}
 
+	flatMap(): T[] {
+		return this.value.flatMap(t => t);
+	}
+
 	rotateClockwise(): Matrix<T> {
 		const result = new Matrix<T>(this.shape);
 

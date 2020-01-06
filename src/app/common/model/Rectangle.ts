@@ -1,5 +1,6 @@
 import {Shape} from "./Shape";
 import {Position} from "./Position";
+import {Matrix} from "./Matrix";
 
 /**
  * Rectangle area on coordinate system. Use static factory methods `rectangleByTwoPoints()` and
@@ -37,6 +38,21 @@ export class Rectangle {
 
 	translate(position: Position): Rectangle {
 		return new Rectangle(this.topLeft.add(position), this.shape);
+	}
+
+	/**
+	 * Only for integer point positions and shapes
+	 */
+	matrix(): Matrix<Position> {
+		return new Matrix<Position>(new Shape(
+			this.shape.width + 1,
+			this.shape.height + 1
+			),
+			null,
+			new Position(0, 0)
+		).map((position, positionPosition) => {
+			return position.add(positionPosition)
+		});
 	}
 
 	/**
