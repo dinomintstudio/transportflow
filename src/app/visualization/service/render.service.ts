@@ -11,8 +11,7 @@ import * as config from '../config/render.config.json'
 import {Tile} from "../../game-logic/model/Tile";
 import {Rectangle} from "../../common/model/Rectangle";
 import {Shape} from "../../common/model/Shape";
-
-import {matches} from 'z'
+import {MatcherService} from "../../util/service/matcher.service";
 
 @Injectable({
 	providedIn: 'root'
@@ -28,7 +27,8 @@ export class RenderService {
 	constructor(
 		private cameraService: CameraService,
 		private worldService: WorldService,
-		private spriteService: SpriteService
+		private spriteService: SpriteService,
+		private matcherService: MatcherService,
 	) {
 		this.initMap();
 		this.drawView();
@@ -103,11 +103,11 @@ export class RenderService {
 		);
 
 		this.spriteService.fetch(
-			matches(tile.surface.type)(
-				(_ = 'water') => 'assets/sprite/terrain/water.svg',
-				(_ = 'land') => 'assets/sprite/terrain/taiga.svg',
-				(_ = 'mountain') => 'assets/sprite/terrain/mountain.svg'
-			),
+			this.matcherService.match(tile.surface.type, new Map([
+				['water', 'assets/sprite/terrain/water.svg'],
+				['land', 'assets/sprite/terrain/taiga.svg'],
+				['mountain', 'assets/sprite/terrain/mountain.svg']
+			])).get(),
 			(sprite) => {
 				this.mapCtx.drawImage(
 					sprite,
