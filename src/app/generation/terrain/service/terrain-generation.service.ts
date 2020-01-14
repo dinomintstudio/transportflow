@@ -55,14 +55,17 @@ export class TerrainGenerationService {
 		tiledTerrain.tilemap = new Matrix<TerrainTile>(config.mapSize);
 
 		console.debug('generate terrain tilemap');
+		const start = new Date();
+
 		_.range(config.mapSize.width).forEach(x => {
-			console.debug(`generate tiles in row ${x}`);
 			_.range(config.mapSize.height).forEach(y => {
 				const position = new Position(x, y);
 				const terrainTile = this.generateTile(config, position, tiledTerrain.cityPoints);
 				tiledTerrain.tilemap.set(position, terrainTile);
 			})
 		});
+
+		console.debug(`tilemap generation complete in ${new Date().getTime() - start.getTime()}ms`);
 
 		return tiledTerrain;
 	}
