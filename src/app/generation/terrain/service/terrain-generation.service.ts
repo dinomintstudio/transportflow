@@ -10,13 +10,12 @@ import {NoiseService} from "../../../math/service/noise.service";
 import {FractionService} from "../../../math/service/fraction.service";
 import {Surface} from "../../../game-logic/model/Surface";
 import {AltitudeMapConfig} from "../config/noisemap/AltitudeMapConfig";
-
-import {matches} from 'z';
 import {Biome} from "../../../game-logic/model/Biome";
 import {TemperatureMapConfig} from "../config/noisemap/TemperatureMapConfig";
 import {RandomService} from "../../../random/service/random.service";
 import {BiomeConfig} from "../config/biome/BiomeConfig";
 import {DistributionService} from "../../../math/service/distribution.service";
+import {MatcherService} from "../../../util/service/matcher.service";
 
 /**
  * Terrain generation service. Responsible for terrain generation
@@ -31,6 +30,7 @@ export class TerrainGenerationService {
 	 * @param noiseService
 	 * @param fractionService
 	 * @param randomService
+	 * @param matcherService
 	 * @param distributionService
 	 * @param randomService
 	 * @param distributionService
@@ -39,6 +39,7 @@ export class TerrainGenerationService {
 		private noiseService: NoiseService,
 		private fractionService: FractionService,
 		private randomService: RandomService,
+		private matcherService: MatcherService,
 		private distributionService: DistributionService
 	) {
 	}
@@ -65,7 +66,7 @@ export class TerrainGenerationService {
 			})
 		});
 
-		console.debug(`tilemap generation complete in ${new Date().getTime() - start.getTime()}ms`);
+		console.debug(`tilemap generation complete in ${(new Date().getTime() - start.getTime())}ms`);
 
 		return tiledTerrain;
 	}
@@ -103,11 +104,11 @@ export class TerrainGenerationService {
 			this.noiseService.generate(position, config.noiseConfig)
 		);
 
-		return matches(pattern)(
-			(_ = 0) => new Surface('water'),
-			(_ = 1) => new Surface('land'),
-			(_ = 2) => new Surface('mountain')
-		);
+		return this.matcherService.match<number, Surface>(pattern, new Map([
+			[0, new Surface('water')],
+			[1, new Surface('land')],
+			[2, new Surface('mountain')]
+		])).get();
 	}
 
 	/**
@@ -125,11 +126,11 @@ export class TerrainGenerationService {
 			this.noiseService.generate(position, config.humidityMapConfig.noiseConfig)
 		);
 
-		return matches(pattern)(
-			(_ = 0) => new Biome('desert', config.biomesConfig.desertBiomeConfig),
-			(_ = 1) => new Biome('taiga', config.biomesConfig.taigaBiomeConfig),
-			(_ = 2) => new Biome('jungle', config.biomesConfig.jungleBiomeConfig)
-		);
+		return this.matcherService.match<number, Biome>(pattern, new Map([
+			[0, new Biome('desert', config.biomesConfig.desertBiomeConfig)],
+			[1, new Biome('taiga', config.biomesConfig.taigaBiomeConfig)],
+			[2, new Biome('jungle', config.biomesConfig.jungleBiomeConfig)],
+		])).get();
 	}
 
 	/**
@@ -146,10 +147,7 @@ export class TerrainGenerationService {
 			this.noiseService.generate(position, config.noiseConfig)
 		);
 
-		return matches(pattern)(
-			(_ = 0) => false,
-			(_ = 1) => true
-		);
+		return pattern === 1;
 	}
 
 	/**
@@ -158,11 +156,11 @@ export class TerrainGenerationService {
 	 * @param biome
 	 */
 	private tileIsPlant(config: TerrainGenerationConfig, biome: Biome): Boolean {
-		let biomeConfig: BiomeConfig = matches(biome.type)(
-			(_ = 'desert') => config.biomesConfig.desertBiomeConfig,
-			(_ = 'taiga') => config.biomesConfig.taigaBiomeConfig,
-			(_ = 'jungle') => config.biomesConfig.jungleBiomeConfig
-		);
+		const biomeConfig: BiomeConfig = this.matcherService.match<string, BiomeConfig>(biome.type, new Map([
+			['desert', config.biomesConfig.desertBiomeConfig],
+			['taiga', config.biomesConfig.taigaBiomeConfig],
+			['jungle', config.biomesConfig.jungleBiomeConfig]
+		])).get();
 		return this.randomService.withProbability(config.plantPerTile * biomeConfig.plantK);
 	}
 
