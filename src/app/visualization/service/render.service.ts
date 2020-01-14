@@ -63,7 +63,11 @@ export class RenderService {
 					config.tileResolution
 				));
 
-				this.drawMap(world, () => this.cameraService.camera.update());
+				console.debug('initial draw of tilemap');
+				this.drawMap(world, () => {
+					console.debug('initial draw of tilemap complete');
+					return this.cameraService.camera.update();
+				});
 			})
 	}
 
