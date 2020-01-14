@@ -60,7 +60,7 @@ export class DistributionService {
 		const n = shape.area() * density;
 
 		const squareGridSize = Math.round(Math.sqrt(n));
-		return new Shape(squareGridSize, squareGridSize);
+		return Shape.square(squareGridSize);
 	}
 
 }

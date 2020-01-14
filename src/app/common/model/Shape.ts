@@ -30,4 +30,8 @@ export class Shape {
 		this.height = height;
 	}
 
+	static square(sideLength: number): Shape {
+		return new Shape(sideLength, sideLength);
+	}
+
 }

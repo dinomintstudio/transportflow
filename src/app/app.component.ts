@@ -38,10 +38,7 @@ export class AppComponent {
 		private worldService: WorldService
 	) {
 		const terrainGenerationConfig = new TerrainGenerationConfig(
-			new Shape(
-				50,
-				50
-			),
+			Shape.square(100),
 			0.001,
 			0.25,
 			new AltitudeMapConfig(
@@ -86,20 +83,21 @@ export class AppComponent {
 			config
 		);
 
-		let tiledCity = this.cityGenerationService.generate(
-			cityGenerationConfig
-		);
+		// let tiledCity = this.cityGenerationService.generate(
+		// 	cityGenerationConfig
+		// );
+		//
+		// console.log(tiledCity.generatedCityTemplate.buildings);
 
-		console.log(tiledCity.generatedCityTemplate.buildings);
-
-		this.worldService.world.set(this.worldService.merge(
-			tiledTerrain,
-			tiledCity,
-			new WorldGenerationConfig(
-				terrainGenerationConfig,
-				cityGenerationConfig
+		this.worldService.world.set(
+			this.worldService.generate(
+				tiledTerrain,
+				new WorldGenerationConfig(
+					terrainGenerationConfig,
+					cityGenerationConfig
+				)
 			)
-		))
+		)
 	}
 
 }

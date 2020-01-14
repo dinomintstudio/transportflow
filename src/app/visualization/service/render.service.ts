@@ -93,8 +93,7 @@ export class RenderService {
 				position.x * config.tileResolution,
 				position.y * config.tileResolution
 			),
-			new Shape(
-				config.tileResolution,
+			Shape.square(
 				config.tileResolution
 			)
 		);

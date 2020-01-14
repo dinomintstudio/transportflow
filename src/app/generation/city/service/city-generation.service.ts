@@ -81,10 +81,7 @@ export class CityGenerationService {
 					position.x - radius,
 					position.y - radius
 				),
-				new Shape(
-					2 * radius + 1,
-					2 * radius + 1
-				)
+				Shape.square(2 * radius + 1)
 			),
 			null
 		);
