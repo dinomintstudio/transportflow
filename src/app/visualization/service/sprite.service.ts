@@ -5,21 +5,21 @@ import {Injectable} from '@angular/core';
 })
 export class SpriteService {
 
-	private imageMap = new Map<string, HTMLImageElement>();
+	private spriteMap = new Map<string, HTMLImageElement>();
 
 	constructor() {
 	}
 
 	fetch(url: string, onload: (image: HTMLImageElement) => void) {
-		const fromMap = this.imageMap.get(url);
+		const fromMap = this.spriteMap.get(url);
 		if (fromMap) {
 			onload(fromMap);
 		} else {
 			this.loadImage(url, (i) => {
 				onload(i);
 
-				if (!this.imageMap.get(url)) {
-					this.imageMap.set(url, i);
+				if (!this.spriteMap.get(url)) {
+					this.spriteMap.set(url, i);
 				}
 			});
 		}
