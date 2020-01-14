@@ -69,8 +69,6 @@ export class Matrix<T> {
 			position.y < 0 || position.y + matrix.shape.height > this.shape.height)
 			throw new Error('insertion out of bounds');
 
-		// debugger;
-
 		_.range(position.y, position.y + matrix.shape.height).forEach(i => {
 			_.range(position.x, position.x + matrix.shape.width).forEach(j => {
 				this.set(
