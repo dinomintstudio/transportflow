@@ -64,8 +64,9 @@ export class RenderService {
 				));
 
 				console.debug('initial draw of tilemap');
+				const start = new Date();
 				this.drawMap(world, () => {
-					console.debug('initial draw of tilemap complete');
+					console.debug(`initial draw of tilemap complete in ${(new Date().getTime() - start.getTime())}ms`);
 					return this.cameraService.camera.update();
 				});
 			})
@@ -102,22 +103,10 @@ export class RenderService {
 			)
 		);
 
-		this.spriteService.fetch(
-			this.matcherService.match(tile.surface.type, new Map([
-				['water', 'assets/sprite/terrain/water.svg'],
-				['land', 'assets/sprite/terrain/taiga.svg'],
-				['mountain', 'assets/sprite/terrain/mountain.svg']
-			])).get(),
-			(sprite) => {
-				this.mapCtx.drawImage(
-					sprite,
-					tileRect.topLeft.x,
-					tileRect.topLeft.y,
-					tileRect.shape.width,
-					tileRect.shape.height
-				);
-				drawn();
-			}
+		this.drawSurface(tile, tileRect, () =>
+			this.drawBuilding(tile, tileRect, () =>
+				this.drawRoad(tile, tileRect, drawn)
+			)
 		);
 	}
 
@@ -145,5 +134,65 @@ export class RenderService {
 				this.viewCanvas.height
 			)
 		});
+	}
+
+	private drawSurface(tile: Tile, tileRect, drawn?: () => void) {
+		this.spriteService.fetch(
+			this.matcherService.match(tile.surface.type, new Map([
+				['water', 'assets/sprite/terrain/water.svg'],
+				['land', 'assets/sprite/terrain/taiga.svg'],
+				['mountain', 'assets/sprite/terrain/mountain.svg']
+			])).get(),
+			(sprite) => {
+				this.mapCtx.drawImage(
+					sprite,
+					tileRect.topLeft.x,
+					tileRect.topLeft.y,
+					tileRect.shape.width,
+					tileRect.shape.height
+				);
+				drawn();
+			}
+		);
+	}
+
+	private drawBuilding(tile: Tile, tileRect, drawn?: () => void) {
+		if (tile.building.isPresent()) {
+			this.spriteService.fetch(
+				'assets/sprite/city/house_1x1.svg',
+				(sprite) => {
+					this.mapCtx.drawImage(
+						sprite,
+						tileRect.topLeft.x,
+						tileRect.topLeft.y,
+						tileRect.shape.width,
+						tileRect.shape.height
+					);
+					drawn();
+				}
+			);
+		} else {
+			drawn();
+		}
+	}
+
+	private drawRoad(tile: Tile, tileRect, drawn?: () => void) {
+		if (tile.road.isPresent()) {
+			this.spriteService.fetch(
+				'assets/sprite/terrain/mountain.svg',
+				(sprite) => {
+					this.mapCtx.drawImage(
+						sprite,
+						tileRect.topLeft.x,
+						tileRect.topLeft.y,
+						tileRect.shape.width,
+						tileRect.shape.height
+					);
+					drawn();
+				}
+			);
+		} else {
+			drawn();
+		}
 	}
 }

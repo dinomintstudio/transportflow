@@ -38,8 +38,6 @@ export class CityGenerationService {
 		let cityTilemap: Matrix<Maybe<CityTile>> = this.roadTilemapToCityTilemap(extendedTilemap);
 		this.placeBuildingBlocks(cityTilemap, config);
 
-		console.table(cityTilemap.map(e => e.isPresent() && e.get().type ? e.get().type : "").value);
-
 		const buildings: Building[] = this.mergeBuildingBlocks(cityTilemap);
 		return new TiledCity(
 			new GeneratedCityTemplate(

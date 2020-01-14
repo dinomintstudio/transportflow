@@ -6,6 +6,14 @@ import {WorldGenerationConfig} from "../../generation/world/config/WorldGenerati
 import {Tile} from "../model/Tile";
 import {Maybe} from "../../common/model/Maybe";
 import {CityGenerationService} from "../../generation/city/service/city-generation.service";
+import {TiledCity} from "../../generation/city/model/TiledCity";
+import {Matrix} from "../../common/model/Matrix";
+import {TerrainTile} from "../../generation/terrain/model/TerrainTile";
+import {Position} from "../../common/model/Position";
+import {Road} from "../model/Road";
+import {RoadTile} from "../model/RoadTile";
+import {Building} from "../model/Building";
+import {House} from "../model/House";
 
 @Injectable({
 	providedIn: 'root'
@@ -21,40 +29,69 @@ export class WorldService {
 
 	generate(tiledTerrain: TiledTerrain, config: WorldGenerationConfig): World {
 		console.debug('generate world');
-		const tilemap = tiledTerrain.tilemap
-			.map(terrainTile => new Tile(
-				terrainTile.surface,
-				terrainTile.biome,
-				terrainTile.isPlant,
-				Maybe.empty(),
-				Maybe.empty(),
-				Maybe.empty()
-			));
+		const tilemap: Matrix<Tile> = this.mapTerrainMatrixToTileMatrix(tiledTerrain.tilemap);
 
-		// tiledTerrain.cityPoints.forEach(cityPoint => {
-		// 	const city = this.cityGenerationService.generate(config.cityGenerationConfig);
-		// 	city.generatedCityTemplate.buildings.forEach((building) => {
-		// 			const worldTile = tilemap.at(building.position.topLeft);
-		// 			tilemap.set(
-		// 				tilePosition,
-		// 				new Tile(
-		// 					worldTile.surface,
-		// 					worldTile.biome,
-		// 					worldTile.isPlant,
-		// 					new Maybe<TiledCity>(city),
-		// 					new Maybe<Building>(cityTile.get().type === 'building' ? new House(tilePosition) : null),
-		// 					new Maybe<RoadTile>(cityTile.get().type === 'building' ? new RoadTile(
-		//
-		// 					) : null)
-		// 				)
-		// 			)
-		// 		});
-		// });
+		tiledTerrain.cityPoints.forEach(cityPosition => {
+			const city: TiledCity = this.cityGenerationService.generate(config.cityGenerationConfig);
+			// place cityPoint in the center of city tilemap
+			const worldCityPosition: Position = cityPosition.add(new Position(
+				-city.tilemap.shape.width / 2,
+				-city.tilemap.shape.height / 2
+			).floor());
+
+			city.tilemap.forEach((cityTile, position) => {
+				if (!cityTile.isPresent()) return;
+
+				const worldTilePosition: Position = worldCityPosition.add(position);
+				// out of world map range
+				if (!tilemap.has(worldTilePosition)) return;
+				const worldTile: Tile = tilemap.at(worldTilePosition);
+				worldTile.isPlant = false;
+				worldTile.city = new Maybe<TiledCity>(city);
+
+				if (cityTile.get().type == 'road') {
+					worldTile.road = new Maybe<RoadTile>(new RoadTile(
+						Maybe.empty(),
+						new Maybe(new Road('roadway')),
+						Maybe.empty()
+					));
+				}
+			});
+
+			city.generatedCityTemplate.buildings.forEach((building) => {
+				const worldTilePosition: Position = worldCityPosition.add(building.position.topLeft);
+				// out of world map range
+				if (!tilemap.has(worldTilePosition)) return;
+				const worldTile: Tile = tilemap.at(worldTilePosition);
+				tilemap.set(
+					worldTilePosition,
+					new Tile(
+						worldTile.surface,
+						worldTile.biome,
+						false,
+						new Maybe<TiledCity>(city),
+						new Maybe<Building>(new House(building.position)),
+						Maybe.empty()
+					)
+				)
+			});
+		});
 
 		return new World(
 			tilemap,
 			config
 		)
+	}
+
+	private mapTerrainMatrixToTileMatrix(terrainMatrix: Matrix<TerrainTile>): Matrix<Tile> {
+		return terrainMatrix.map(terrainTile => new Tile(
+			terrainTile.surface,
+			terrainTile.biome,
+			terrainTile.isPlant,
+			Maybe.empty(),
+			Maybe.empty(),
+			Maybe.empty()
+		));
 	}
 
 }

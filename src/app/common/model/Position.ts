@@ -27,6 +27,10 @@ export class Position {
 		return new Position(this.x + position.x, this.y + position.y);
 	}
 
+	floor(): Position {
+		return new Position(Math.floor(this.x), Math.floor(this.y));
+	}
+
 	toString(): string {
 		return `[${this.x}, ${this.y}]`;
 	}

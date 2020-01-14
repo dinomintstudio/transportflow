@@ -49,6 +49,8 @@ export class Matrix<T> {
 	 * @param position element's position
 	 */
 	at(position: Position): T {
+		if (!this.has(position)) throw new Error(`invalid position ${position}`);
+
 		return this.value[position.y][position.x];
 	}
 
@@ -58,10 +60,14 @@ export class Matrix<T> {
 	 * @param value element value
 	 */
 	set(position: Position, value: T) {
-		if (position.x < 0 || position.x > this.shape.width ||
-			position.y < 0 || position.y > this.shape.height) throw new Error('invalid position');
+		if (!this.has(position)) throw new Error(`invalid position ${position}`);
 
 		this.value[position.y][position.x] = value;
+	}
+
+	has(position: Position): Boolean {
+		return !(position.x < 0 || position.x >= this.shape.width ||
+			position.y < 0 || position.y >= this.shape.height);
 	}
 
 	insert(position: Position, matrix: Matrix<T>) {
