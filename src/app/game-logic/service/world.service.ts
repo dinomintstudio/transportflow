@@ -46,6 +46,9 @@ export class WorldService {
 				// out of world map range
 				if (!tilemap.has(worldTilePosition)) return;
 				const worldTile: Tile = tilemap.at(worldTilePosition);
+
+				if (worldTile.surface.type !== 'land') return;
+
 				worldTile.isPlant = false;
 				worldTile.city = new Maybe<TiledCity>(city);
 
@@ -63,17 +66,12 @@ export class WorldService {
 				// out of world map range
 				if (!tilemap.has(worldTilePosition)) return;
 				const worldTile: Tile = tilemap.at(worldTilePosition);
-				tilemap.set(
-					worldTilePosition,
-					new Tile(
-						worldTile.surface,
-						worldTile.biome,
-						false,
-						new Maybe<TiledCity>(city),
-						new Maybe<Building>(new House(building.position)),
-						Maybe.empty()
-					)
-				)
+
+				if (worldTile.surface.type !== 'land') return;
+
+				worldTile.isPlant = false;
+				worldTile.city = new Maybe<TiledCity>(city);
+				worldTile.building = new Maybe<Building>(new House(building.position));
 			});
 		});
 
