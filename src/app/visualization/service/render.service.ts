@@ -83,47 +83,7 @@ export class RenderService {
 		this.cameraService.camera.update();
 	}
 
-	private drawMap(world: World, drawn?: () => void): void {
-		let counter = 0;
-
-		world.tilemap.forEach((tile, position) => {
-			this.drawMapTile(
-				tile,
-				position,
-				world.tilemap
-					.of(Rectangle.rectangleByOnePoint(
-						new Position(position.x - 1, position.y - 1),
-						Shape.square(3)
-					))
-					.map(t => new Maybe<Tile>(t)),
-				() => {
-					counter++;
-					if (counter === world.tilemap.shape.area()) {
-						drawn();
-					}
-				});
-		});
-	}
-
-	private drawMapTile(tile: Tile, position: Position, adjacentTiles: Matrix<Maybe<Tile>>, drawn?: () => void) {
-		const tileRect = Rectangle.rectangleByOnePoint(
-			new Position(
-				position.x * config.tileResolution,
-				position.y * config.tileResolution
-			),
-			Shape.square(
-				config.tileResolution
-			)
-		);
-
-		this.drawSurface(tile, tileRect, adjacentTiles, () =>
-			this.drawBuilding(tile, tileRect, adjacentTiles, () =>
-				this.drawRoad(tile, tileRect, adjacentTiles, drawn)
-			)
-		);
-	}
-
-	private drawView() {
+	private drawView(): void {
 		this.cameraService.camera.observable.subscribe(camera => {
 			if (!this.viewCtx) return;
 
@@ -151,7 +111,47 @@ export class RenderService {
 		});
 	}
 
-	private drawSurface(tile: Tile, tileRect, _, drawn?: () => void) {
+	private drawMap(world: World, drawn?: () => void): void {
+		let counter = 0;
+
+		world.tilemap.forEach((tile, position) => {
+			this.drawMapTile(
+				tile,
+				position,
+				world.tilemap
+					.of(Rectangle.rectangleByOnePoint(
+						new Position(position.x - 1, position.y - 1),
+						Shape.square(3)
+					))
+					.map(t => new Maybe<Tile>(t)),
+				() => {
+					counter++;
+					if (counter === world.tilemap.shape.area()) {
+						drawn();
+					}
+				});
+		});
+	}
+
+	private drawMapTile(tile: Tile, position: Position, adjacentTiles: Matrix<Maybe<Tile>>, drawn?: () => void): void {
+		const tileRect = Rectangle.rectangleByOnePoint(
+			new Position(
+				position.x * config.tileResolution,
+				position.y * config.tileResolution
+			),
+			Shape.square(
+				config.tileResolution
+			)
+		);
+
+		this.drawSurface(tile, tileRect, adjacentTiles, () =>
+			this.drawBuilding(tile, tileRect, adjacentTiles, () =>
+				this.drawRoad(tile, tileRect, adjacentTiles, drawn)
+			)
+		);
+	}
+
+	private drawSurface(tile: Tile, tileRect, _, drawn?: () => void): void {
 		this.spriteService.fetch(
 			this.matcherService.match(tile.surface.type, new Map([
 				['water', 'assets/sprite/terrain/water.png'],
@@ -159,27 +159,19 @@ export class RenderService {
 				['mountain', 'assets/sprite/terrain/mountain.png']
 			])).get(),
 			(sprite) => {
-				this.mapCtx.drawImage(
-					sprite,
-					tileRect.topLeft.x,
-					tileRect.topLeft.y
-				);
+				this.drawSprite(sprite, tileRect.topLeft);
 				drawn();
 			}
 		);
 	}
 
-	private drawBuilding(tile: Tile, tileRect, _, drawn?: () => void) {
+	private drawBuilding(tile: Tile, tileRect, _, drawn?: () => void): void {
 		if (tile.building.isPresent()) {
 			const buildingShape: Shape = tile.building.get().position.shape;
 			this.spriteService.fetch(
 				`assets/sprite/city/house_${buildingShape.width + 1}x${buildingShape.height + 1}.png`,
 				(sprite) => {
-					this.mapCtx.drawImage(
-						sprite,
-						tileRect.topLeft.x,
-						tileRect.topLeft.y
-					);
+					this.drawSprite(sprite, tileRect.topLeft);
 					drawn();
 				}
 			);
@@ -188,7 +180,7 @@ export class RenderService {
 		}
 	}
 
-	private drawRoad(tile: Tile, tileRect, adjacentTiles: Matrix<Maybe<Tile>>, drawn?: () => void) {
+	private drawRoad(tile: Tile, tileRect, adjacentTiles: Matrix<Maybe<Tile>>, drawn?: () => void): void {
 		if (tile.road.isPresent()) {
 			const adjacentRoads: Matrix<Boolean> = adjacentTiles.map(t => t.isPresent() && t.get().road.isPresent());
 			let asset = `assets/sprite/road/road_${
@@ -200,17 +192,21 @@ export class RenderService {
 			this.spriteService.fetch(
 				asset,
 				(sprite) => {
-					this.mapCtx.drawImage(
-						sprite,
-						tileRect.topLeft.x,
-						tileRect.topLeft.y
-					);
+					this.drawSprite(sprite, tileRect.topLeft);
 					drawn();
 				}
 			);
 		} else {
 			drawn();
 		}
+	}
+
+	private drawSprite(sprite: HTMLImageElement, position: Position): void {
+		this.mapCtx.drawImage(
+			sprite,
+			position.x,
+			position.y
+		);
 	}
 
 }
