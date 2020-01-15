@@ -39,40 +39,8 @@ export class WorldService {
 				-city.tilemap.shape.height / 2
 			).floor());
 
-			city.tilemap.forEach((cityTile, position) => {
-				if (!cityTile.isPresent()) return;
-
-				const worldTilePosition: Position = worldCityPosition.add(position);
-				// out of world map range
-				if (!tilemap.has(worldTilePosition)) return;
-				const worldTile: Tile = tilemap.at(worldTilePosition);
-
-				if (worldTile.surface.type !== 'land') return;
-
-				worldTile.isPlant = false;
-				worldTile.city = new Maybe<TiledCity>(city);
-
-				if (cityTile.get().type == 'road') {
-					worldTile.road = new Maybe<RoadTile>(new RoadTile(
-						Maybe.empty(),
-						new Maybe(new Road('roadway')),
-						Maybe.empty()
-					));
-				}
-			});
-
-			city.generatedCityTemplate.buildings.forEach((building) => {
-				const worldTilePosition: Position = worldCityPosition.add(building.position.topLeft);
-				// out of world map range
-				if (!tilemap.has(worldTilePosition)) return;
-				const worldTile: Tile = tilemap.at(worldTilePosition);
-
-				if (worldTile.surface.type !== 'land') return;
-
-				worldTile.isPlant = false;
-				worldTile.city = new Maybe<TiledCity>(city);
-				worldTile.building = new Maybe<Building>(new House(building.position));
-			});
+			this.fillCityTile(city, worldCityPosition, tilemap);
+			this.placeBuildings(city, worldCityPosition, tilemap);
 		});
 
 		return new World(
@@ -81,11 +49,51 @@ export class WorldService {
 		)
 	}
 
+	private placeBuildings(city: TiledCity, worldCityPosition: Position, tilemap: Matrix<Tile>): void {
+		city.generatedCityTemplate.buildings.forEach((building) => {
+			const worldTilePosition: Position = worldCityPosition.add(building.position.topLeft);
+			// out of world map range
+			if (!tilemap.has(worldTilePosition)) return;
+			const worldTile: Tile = tilemap.at(worldTilePosition);
+
+			if (worldTile.surface.type !== 'land') return;
+
+			worldTile.isPlant = false;
+			worldTile.city = new Maybe<TiledCity>(city);
+			worldTile.building = new Maybe<Building>(new House(building.position));
+		});
+	}
+
+	private fillCityTile(city: TiledCity, worldCityPosition: Position, tilemap: Matrix<Tile>): void {
+		city.tilemap.forEach((cityTile, position) => {
+			if (!cityTile.isPresent()) return;
+
+			const worldTilePosition: Position = worldCityPosition.add(position);
+			// out of world map range
+			if (!tilemap.has(worldTilePosition)) return;
+			const worldTile: Tile = tilemap.at(worldTilePosition);
+
+			if (worldTile.surface.type !== 'land') return;
+
+			worldTile.isPlant = false;
+			worldTile.city = new Maybe<TiledCity>(city);
+
+			if (cityTile.get().type == 'road') {
+				worldTile.road = new Maybe<RoadTile>(new RoadTile(
+					Maybe.empty(),
+					new Maybe(new Road('roadway')),
+					Maybe.empty()
+				));
+			}
+		});
+	}
+
 	private mapTerrainMatrixToTileMatrix(terrainMatrix: Matrix<TerrainTile>): Matrix<Tile> {
 		return terrainMatrix.map(terrainTile => new Tile(
 			terrainTile.surface,
 			terrainTile.biome,
 			terrainTile.isPlant,
+			terrainTile.isSnow,
 			Maybe.empty(),
 			Maybe.empty(),
 			Maybe.empty()

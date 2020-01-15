@@ -10,14 +10,16 @@ export class Tile {
 	surface: Surface;
 	biome: Biome;
 	isPlant: Boolean;
+	isSnow: Boolean;
 	city: Maybe<TiledCity>;
 	building: Maybe<Building>;
 	road: Maybe<RoadTile>;
 
-	constructor(surface: Surface, biome: Biome, isPlant: Boolean, city: Maybe<TiledCity>, building: Maybe<Building>, road: Maybe<RoadTile>) {
+	constructor(surface: Surface, biome: Biome, isPlant: Boolean, isSnow: Boolean, city: Maybe<TiledCity>, building: Maybe<Building>, road: Maybe<RoadTile>) {
 		this.surface = surface;
 		this.biome = biome;
 		this.isPlant = isPlant;
+		this.isSnow = isSnow;
 		this.city = city;
 		this.building = building;
 		this.road = road;

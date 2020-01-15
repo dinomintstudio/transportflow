@@ -146,23 +146,41 @@ export class RenderService {
 
 		this.drawSurface(tile, tileRect, adjacentTiles, () =>
 			this.drawBuilding(tile, tileRect, adjacentTiles, () =>
-				this.drawRoad(tile, tileRect, adjacentTiles, drawn)
+				this.drawBorder(tileRect, adjacentTiles, () =>
+					this.drawRoad(tile, tileRect, adjacentTiles, () =>
+						this.drawPlant(tile, tileRect, adjacentTiles, drawn))
+				)
 			)
 		);
 	}
 
 	private drawSurface(tile: Tile, tileRect, _, drawn?: () => void): void {
+		let surface: string = tile.surface.type === 'land' ? tile.biome.type : tile.surface.type;
+		if (tile.isSnow) surface = 'snow';
 		this.spriteService.fetch(
-			this.matcherService.match(tile.surface.type, new Map([
+			this.matcherService.match(surface, new Map([
+				['taiga', 'assets/sprite/terrain/taiga.png'],
+				['desert', 'assets/sprite/terrain/desert.png'],
+				['jungle', 'assets/sprite/terrain/jungle.png'],
 				['water', 'assets/sprite/terrain/water.png'],
-				['land', 'assets/sprite/terrain/taiga.png'],
-				['mountain', 'assets/sprite/terrain/mountain.png']
+				['mountain', 'assets/sprite/terrain/mountain.png'],
+				['snow', 'assets/sprite/terrain/snow.png']
 			])).get(),
 			(sprite) => {
 				this.drawSprite(sprite, tileRect.topLeft);
 				drawn();
 			}
 		);
+	}
+
+	private drawBorder(tileRect, _, drawn?: () => void): void {
+		this.spriteService.fetch(
+			'assets/sprite/terrain/border.png',
+			(sprite) => {
+				this.drawSprite(sprite, tileRect.topLeft);
+				drawn();
+			}
+		)
 	}
 
 	private drawBuilding(tile: Tile, tileRect, _, drawn?: () => void): void {
@@ -191,6 +209,20 @@ export class RenderService {
 			}.png`;
 			this.spriteService.fetch(
 				asset,
+				(sprite) => {
+					this.drawSprite(sprite, tileRect.topLeft);
+					drawn();
+				}
+			);
+		} else {
+			drawn();
+		}
+	}
+
+	private drawPlant(tile: Tile, tileRect, _, drawn?: () => void): void {
+		if (tile.isPlant) {
+			this.spriteService.fetch(
+				'assets/sprite/terrain/tree.png',
 				(sprite) => {
 					this.drawSprite(sprite, tileRect.topLeft);
 					drawn();

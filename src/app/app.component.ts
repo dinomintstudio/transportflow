@@ -38,26 +38,30 @@ export class AppComponent {
 		private worldService: WorldService
 	) {
 		const terrainGenerationConfig = new TerrainGenerationConfig(
-			Shape.square(100),
+			Shape.square(128),
 			0.001,
 			0.25,
 			new AltitudeMapConfig(
 				new NoiseConfig(
 					0.03
 				),
-				1,
-				2,
+				6,
+				3,
 				1
 			),
 			new TemperatureMapConfig(
-				new NoiseConfig(),
-				1,
+				new NoiseConfig(
+					0.005
+				),
+				3,
 				1
 			),
 			new HumidityMapConfig(
-				new NoiseConfig(),
-				1,
-				1,
+				new NoiseConfig(
+					0.005
+				),
+				4,
+				2,
 				1
 			),
 			new BiomesConfig()
@@ -68,9 +72,9 @@ export class AppComponent {
 		);
 
 		const config: StreetGenerationConfig = new StreetGenerationConfig(
-			new Range(2, 3),
-			new Range(1, 1),
-			1,
+			new Range(4, 12),
+			new Range(2, 4),
+			2,
 			new Range(2, 3)
 		);
 
@@ -82,12 +86,6 @@ export class AppComponent {
 			0.5,
 			config
 		);
-
-		// let tiledCity = this.cityGenerationService.generate(
-		// 	cityGenerationConfig
-		// );
-		//
-		// console.log(tiledCity.generatedCityTemplate.buildings);
 
 		this.worldService.world.set(
 			this.worldService.generate(

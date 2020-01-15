@@ -82,9 +82,13 @@ export class TerrainGenerationService {
 
 		terrainTile.surface = this.tileSurface(config.altitudeMapConfig, position);
 		terrainTile.biome = this.tileBiome(config, position);
-		terrainTile.isSnow = this.tileIsSnow(config.temperatureMapConfig, position);
-		terrainTile.isPlant = this.tileIsPlant(config, terrainTile.biome);
-		terrainTile.isCity = this.tileIsCity(position, cityPoints);
+		if (terrainTile.surface.type !== 'water') {
+			terrainTile.isSnow = this.tileIsSnow(config.temperatureMapConfig, position);
+		}
+		if (terrainTile.surface.type === 'land') {
+			terrainTile.isPlant = this.tileIsPlant(config, terrainTile.biome);
+			terrainTile.isCity = this.tileIsCity(position, cityPoints);
+		}
 
 		return terrainTile;
 	}
