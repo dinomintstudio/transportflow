@@ -35,6 +35,7 @@ export class RenderService {
 	}
 
 	initView(canvas: HTMLCanvasElement, canvasContainer: HTMLElement): void {
+		console.debug('initialize render view');
 		this.viewCanvas = canvas;
 		this.viewCtx = this.viewCanvas.getContext('2d');
 
@@ -46,12 +47,13 @@ export class RenderService {
 	}
 
 	initMap(): void {
-		this.mapCanvas = document.createElement('canvas');
-		this.mapCtx = this.mapCanvas.getContext('2d');
-
 		this.worldService.world.observable
 			.pipe(first())
 			.subscribe(world => {
+				console.debug('initialize render map');
+				this.mapCanvas = document.createElement('canvas');
+				this.mapCtx = this.mapCanvas.getContext('2d');
+
 				this.mapCanvas.width = config.tileResolution * world.tilemap.shape.width;
 				this.mapCanvas.height = config.tileResolution * world.tilemap.shape.height;
 
@@ -122,6 +124,8 @@ export class RenderService {
 				(this.viewCanvas.height * config.tileResolution) / camera.zoom
 			);
 
+			this.viewCtx.imageSmoothingEnabled = false;
+
 			this.viewCtx.drawImage(
 				this.mapCanvas,
 				(camera.position.x * config.tileResolution) - (viewShape.width / 2),
@@ -139,9 +143,9 @@ export class RenderService {
 	private drawSurface(tile: Tile, tileRect, drawn?: () => void) {
 		this.spriteService.fetch(
 			this.matcherService.match(tile.surface.type, new Map([
-				['water', 'assets/sprite/terrain/water.svg'],
-				['land', 'assets/sprite/terrain/taiga.svg'],
-				['mountain', 'assets/sprite/terrain/mountain.svg']
+				['water', 'assets/sprite/terrain/water.png'],
+				['land', 'assets/sprite/terrain/taiga.png'],
+				['mountain', 'assets/sprite/terrain/mountain.png']
 			])).get(),
 			(sprite) => {
 				this.mapCtx.drawImage(
@@ -159,7 +163,7 @@ export class RenderService {
 	private drawBuilding(tile: Tile, tileRect, drawn?: () => void) {
 		if (tile.building.isPresent()) {
 			this.spriteService.fetch(
-				'assets/sprite/city/house_1x1.svg',
+				'assets/sprite/city/house_1x1.png',
 				(sprite) => {
 					this.mapCtx.drawImage(
 						sprite,
@@ -179,7 +183,7 @@ export class RenderService {
 	private drawRoad(tile: Tile, tileRect, drawn?: () => void) {
 		if (tile.road.isPresent()) {
 			this.spriteService.fetch(
-				'assets/sprite/terrain/mountain.svg',
+				'assets/sprite/road/road_sn.png',
 				(sprite) => {
 					this.mapCtx.drawImage(
 						sprite,
