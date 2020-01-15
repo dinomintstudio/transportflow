@@ -97,7 +97,7 @@ export class Matrix<T> {
 		for (let i = rectangle.topLeft.y; i < rectangle.bottomRight.y; i++) {
 			for (let j = rectangle.topLeft.x; j < rectangle.bottomRight.x; j++) {
 				if (this.value[i] && this.value[i][j]) {
-					result.value[i - rectangle.topLeft.y][j - rectangle.topLeft.x] = _.cloneDeep(<any>this.value[i][j]);
+					result.value[i - rectangle.topLeft.y][j - rectangle.topLeft.x] = this.value[i][j];
 				} else {
 					result.value[i - rectangle.topLeft.y][j - rectangle.topLeft.x] = outFill;
 				}
