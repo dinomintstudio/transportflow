@@ -12,6 +12,8 @@ import {Tile} from "../../game-logic/model/Tile";
 import {Rectangle} from "../../common/model/Rectangle";
 import {Shape} from "../../common/model/Shape";
 import {MatcherService} from "../../util/service/matcher.service";
+import {Matrix} from "../../common/model/Matrix";
+import {Maybe} from "../../common/model/Maybe";
 
 @Injectable({
 	providedIn: 'root'
@@ -39,10 +41,10 @@ export class RenderService {
 		this.viewCanvas = canvas;
 		this.viewCtx = this.viewCanvas.getContext('2d');
 
-		this.resizeCanvas(this.viewCanvas, new Shape(canvasContainer.offsetWidth, canvasContainer.offsetHeight));
+		this.resizeCanvas(new Shape(canvasContainer.offsetWidth, canvasContainer.offsetHeight));
 
 		window.addEventListener('resize', () => {
-			this.resizeCanvas(this.viewCanvas, new Shape(canvasContainer.offsetWidth, canvasContainer.offsetHeight));
+			this.resizeCanvas(new Shape(canvasContainer.offsetWidth, canvasContainer.offsetHeight));
 		});
 	}
 
@@ -74,7 +76,7 @@ export class RenderService {
 			})
 	}
 
-	private resizeCanvas(canvas: HTMLCanvasElement, shape: Shape): void {
+	private resizeCanvas(shape: Shape): void {
 		this.viewCanvas.width = shape.width;
 		this.viewCanvas.height = shape.height;
 
@@ -85,16 +87,25 @@ export class RenderService {
 		let counter = 0;
 
 		world.tilemap.forEach((tile, position) => {
-			this.drawMapTile(tile, position, () => {
-				counter++;
-				if (counter === world.tilemap.shape.area()) {
-					drawn();
-				}
-			});
+			this.drawMapTile(
+				tile,
+				position,
+				world.tilemap
+					.of(Rectangle.rectangleByOnePoint(
+						new Position(position.x - 1, position.y - 1),
+						Shape.square(3)
+					))
+					.map(t => new Maybe<Tile>(t)),
+				() => {
+					counter++;
+					if (counter === world.tilemap.shape.area()) {
+						drawn();
+					}
+				});
 		});
 	}
 
-	private drawMapTile(tile: Tile, position: Position, drawn?: () => void) {
+	private drawMapTile(tile: Tile, position: Position, adjacentTiles: Matrix<Maybe<Tile>>, drawn?: () => void) {
 		const tileRect = Rectangle.rectangleByOnePoint(
 			new Position(
 				position.x * config.tileResolution,
@@ -105,9 +116,9 @@ export class RenderService {
 			)
 		);
 
-		this.drawSurface(tile, tileRect, () =>
-			this.drawBuilding(tile, tileRect, () =>
-				this.drawRoad(tile, tileRect, drawn)
+		this.drawSurface(tile, tileRect, adjacentTiles, () =>
+			this.drawBuilding(tile, tileRect, adjacentTiles, () =>
+				this.drawRoad(tile, tileRect, adjacentTiles, drawn)
 			)
 		);
 	}
@@ -140,7 +151,7 @@ export class RenderService {
 		});
 	}
 
-	private drawSurface(tile: Tile, tileRect, drawn?: () => void) {
+	private drawSurface(tile: Tile, tileRect, _, drawn?: () => void) {
 		this.spriteService.fetch(
 			this.matcherService.match(tile.surface.type, new Map([
 				['water', 'assets/sprite/terrain/water.png'],
@@ -151,26 +162,23 @@ export class RenderService {
 				this.mapCtx.drawImage(
 					sprite,
 					tileRect.topLeft.x,
-					tileRect.topLeft.y,
-					tileRect.shape.width,
-					tileRect.shape.height
+					tileRect.topLeft.y
 				);
 				drawn();
 			}
 		);
 	}
 
-	private drawBuilding(tile: Tile, tileRect, drawn?: () => void) {
+	private drawBuilding(tile: Tile, tileRect, _, drawn?: () => void) {
 		if (tile.building.isPresent()) {
+			const buildingShape: Shape = tile.building.get().position.shape;
 			this.spriteService.fetch(
-				'assets/sprite/city/house_1x1.png',
+				`assets/sprite/city/house_${buildingShape.width + 1}x${buildingShape.height + 1}.png`,
 				(sprite) => {
 					this.mapCtx.drawImage(
 						sprite,
 						tileRect.topLeft.x,
-						tileRect.topLeft.y,
-						tileRect.shape.width,
-						tileRect.shape.height
+						tileRect.topLeft.y
 					);
 					drawn();
 				}
@@ -180,17 +188,22 @@ export class RenderService {
 		}
 	}
 
-	private drawRoad(tile: Tile, tileRect, drawn?: () => void) {
+	private drawRoad(tile: Tile, tileRect, adjacentTiles: Matrix<Maybe<Tile>>, drawn?: () => void) {
 		if (tile.road.isPresent()) {
+			const adjacentRoads: Matrix<Boolean> = adjacentTiles.map(t => t.isPresent() && t.get().road.isPresent());
+			let asset = `assets/sprite/road/road_${
+				(adjacentRoads.at(new Position(1, 0)) ? 'n' : '') +
+				(adjacentRoads.at(new Position(2, 1)) ? 'e' : '') +
+				(adjacentRoads.at(new Position(1, 2)) ? 's' : '') +
+				(adjacentRoads.at(new Position(0, 1)) ? 'w' : '')
+			}.png`;
 			this.spriteService.fetch(
-				'assets/sprite/road/road_sn.png',
+				asset,
 				(sprite) => {
 					this.mapCtx.drawImage(
 						sprite,
 						tileRect.topLeft.x,
-						tileRect.topLeft.y,
-						tileRect.shape.width,
-						tileRect.shape.height
+						tileRect.topLeft.y
 					);
 					drawn();
 				}
@@ -199,4 +212,5 @@ export class RenderService {
 			drawn();
 		}
 	}
+
 }
