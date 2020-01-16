@@ -1,28 +1,36 @@
 import {Injectable} from '@angular/core';
+import * as spritesConfig from '../config/sprites.config.json'
 
 @Injectable({
 	providedIn: 'root'
 })
 export class SpriteService {
 
+	// @ts-ignore
+	private spriteUrlMap = new Map<string, string>(spritesConfig.sprites);
 	private spriteMap = new Map<string, HTMLImageElement>();
 
 	constructor() {
 	}
 
-	fetch(url: string, onload: (image: HTMLImageElement) => void) {
-		const fromMap = this.spriteMap.get(url);
-		if (fromMap) {
-			onload(fromMap);
-		} else {
-			this.loadImage(url, (i) => {
-				onload(i);
+	loadSprites(onload: () => void): void {
+		let spritesLoaded = 0;
+		const spritesCount = spritesConfig.sprites.length;
 
-				if (!this.spriteMap.get(url)) {
-					this.spriteMap.set(url, i);
-				}
-			});
-		}
+		this.spriteUrlMap.forEach((v, k) => {
+				return this.loadImage(v, (image => {
+						this.spriteMap.set(k, image);
+						spritesLoaded++;
+						console.log(`sprites loaded: ${spritesLoaded}/${spritesCount}`);
+						if (spritesLoaded === spritesCount) onload();
+					}
+				));
+			}
+		)
+	}
+
+	fetch(spriteName: string): HTMLImageElement {
+		return this.spriteMap.get(spriteName);
 	}
 
 	private loadImage(url: string, onload: (image: HTMLImageElement) => void): void {

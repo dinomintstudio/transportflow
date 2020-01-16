@@ -67,9 +67,11 @@ export class RenderService {
 					config.tileResolution
 				));
 
-				console.debug('initial draw of tilemap');
-				const start = new Date();
-				this.drawMap(world, () => {
+				console.debug('load sprites');
+				this.spriteService.loadSprites(() => {
+					console.debug('initial draw of tilemap');
+					const start = new Date();
+					this.drawMap(world);
 					console.debug(`initial draw of tilemap complete in ${(new Date().getTime() - start.getTime())}ms`);
 					return this.cameraService.camera.update();
 				});
@@ -111,9 +113,7 @@ export class RenderService {
 		});
 	}
 
-	private drawMap(world: World, drawn?: () => void): void {
-		let counter = 0;
-
+	private drawMap(world: World): void {
 		world.tilemap.forEach((tile, position) => {
 			this.drawMapTile(
 				tile,
@@ -123,18 +123,13 @@ export class RenderService {
 						new Position(position.x - 1, position.y - 1),
 						Shape.square(3)
 					))
-					.map(t => new Maybe<Tile>(t)),
-				() => {
-					counter++;
-					if (counter === world.tilemap.shape.area()) {
-						drawn();
-					}
-				});
+					.map(t => new Maybe<Tile>(t))
+			)
 		});
 	}
 
-	private drawMapTile(tile: Tile, position: Position, adjacentTiles: Matrix<Maybe<Tile>>, drawn?: () => void): void {
-		const tileRect = Rectangle.rectangleByOnePoint(
+	private drawMapTile(tile: Tile, position: Position, adjacentTiles: Matrix<Maybe<Tile>>): void {
+		const tileRect: Rectangle = Rectangle.rectangleByOnePoint(
 			new Position(
 				position.x * config.tileResolution,
 				position.y * config.tileResolution
@@ -144,92 +139,59 @@ export class RenderService {
 			)
 		);
 
-		this.drawSurface(tile, tileRect, adjacentTiles, () =>
-			this.drawBuilding(tile, tileRect, adjacentTiles, () =>
-				this.drawBorder(tileRect, adjacentTiles, () =>
-					this.drawRoad(tile, tileRect, adjacentTiles, () =>
-						this.drawPlant(tile, tileRect, adjacentTiles, drawn))
-				)
-			)
-		);
+		// this.drawSurface(tile, tileRect, adjacentTiles, () =>
+		// 	this.drawBuilding(tile, tileRect, adjacentTiles, () =>
+		// 		this.drawBorder(tileRect, adjacentTiles, () =>
+		// 			this.drawRoad(tile, tileRect, adjacentTiles, () =>
+		// 				this.drawPlant(tile, tileRect, adjacentTiles, drawn))
+		// 		)
+		// 	)
+		// );
+		this.drawSurface(tile, tileRect, adjacentTiles);
+		this.drawBuilding(tile, tileRect, adjacentTiles);
+		this.drawBorder(tileRect);
+		this.drawRoad(tile, tileRect, adjacentTiles);
+		this.drawPlant(tile, tileRect, adjacentTiles);
 	}
 
-	private drawSurface(tile: Tile, tileRect, _, drawn?: () => void): void {
+	private drawSurface(tile: Tile, tileRect: Rectangle, _): void {
 		let surface: string = tile.surface.type === 'land' ? tile.biome.type : tile.surface.type;
 		if (tile.isSnow) surface = 'snow';
-		this.spriteService.fetch(
-			this.matcherService.match(surface, new Map([
-				['taiga', 'assets/sprite/terrain/taiga.png'],
-				['desert', 'assets/sprite/terrain/desert.png'],
-				['jungle', 'assets/sprite/terrain/jungle.png'],
-				['water', 'assets/sprite/terrain/water.png'],
-				['mountain', 'assets/sprite/terrain/mountain.png'],
-				['snow', 'assets/sprite/terrain/snow.png']
-			])).get(),
-			(sprite) => {
-				this.drawSprite(sprite, tileRect.topLeft);
-				drawn();
-			}
-		);
+		const sprite = this.spriteService.fetch(surface);
+		this.drawSprite(sprite, tileRect.topLeft);
 	}
 
-	private drawBorder(tileRect, _, drawn?: () => void): void {
-		this.spriteService.fetch(
-			'assets/sprite/terrain/border.png',
-			(sprite) => {
-				this.drawSprite(sprite, tileRect.topLeft);
-				drawn();
-			}
-		)
+	private drawBorder(tileRect: Rectangle): void {
+		const sprite = this.spriteService.fetch('border');
+		this.drawSprite(sprite, tileRect.topLeft);
 	}
 
-	private drawBuilding(tile: Tile, tileRect, _, drawn?: () => void): void {
+	private drawBuilding(tile: Tile, tileRect: Rectangle, _): void {
 		if (tile.building.isPresent()) {
 			const buildingShape: Shape = tile.building.get().position.shape;
-			this.spriteService.fetch(
-				`assets/sprite/city/house_${buildingShape.width + 1}x${buildingShape.height + 1}.png`,
-				(sprite) => {
-					this.drawSprite(sprite, tileRect.topLeft);
-					drawn();
-				}
-			);
-		} else {
-			drawn();
+			const sprite = this.spriteService.fetch(`house_${buildingShape.width + 1}x${buildingShape.height + 1}`);
+			this.drawSprite(sprite, tileRect.topLeft);
 		}
 	}
 
-	private drawRoad(tile: Tile, tileRect, adjacentTiles: Matrix<Maybe<Tile>>, drawn?: () => void): void {
+	private drawRoad(tile: Tile, tileRect: Rectangle, adjacentTiles: Matrix<Maybe<Tile>>): void {
 		if (tile.road.isPresent()) {
 			const adjacentRoads: Matrix<Boolean> = adjacentTiles.map(t => t.isPresent() && t.get().road.isPresent());
-			let asset = `assets/sprite/road/road_${
+			let asset = `road_${
 				(adjacentRoads.at(new Position(1, 0)) ? 'n' : '') +
 				(adjacentRoads.at(new Position(2, 1)) ? 'e' : '') +
 				(adjacentRoads.at(new Position(1, 2)) ? 's' : '') +
 				(adjacentRoads.at(new Position(0, 1)) ? 'w' : '')
-			}.png`;
-			this.spriteService.fetch(
-				asset,
-				(sprite) => {
-					this.drawSprite(sprite, tileRect.topLeft);
-					drawn();
-				}
-			);
-		} else {
-			drawn();
+			}`;
+			const sprite = this.spriteService.fetch(asset);
+			this.drawSprite(sprite, tileRect.topLeft);
 		}
 	}
 
-	private drawPlant(tile: Tile, tileRect, _, drawn?: () => void): void {
+	private drawPlant(tile: Tile, tileRect: Rectangle, _): void {
 		if (tile.isPlant) {
-			this.spriteService.fetch(
-				'assets/sprite/terrain/tree.png',
-				(sprite) => {
-					this.drawSprite(sprite, tileRect.topLeft);
-					drawn();
-				}
-			);
-		} else {
-			drawn();
+			const sprite = this.spriteService.fetch('tree');
+			this.drawSprite(sprite, tileRect.topLeft);
 		}
 	}
 
