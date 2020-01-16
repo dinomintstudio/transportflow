@@ -114,21 +114,26 @@ export class RenderService {
 	}
 
 	private drawMap(world: World): void {
-		world.tilemap.forEach((tile, position) => {
-			this.drawMapTile(
-				tile,
-				position,
-				world.tilemap
-					.of(Rectangle.rectangleByOnePoint(
-						new Position(position.x - 1, position.y - 1),
-						Shape.square(3)
-					))
-					.map(t => new Maybe<Tile>(t))
-			)
-		});
+		// TODO: refactor
+		const drawTileFunctions = [
+			(t, p, a) => this.drawSurface(t, p, a),
+			(t, p, a) => this.drawBuilding(t, p, a),
+			(t, p, a) => this.drawBorder(t, p, a),
+			(t, p, a) => this.drawRoad(t, p, a),
+			(t, p, a) => this.drawPlant(t, p, a)
+		];
+		drawTileFunctions.forEach((drawTileFunction) =>
+			world.tilemap.forEach((tile, position) => {
+				this.drawTileLayer(
+					tile,
+					position,
+					this.worldService.getAdjacentTileMatrix(world.tilemap, position),
+					drawTileFunction
+				)
+			}));
 	}
 
-	private drawMapTile(tile: Tile, position: Position, adjacentTiles: Matrix<Maybe<Tile>>): void {
+	private drawTileLayer(tile: Tile, position: Position, adjacentTiles: Matrix<Maybe<Tile>>, drawTileFunction: (tile, tileRect, adjacentTiles) => void): void {
 		const tileRect: Rectangle = Rectangle.rectangleByOnePoint(
 			new Position(
 				position.x * config.tileResolution,
@@ -139,19 +144,7 @@ export class RenderService {
 			)
 		);
 
-		// this.drawSurface(tile, tileRect, adjacentTiles, () =>
-		// 	this.drawBuilding(tile, tileRect, adjacentTiles, () =>
-		// 		this.drawBorder(tileRect, adjacentTiles, () =>
-		// 			this.drawRoad(tile, tileRect, adjacentTiles, () =>
-		// 				this.drawPlant(tile, tileRect, adjacentTiles, drawn))
-		// 		)
-		// 	)
-		// );
-		this.drawSurface(tile, tileRect, adjacentTiles);
-		this.drawBuilding(tile, tileRect, adjacentTiles);
-		this.drawBorder(tileRect);
-		this.drawRoad(tile, tileRect, adjacentTiles);
-		this.drawPlant(tile, tileRect, adjacentTiles);
+		drawTileFunction(tile, tileRect, adjacentTiles);
 	}
 
 	private drawSurface(tile: Tile, tileRect: Rectangle, _): void {
@@ -161,7 +154,7 @@ export class RenderService {
 		this.drawSprite(sprite, tileRect.topLeft);
 	}
 
-	private drawBorder(tileRect: Rectangle): void {
+	private drawBorder(tile: Tile, tileRect: Rectangle, _): void {
 		const sprite = this.spriteService.fetch('border');
 		this.drawSprite(sprite, tileRect.topLeft);
 	}
