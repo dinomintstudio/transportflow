@@ -11,26 +11,22 @@ import * as config from '../config/render.config.json'
 import {Tile} from "../../game-logic/model/Tile";
 import {Rectangle} from "../../common/model/Rectangle";
 import {Shape} from "../../common/model/Shape";
-import {MatcherService} from "../../util/service/matcher.service";
 import {Matrix} from "../../common/model/Matrix";
 import {Maybe} from "../../common/model/Maybe";
+import {Canvas} from "../../common/model/Canvas";
 
 @Injectable({
 	providedIn: 'root'
 })
 export class RenderService {
 
-	private mapCanvas: HTMLCanvasElement;
-	private mapCtx: CanvasRenderingContext2D;
-
-	private viewCanvas: HTMLCanvasElement;
-	private viewCtx: CanvasRenderingContext2D;
+	private map: Canvas;
+	private view: Canvas;
 
 	constructor(
 		private cameraService: CameraService,
 		private worldService: WorldService,
-		private spriteService: SpriteService,
-		private matcherService: MatcherService,
+		private spriteService: SpriteService
 	) {
 		this.initMap();
 		this.drawView();
@@ -38,8 +34,7 @@ export class RenderService {
 
 	initView(canvas: HTMLCanvasElement, canvasContainer: HTMLElement): void {
 		console.debug('initialize render view');
-		this.viewCanvas = canvas;
-		this.viewCtx = this.viewCanvas.getContext('2d');
+		this.view = new Canvas(canvas);
 
 		this.resizeCanvas(new Shape(canvasContainer.offsetWidth, canvasContainer.offsetHeight));
 
@@ -53,11 +48,10 @@ export class RenderService {
 			.pipe(first())
 			.subscribe(world => {
 				console.debug('initialize render map');
-				this.mapCanvas = document.createElement('canvas');
-				this.mapCtx = this.mapCanvas.getContext('2d');
+				this.map = Canvas.create();
 
-				this.mapCanvas.width = config.tileResolution * world.tilemap.shape.width;
-				this.mapCanvas.height = config.tileResolution * world.tilemap.shape.height;
+				this.map.canvas.width = config.tileResolution * world.tilemap.shape.width;
+				this.map.canvas.height = config.tileResolution * world.tilemap.shape.height;
 
 				this.cameraService.camera.set(new Camera(
 					new Position(
@@ -79,36 +73,36 @@ export class RenderService {
 	}
 
 	private resizeCanvas(shape: Shape): void {
-		this.viewCanvas.width = shape.width;
-		this.viewCanvas.height = shape.height;
+		this.view.canvas.width = shape.width;
+		this.view.canvas.height = shape.height;
 
 		this.cameraService.camera.update();
 	}
 
 	private drawView(): void {
 		this.cameraService.camera.observable.subscribe(camera => {
-			if (!this.viewCtx) return;
+			if (!this.view) return;
 
-			this.viewCtx.fillStyle = 'white';
-			this.viewCtx.fillRect(0, 0, this.viewCanvas.width, this.viewCanvas.height);
+			this.view.context.fillStyle = 'white';
+			this.view.context.fillRect(0, 0, this.view.canvas.width, this.view.canvas.height);
 
 			const viewShape = new Shape(
-				(this.viewCanvas.width * config.tileResolution) / camera.zoom,
-				(this.viewCanvas.height * config.tileResolution) / camera.zoom
+				(this.view.canvas.width * config.tileResolution) / camera.zoom,
+				(this.view.canvas.height * config.tileResolution) / camera.zoom
 			);
 
-			this.viewCtx.imageSmoothingEnabled = false;
+			this.view.context.imageSmoothingEnabled = false;
 
-			this.viewCtx.drawImage(
-				this.mapCanvas,
+			this.view.context.drawImage(
+				this.map.canvas,
 				(camera.position.x * config.tileResolution) - (viewShape.width / 2),
 				(camera.position.y * config.tileResolution) - (viewShape.height / 2),
 				viewShape.width,
 				viewShape.height,
 				0,
 				0,
-				this.viewCanvas.width,
-				this.viewCanvas.height
+				this.view.canvas.width,
+				this.view.canvas.height
 			)
 		});
 	}
@@ -189,7 +183,7 @@ export class RenderService {
 	}
 
 	private drawSprite(sprite: HTMLImageElement, position: Position, scale: number = 1.0): void {
-		this.mapCtx.drawImage(
+		this.map.context.drawImage(
 			sprite,
 			position.x,
 			position.y,
