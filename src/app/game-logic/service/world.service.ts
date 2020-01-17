@@ -82,7 +82,6 @@ export class WorldService {
 			}
 			if (building.position.shape.area() === 1) {
 				adjacentTileMatrix.at(new Position(2, 2)).ifPresent(t => t.building = worldTile.building);
-				console.log(this.getAdjacentTileMatrix(tilemap, worldTilePosition).value);
 			}
 		});
 	}

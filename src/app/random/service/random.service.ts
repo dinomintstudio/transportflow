@@ -3,6 +3,8 @@ import seedrandom from "seedrandom";
 import {Range} from "../../common/model/Range";
 import {ObservableData} from "../../common/model/ObservableData";
 
+import uuidv4 from "uuid/v4";
+
 /**
  * Service that responsible for PRNG (Pseudorandom number generation) within the application. It uses `seedrandom`
  * library
@@ -22,16 +24,11 @@ export class RandomService {
 	 * Construct service
 	 */
 	constructor() {
-		this.seed = new ObservableData();
-	}
-
-	/**
-	 * Sets seed for ongoing generations
-	 * @param seed seed string
-	 */
-	setSeed(seed: string): void {
-		this.seed.set(seed);
+		const seed = uuidv4().slice(0, 4);
+		console.debug(`until seed not provided, using generated one: ${seed}`);
+		this.seed = new ObservableData<string>(seed);
 		this.seed.observable.subscribe(s => {
+			console.debug(`PRNG use seed: ${s}`);
 			this.generator = seedrandom(s);
 		});
 	}

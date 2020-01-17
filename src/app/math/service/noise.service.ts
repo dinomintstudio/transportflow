@@ -15,7 +15,7 @@ export class NoiseService {
 	/**
 	 * Simplex noise library instance
 	 */
-	private simplexNoise;
+	private simplexNoise: SimplexNoise;
 
 	/**
 	 * Constructs service
@@ -23,12 +23,12 @@ export class NoiseService {
 	constructor(
 		private randomService: RandomService
 	) {
-		this.simplexNoise = new SimplexNoise();
+		this.reset();
+	}
 
+	reset(): void {
 		this.randomService.seed.observable.subscribe(seed => {
-			this.simplexNoise = seed
-				? new SimplexNoise(seed)
-				: new SimplexNoise();
+			this.simplexNoise = new SimplexNoise(seed);
 		});
 	}
 

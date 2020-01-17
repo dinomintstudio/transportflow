@@ -105,7 +105,8 @@ export class TerrainGenerationService {
 				config.landFraction,
 				config.mountainFraction
 			]),
-			this.noiseService.generate(position, config.noiseConfig)
+			// TODO: better way of separating noise map between terrain maps
+			this.noiseService.generate(position.add(new Position(1000, 1000)), config.noiseConfig)
 		);
 
 		return this.matcherService.match<number, Surface>(pattern, new Map([
@@ -127,7 +128,8 @@ export class TerrainGenerationService {
 				config.humidityMapConfig.taigaFraction,
 				config.humidityMapConfig.jungleFraction
 			]),
-			this.noiseService.generate(position, config.humidityMapConfig.noiseConfig)
+			// TODO: better way of separating noise map between terrain maps
+			this.noiseService.generate(position.add(new Position(2000, 2000)), config.humidityMapConfig.noiseConfig)
 		);
 
 		return this.matcherService.match<number, Biome>(pattern, new Map([
@@ -148,7 +150,8 @@ export class TerrainGenerationService {
 				config.landFraction,
 				config.snowFraction
 			]),
-			this.noiseService.generate(position, config.noiseConfig)
+			// TODO: better way of separating noise map between terrain maps
+			this.noiseService.generate(position.add(new Position(3000, 3000)), config.noiseConfig)
 		);
 
 		return pattern === 1;
