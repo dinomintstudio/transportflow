@@ -161,7 +161,6 @@ export class RenderService {
 
 	private drawBuilding(tile: Tile, tileRect: Rectangle, _): void {
 		if (tile.building.isPresent() && tile.building.get().position.topLeft.equals(tile.position)) {
-			console.log(tile.building.get().position.topLeft, tile.position);
 			const buildingShape: Shape = tile.building.get().position.shape;
 			const sprite = this.spriteService.fetch(`house_${buildingShape.width + 1}x${buildingShape.height + 1}`);
 			this.drawSprite(sprite, tileRect.topLeft);
@@ -189,11 +188,13 @@ export class RenderService {
 		}
 	}
 
-	private drawSprite(sprite: HTMLImageElement, position: Position): void {
+	private drawSprite(sprite: HTMLImageElement, position: Position, scale: number = 1.0): void {
 		this.mapCtx.drawImage(
 			sprite,
 			position.x,
-			position.y
+			position.y,
+			sprite.width * scale,
+			sprite.height * scale
 		);
 	}
 
