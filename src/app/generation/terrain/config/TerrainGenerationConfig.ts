@@ -47,6 +47,12 @@ export class TerrainGenerationConfig {
 	biomesConfig: BiomesConfig;
 
 	/**
+	 * How high above sea level beach will be generated.
+	 * Measured in height units after normalization [0..1]
+	 */
+	beachHeight: number;
+
+	/**
 	 * Constructs config
 	 * @param mapSize
 	 * @param cityPerTile
@@ -54,8 +60,9 @@ export class TerrainGenerationConfig {
 	 * @param temperatureMapConfig
 	 * @param humidityMapConfig
 	 * @param biomesConfig
+	 * @param fertilityNoiseConfig
 	 */
-	constructor(mapSize: Shape, cityPerTile: number, altitudeMapConfig: AltitudeMapConfig, temperatureMapConfig: TemperatureMapConfig, humidityMapConfig: HumidityMapConfig, biomesConfig: BiomesConfig, fertilityNoiseConfig: NoiseConfig) {
+	constructor(mapSize: Shape, cityPerTile: number, altitudeMapConfig: AltitudeMapConfig, temperatureMapConfig: TemperatureMapConfig, humidityMapConfig: HumidityMapConfig, biomesConfig: BiomesConfig, fertilityNoiseConfig: NoiseConfig, beachHeight: number) {
 		this.mapSize = mapSize;
 		this.cityPerTile = cityPerTile;
 		this.altitudeMapConfig = altitudeMapConfig;
@@ -63,6 +70,7 @@ export class TerrainGenerationConfig {
 		this.humidityMapConfig = humidityMapConfig;
 		this.biomesConfig = biomesConfig;
 		this.fertilityNoiseConfig = fertilityNoiseConfig;
+		this.beachHeight = beachHeight;
 	}
 
 }

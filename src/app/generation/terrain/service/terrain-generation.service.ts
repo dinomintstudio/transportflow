@@ -131,6 +131,15 @@ export class TerrainGenerationService {
 			this.noiseService.generate(position.add(new Position(2000, 2000)), config.humidityMapConfig.noiseConfig)
 		);
 
+		const seaLevelAltitude = this.fractionService.calculateRanges([
+			config.altitudeMapConfig.waterFraction,
+			config.altitudeMapConfig.landFraction,
+			config.altitudeMapConfig.mountainFraction
+		])[0].to;
+
+		const altitude = this.noiseService.generate(position.add(new Position(1000, 1000)), config.altitudeMapConfig.noiseConfig);
+		if (altitude - seaLevelAltitude < config.beachHeight) return new Biome('desert', config.biomesConfig.desertBiomeConfig);
+
 		return this.matcherService.match<number, Biome>(pattern, new Map([
 			[0, new Biome('desert', config.biomesConfig.desertBiomeConfig)],
 			[1, new Biome('taiga', config.biomesConfig.taigaBiomeConfig)],
@@ -178,4 +187,5 @@ export class TerrainGenerationService {
 	private tileIsCity(position: Position, cityPoints: Position[]): Boolean {
 		return !!cityPoints.find(p => p.x === position.x && p.y === position.y);
 	}
+
 }
