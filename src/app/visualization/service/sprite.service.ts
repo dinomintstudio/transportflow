@@ -21,7 +21,6 @@ export class SpriteService {
 				return this.loadImage(v, (image => {
 						this.spriteMap.set(k, image);
 						spritesLoaded++;
-						console.log(`sprites loaded: ${spritesLoaded}/${spritesCount}`);
 						if (spritesLoaded === spritesCount) onload();
 					}
 				));

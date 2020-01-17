@@ -39,6 +39,10 @@ export class Position {
 		return new Position(Math.floor(this.x), Math.floor(this.y));
 	}
 
+	equals(position: Position): Boolean {
+		return this.x === position.x && this.y === position.y;
+	}
+
 	toString(): string {
 		return `[${this.x}, ${this.y}]`;
 	}

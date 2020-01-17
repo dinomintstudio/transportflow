@@ -13,7 +13,8 @@ import {Position} from "../../common/model/Position";
 import {Road} from "../model/Road";
 import {RoadTile} from "../model/RoadTile";
 import {Building} from "../model/Building";
-import {House} from "../model/House";
+import {Rectangle} from "../../common/model/Rectangle";
+import {Shape} from "../../common/model/Shape";
 
 @Injectable({
 	providedIn: 'root'
@@ -49,18 +50,40 @@ export class WorldService {
 		)
 	}
 
+	public getAdjacentTileMatrix(tilemap: Matrix<Tile>, position: Position): Matrix<Maybe<Tile>> {
+		return tilemap
+			.of(Rectangle.rectangleByOnePoint(
+				new Position(position.x - 1, position.y - 1),
+				Shape.square(3)
+			))
+			.map(t => new Maybe<Tile>(t));
+	}
+
 	private placeBuildings(city: TiledCity, worldCityPosition: Position, tilemap: Matrix<Tile>): void {
 		city.generatedCityTemplate.buildings.forEach((building) => {
 			const worldTilePosition: Position = worldCityPosition.add(building.position.topLeft);
+			building.position = building.position.translate(worldCityPosition);
 			// out of world map range
 			if (!tilemap.has(worldTilePosition)) return;
 			const worldTile: Tile = tilemap.at(worldTilePosition);
 
-			if (worldTile.surface.type !== 'land') return;
+			const adjacentTileMatrix = this.getAdjacentTileMatrix(tilemap, worldTilePosition);
+			if (!this.canBuild(worldTile)) return;
+			if (!this.canBuildBuilding(building, adjacentTileMatrix)) return;
 
 			worldTile.isPlant = false;
 			worldTile.city = new Maybe<TiledCity>(city);
-			worldTile.building = new Maybe<Building>(new House(building.position));
+			worldTile.building = new Maybe<Building>(building);
+			if (building.position.shape.height === 1) {
+				adjacentTileMatrix.at(new Position(1, 2)).ifPresent(t => t.building = worldTile.building);
+			}
+			if (building.position.shape.width === 1) {
+				adjacentTileMatrix.at(new Position(2, 1)).ifPresent(t => t.building = worldTile.building);
+			}
+			if (building.position.shape.area() === 1) {
+				adjacentTileMatrix.at(new Position(2, 2)).ifPresent(t => t.building = worldTile.building);
+				console.log(this.getAdjacentTileMatrix(tilemap, worldTilePosition).value);
+			}
 		});
 	}
 
@@ -73,7 +96,7 @@ export class WorldService {
 			if (!tilemap.has(worldTilePosition)) return;
 			const worldTile: Tile = tilemap.at(worldTilePosition);
 
-			if (worldTile.surface.type !== 'land') return;
+			if (!this.canBuild(worldTile)) return;
 
 			worldTile.isPlant = false;
 			worldTile.city = new Maybe<TiledCity>(city);
@@ -88,8 +111,33 @@ export class WorldService {
 		});
 	}
 
+	private canBuild(tile: Tile): Boolean {
+		return tile.surface.type === 'land' && !tile.road.isPresent() && !tile.building.isPresent();
+	}
+
+	private canBuildBuilding(building: Building, adjacentTiles: Matrix<Maybe<Tile>>): Boolean {
+		const centerTile = adjacentTiles.at(new Position(1, 1));
+		const middleRightTile = adjacentTiles.at(new Position(2, 1));
+		const bottomCenterTile = adjacentTiles.at(new Position(1, 2));
+		const bottomRightTile = adjacentTiles.at(new Position(2, 2));
+
+		if (!this.canBuild(centerTile.get())) return false;
+		if (building.position.shape.area() === 1 &&
+			(!bottomRightTile.isPresent() || !this.canBuild(bottomRightTile.get()))
+		) return false;
+		if (building.position.shape.width === 1 &&
+			(!middleRightTile.isPresent() || !this.canBuild(middleRightTile.get()))
+		) return false;
+		if (building.position.shape.height === 1 &&
+			(!bottomCenterTile.isPresent() || !this.canBuild(bottomCenterTile.get()))
+		) return false;
+
+		return true;
+	}
+
 	private mapTerrainMatrixToTileMatrix(terrainMatrix: Matrix<TerrainTile>): Matrix<Tile> {
-		return terrainMatrix.map(terrainTile => new Tile(
+		return terrainMatrix.map((terrainTile, position) => new Tile(
+			position,
 			terrainTile.surface,
 			terrainTile.biome,
 			terrainTile.isPlant,
@@ -99,5 +147,4 @@ export class WorldService {
 			Maybe.empty()
 		));
 	}
-
 }
