@@ -13,7 +13,6 @@ import {AltitudeMapConfig} from "../config/noisemap/AltitudeMapConfig";
 import {Biome} from "../../../game-logic/model/Biome";
 import {TemperatureMapConfig} from "../config/noisemap/TemperatureMapConfig";
 import {RandomService} from "../../../random/service/random.service";
-import {BiomeConfig} from "../config/biome/BiomeConfig";
 import {DistributionService} from "../../../math/service/distribution.service";
 import {MatcherService} from "../../../util/service/matcher.service";
 
@@ -86,7 +85,7 @@ export class TerrainGenerationService {
 			terrainTile.isSnow = this.tileIsSnow(config.temperatureMapConfig, position);
 		}
 		if (terrainTile.surface.type === 'land') {
-			terrainTile.isPlant = this.tileIsPlant(config, terrainTile.biome);
+			terrainTile.isPlant = this.tileIsPlant(config, position, terrainTile.biome);
 			terrainTile.isCity = this.tileIsCity(position, cityPoints);
 		}
 
@@ -157,18 +156,18 @@ export class TerrainGenerationService {
 		return pattern === 1;
 	}
 
+	// TODO: better algorithm for forests
 	/**
 	 * Is tile has plant
 	 * @param config
 	 * @param biome
 	 */
-	private tileIsPlant(config: TerrainGenerationConfig, biome: Biome): Boolean {
-		const biomeConfig: BiomeConfig = this.matcherService.match<string, BiomeConfig>(biome.type, new Map([
-			['desert', config.biomesConfig.desertBiomeConfig],
-			['taiga', config.biomesConfig.taigaBiomeConfig],
-			['jungle', config.biomesConfig.jungleBiomeConfig]
-		])).get();
-		return this.randomService.withProbability(config.plantPerTile * biomeConfig.plantK);
+	private tileIsPlant(config: TerrainGenerationConfig, position: Position, biome: Biome): Boolean {
+		// TODO: better way of separating noise map between terrain maps
+		const probability = this.noiseService.generate(position.add(new Position(4000, 4000)), config.fertilityNoiseConfig);
+		return this.randomService.withProbability(biome.config.plantK)
+			? probability >= 0.5
+			: false;
 	}
 
 	/**
