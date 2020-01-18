@@ -13,15 +13,15 @@ import {Rectangle} from "../../common/model/Rectangle";
 import {Shape} from "../../common/model/Shape";
 import {Matrix} from "../../common/model/Matrix";
 import {Maybe} from "../../common/model/Maybe";
-import {Canvas} from "../../common/model/Canvas";
+import {SingleCanvas} from "../../common/model/canvas/SingleCanvas";
 
 @Injectable({
 	providedIn: 'root'
 })
 export class RenderService {
 
-	private map: Canvas;
-	private view: Canvas;
+	private map: SingleCanvas;
+	private view: SingleCanvas;
 
 	constructor(
 		private cameraService: CameraService,
@@ -34,7 +34,7 @@ export class RenderService {
 
 	initView(canvas: HTMLCanvasElement, canvasContainer: HTMLElement): void {
 		console.debug('initialize render view');
-		this.view = new Canvas(canvas);
+		this.view = new SingleCanvas(canvas);
 
 		this.resizeCanvas(new Shape(canvasContainer.offsetWidth, canvasContainer.offsetHeight));
 
@@ -48,7 +48,7 @@ export class RenderService {
 			.pipe(first())
 			.subscribe(world => {
 				console.debug('initialize render map');
-				this.map = Canvas.create();
+				this.map = SingleCanvas.create();
 
 				this.map.canvas.width = config.tileResolution * world.tilemap.shape.width;
 				this.map.canvas.height = config.tileResolution * world.tilemap.shape.height;
@@ -83,8 +83,7 @@ export class RenderService {
 		this.cameraService.camera.observable.subscribe(camera => {
 			if (!this.view) return;
 
-			this.view.context.fillStyle = 'white';
-			this.view.context.fillRect(0, 0, this.view.canvas.width, this.view.canvas.height);
+			this.view.fill('white');
 
 			const viewShape = new Shape(
 				(this.view.canvas.width * config.tileResolution) / camera.zoom,
@@ -93,16 +92,21 @@ export class RenderService {
 
 			this.view.context.imageSmoothingEnabled = false;
 
-			this.view.context.drawImage(
+			this.view.drawImage(
 				this.map.canvas,
-				(camera.position.x * config.tileResolution) - (viewShape.width / 2),
-				(camera.position.y * config.tileResolution) - (viewShape.height / 2),
-				viewShape.width,
-				viewShape.height,
-				0,
-				0,
-				this.view.canvas.width,
-				this.view.canvas.height
+				Rectangle.rectangleByOnePoint(
+					new Position(0, 0),
+					new Shape(
+						this.view.canvas.width,
+						this.view.canvas.height
+					)
+				),
+				Rectangle.rectangleByOnePoint(
+					new Position(
+						(camera.position.x * config.tileResolution) - (viewShape.width / 2),
+						(camera.position.y * config.tileResolution) - (viewShape.height / 2)),
+					new Shape(viewShape.width, viewShape.height)
+				)
 			)
 		});
 	}
@@ -183,12 +187,17 @@ export class RenderService {
 	}
 
 	private drawSprite(sprite: HTMLImageElement, position: Position, scale: number = 1.0): void {
-		this.map.context.drawImage(
+		this.map.drawImage(
 			sprite,
-			position.x,
-			position.y,
-			sprite.width * scale,
-			sprite.height * scale
+			Rectangle.rectangleByOnePoint(
+				new Position(
+					position.x,
+					position.y),
+				new Shape(
+					sprite.width * scale,
+					sprite.height * scale
+				)
+			)
 		);
 	}
 
