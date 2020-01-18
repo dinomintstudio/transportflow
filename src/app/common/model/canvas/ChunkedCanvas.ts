@@ -1,8 +1,8 @@
 import {Shape} from "../Shape";
-import {Canvas} from "./Canvas";
 import {Rectangle} from "../Rectangle";
 import {Matrix} from "../Matrix";
 import {Position} from "../Position";
+import {Canvas, createCanvas} from "./Canvas";
 
 export class ChunkedCanvas implements Canvas {
 
@@ -60,7 +60,7 @@ export class ChunkedCanvas implements Canvas {
 				Math.floor((this.resolution.height - 1) / this.chunkSize.height) + 1,
 			),
 			null,
-			() => document.createElement('canvas')
+			() => createCanvas()
 		);
 
 		this.chunkMatrix.forEach(c => {
@@ -70,7 +70,7 @@ export class ChunkedCanvas implements Canvas {
 	}
 
 	of(rectangle: Rectangle): HTMLCanvasElement {
-		const result: HTMLCanvasElement = document.createElement('canvas');
+		const result: HTMLCanvasElement = createCanvas();
 		result.width = rectangle.shape.width;
 		result.height = rectangle.shape.height;
 		const resultContext: CanvasRenderingContext2D = result.getContext('2d');

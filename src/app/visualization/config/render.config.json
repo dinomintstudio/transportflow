@@ -2,5 +2,6 @@
   "$schema": "render.config-schema.json",
   "tileResolution": 32,
   "minimapResolution": 4,
-  "chunkSize": 64
+  "chunkSize": 64,
+  "chunkLoadOverhead": 3
 }

@@ -15,6 +15,7 @@ import {Matrix} from "../../common/model/Matrix";
 import {Maybe} from "../../common/model/Maybe";
 import {SingleCanvas} from "../../common/model/canvas/SingleCanvas";
 import {ChunkedCanvas} from "../../common/model/canvas/ChunkedCanvas";
+import {createCanvas} from "../../common/model/canvas/Canvas";
 
 @Injectable({
 	providedIn: 'root'
@@ -70,10 +71,10 @@ export class RenderService {
 					),
 					Shape.square(config.chunkSize * config.tileResolution)
 				);
-				this.minimap = SingleCanvas.create(new Shape(
+				this.minimap = new SingleCanvas(createCanvas(new Shape(
 					world.tilemap.shape.width * config.tileResolution,
 					world.tilemap.shape.height * config.tileResolution)
-				);
+				));
 
 				this.cameraService.camera.set(new Camera(
 					new Position(
@@ -140,14 +141,7 @@ export class RenderService {
 	}
 
 	private drawMap(world: World): void {
-		const drawTileFunctions = [
-			(t, p, a) => this.drawSurface(t, p, a),
-			(t, p, a) => this.drawBuilding(t, p, a),
-			(t, p, a) => this.drawRoad(t, p, a),
-			(t, p, a) => this.drawPlant(t, p, a),
-			(t, p, a) => this.drawBorder(t, p, a),
-		];
-		drawTileFunctions.forEach((drawTileFunction) =>
+		this.drawTileFunctions.forEach((drawTileFunction) =>
 			world.tilemap.forEach((tile, position) =>
 				this.drawTileLayer(
 					tile,
@@ -240,15 +234,6 @@ export class RenderService {
 			const sprite = this.spriteService.fetch('tree');
 			this.drawSprite(sprite, tileRect.topLeft);
 		}
-	}
-
-	private static createCanvas(resolution?: Shape): HTMLCanvasElement {
-		const canvas: HTMLCanvasElement = document.createElement('canvas');
-		if (resolution) {
-			canvas.width = resolution.width;
-			canvas.height = resolution.height;
-		}
-		return canvas;
 	}
 
 }
