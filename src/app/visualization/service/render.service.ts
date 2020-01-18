@@ -88,7 +88,7 @@ export class RenderService {
 				this.spriteService.loadSprites(() => {
 					console.debug('initial draw of tilemap');
 					const start = new Date();
-					this.drawMap(world);
+					this.drawChunks(world.tilemap);
 					console.debug(`initial draw of tilemap complete in ${(new Date().getTime() - start.getTime())}ms`);
 					return this.cameraService.camera.update();
 				});
@@ -108,18 +108,7 @@ export class RenderService {
 
 			this.view.fill('white');
 
-			const viewShape = (tileResolution) => new Shape(
-				(this.view.canvas.width * tileResolution) / camera.zoom,
-				(this.view.canvas.height * tileResolution) / camera.zoom
-			);
-
-			const sourceRect = (tileResolution) => Rectangle.rectangleByOnePoint(
-				new Position(
-					(camera.position.x * tileResolution) - (viewShape(tileResolution).width / 2),
-					(camera.position.y * tileResolution) - (viewShape(tileResolution).height / 2)
-				),
-				new Shape(viewShape(tileResolution).width, viewShape(tileResolution).height)
-			);
+			const sourceRect = this.getMapRectByCamera(camera);
 			const destinationRect = Rectangle.rectangleByOnePoint(
 				new Position(0, 0),
 				new Shape(this.view.canvas.width, this.view.canvas.height)
@@ -140,25 +129,50 @@ export class RenderService {
 		});
 	}
 
-	private drawMap(world: World): void {
-		this.drawTileFunctions.forEach((drawTileFunction) =>
-			world.tilemap.forEach((tile, position) =>
+	private getMapRectByCamera(camera) {
+		const viewShape = (tileResolution) => new Shape(
+			(this.view.canvas.width * tileResolution) / camera.zoom,
+			(this.view.canvas.height * tileResolution) / camera.zoom
+		);
+		return (tileResolution) => Rectangle.rectangleByOnePoint(
+			new Position(
+				(camera.position.x * tileResolution) - (viewShape(tileResolution).width / 2),
+				(camera.position.y * tileResolution) - (viewShape(tileResolution).height / 2)
+			),
+			new Shape(viewShape(tileResolution).width, viewShape(tileResolution).height)
+		);
+	}
+
+	private drawChunks(tilemap: Matrix<Tile>) {
+		this.map.chunkMatrix.forEach((_, position) => this.drawChunk(position, tilemap));
+	}
+
+	private drawChunk(chunkPosition: Position, tilemap: Matrix<Tile>): void {
+		const chunkTileRect: Rectangle = Rectangle.rectangleByOnePoint(
+			new Position(
+				chunkPosition.x * config.chunkSize,
+				chunkPosition.y * config.chunkSize
+			),
+			Shape.square(config.chunkSize)
+		);
+		const chunkTilemap: Matrix<Tile> = tilemap.of(chunkTileRect);
+		this.drawTileFunctions.forEach(drawTileFunction => {
+			chunkTilemap.forEach((tile: Tile, position: Position) => {
+				if (!tile) return;
+				const tilePosition = position.add(chunkTileRect.topLeft);
 				this.drawTileLayer(
 					tile,
-					position,
-					this.worldService.getAdjacentTileMatrix(world.tilemap, position),
+					tilePosition,
+					this.worldService.getAdjacentTileMatrix(tilemap, tilePosition),
 					drawTileFunction
-				)
-			)
-		);
+				);
+			})
+		});
 	}
 
 	private drawTileLayer(tile: Tile, position: Position, adjacentTiles: Matrix<Maybe<Tile>>, drawTileFunction: (tile, tileRect, adjacentTiles) => void): void {
 		const tileRect: Rectangle = Rectangle.rectangleByOnePoint(
-			new Position(
-				position.x * config.tileResolution,
-				position.y * config.tileResolution
-			),
+			position.map(c => c * config.tileResolution),
 			Shape.square(
 				config.tileResolution
 			)
@@ -202,7 +216,7 @@ export class RenderService {
 		this.drawSprite(sprite, tileRect.topLeft);
 	}
 
-	private drawBorder(tile: Tile, tileRect: Rectangle, _): void {
+	private drawBorder(_, tileRect: Rectangle, __): void {
 		const sprite = this.spriteService.fetch('border');
 		this.drawSprite(sprite, tileRect.topLeft);
 	}

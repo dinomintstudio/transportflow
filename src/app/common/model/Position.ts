@@ -35,6 +35,10 @@ export class Position {
 		return new Position(-this.x, -this.y);
 	}
 
+	map(mapFunction: (coordinate: number) => number): Position {
+		return new Position(mapFunction(this.x), mapFunction(this.y));
+	}
+
 	floor(): Position {
 		return new Position(Math.floor(this.x), Math.floor(this.y));
 	}
