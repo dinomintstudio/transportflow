@@ -55,7 +55,7 @@ export class CityGenerationService {
 				tilemap.shape.height + 2 * closestRoadDistance
 			),
 			[],
-			false
+			() => false
 		);
 		extendedTilemap.insert(
 			new Position(
@@ -113,7 +113,7 @@ export class CityGenerationService {
 			return new IndexedCityTile(p, e);
 		});
 
-		const usedBuildingBlocks = new Matrix<Boolean>(indexedTilemap.shape, null, false);
+		const usedBuildingBlocks = new Matrix<Boolean>(indexedTilemap.shape, null, () => false);
 
 		indexedTilemap.forEach(indexedTile => {
 			if (!indexedTile.tile.isPresent() || indexedTile.tile.get().type !== 'building') return;

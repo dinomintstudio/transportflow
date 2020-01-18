@@ -70,7 +70,7 @@ export class StreetGenerationService {
 				tilemapRectangle.shape.height + 1
 			),
 			null,
-			false
+			() => false
 		);
 
 		roadRectangles
@@ -86,7 +86,7 @@ export class StreetGenerationService {
 							rect.shape.height + 1
 						),
 						[],
-						true
+						() => true
 					)
 				);
 			});
