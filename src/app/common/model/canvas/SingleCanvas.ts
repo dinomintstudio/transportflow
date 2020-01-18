@@ -20,6 +20,7 @@ export class SingleCanvas implements Canvas {
 				new Shape(<number>image.width, <number>image.height)
 			);
 		}
+		this.context.imageSmoothingEnabled = false;
 		this.context.drawImage(
 			image,
 			sourceRect.topLeft.x,
@@ -38,8 +39,13 @@ export class SingleCanvas implements Canvas {
 		this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
 	}
 
-	static create(): SingleCanvas {
-		return new SingleCanvas(document.createElement('canvas'));
+	static create(resolution?: Shape): SingleCanvas {
+		const canvas: SingleCanvas = new SingleCanvas(document.createElement('canvas'));
+		if (resolution) {
+			canvas.canvas.width = resolution.width;
+			canvas.canvas.height = resolution.height;
+		}
+		return canvas;
 	}
 
 }

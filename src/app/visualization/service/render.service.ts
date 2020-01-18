@@ -14,13 +14,15 @@ import {Shape} from "../../common/model/Shape";
 import {Matrix} from "../../common/model/Matrix";
 import {Maybe} from "../../common/model/Maybe";
 import {SingleCanvas} from "../../common/model/canvas/SingleCanvas";
+import {ChunkedCanvas} from "../../common/model/canvas/ChunkedCanvas";
 
 @Injectable({
 	providedIn: 'root'
 })
 export class RenderService {
 
-	private map: SingleCanvas;
+	private map: ChunkedCanvas;
+	private minimap: SingleCanvas;
 	private view: SingleCanvas;
 
 	constructor(
@@ -48,10 +50,17 @@ export class RenderService {
 			.pipe(first())
 			.subscribe(world => {
 				console.debug('initialize render map');
-				this.map = SingleCanvas.create();
-
-				this.map.canvas.width = config.tileResolution * world.tilemap.shape.width;
-				this.map.canvas.height = config.tileResolution * world.tilemap.shape.height;
+				this.map = new ChunkedCanvas(
+					new Shape(
+						config.tileResolution * world.tilemap.shape.width,
+						config.tileResolution * world.tilemap.shape.height
+					),
+					Shape.square(config.chunkSize * config.tileResolution)
+				);
+				this.minimap = SingleCanvas.create(new Shape(
+					world.tilemap.shape.width * config.tileResolution,
+					world.tilemap.shape.height * config.tileResolution)
+				);
 
 				this.cameraService.camera.set(new Camera(
 					new Position(
@@ -85,50 +94,56 @@ export class RenderService {
 
 			this.view.fill('white');
 
-			const viewShape = new Shape(
-				(this.view.canvas.width * config.tileResolution) / camera.zoom,
-				(this.view.canvas.height * config.tileResolution) / camera.zoom
+			const viewShape = (tileResolution) => new Shape(
+				(this.view.canvas.width * tileResolution) / camera.zoom,
+				(this.view.canvas.height * tileResolution) / camera.zoom
 			);
 
-			this.view.context.imageSmoothingEnabled = false;
-
-			this.view.drawImage(
-				this.map.canvas,
-				Rectangle.rectangleByOnePoint(
-					new Position(0, 0),
-					new Shape(
-						this.view.canvas.width,
-						this.view.canvas.height
-					)
+			const sourceRect = (tileResolution) => Rectangle.rectangleByOnePoint(
+				new Position(
+					(camera.position.x * tileResolution) - (viewShape(tileResolution).width / 2),
+					(camera.position.y * tileResolution) - (viewShape(tileResolution).height / 2)
 				),
-				Rectangle.rectangleByOnePoint(
-					new Position(
-						(camera.position.x * config.tileResolution) - (viewShape.width / 2),
-						(camera.position.y * config.tileResolution) - (viewShape.height / 2)),
-					new Shape(viewShape.width, viewShape.height)
+				new Shape(viewShape(tileResolution).width, viewShape(tileResolution).height)
+			);
+			const destinationRect = Rectangle.rectangleByOnePoint(
+				new Position(0, 0),
+				new Shape(this.view.canvas.width, this.view.canvas.height)
+			);
+			this.view.context.imageSmoothingEnabled = false;
+			if (camera.zoom > 10) {
+				this.view.drawImage(
+					this.map.of(sourceRect(config.tileResolution)),
+					destinationRect,
 				)
-			)
+			} else {
+				this.view.drawImage(
+					this.minimap.canvas,
+					destinationRect,
+					sourceRect(config.minimapResolution)
+				)
+			}
 		});
 	}
 
 	private drawMap(world: World): void {
-		// TODO: refactor
 		const drawTileFunctions = [
 			(t, p, a) => this.drawSurface(t, p, a),
 			(t, p, a) => this.drawBuilding(t, p, a),
-			(t, p, a) => this.drawBorder(t, p, a),
 			(t, p, a) => this.drawRoad(t, p, a),
-			(t, p, a) => this.drawPlant(t, p, a)
+			(t, p, a) => this.drawPlant(t, p, a),
+			(t, p, a) => this.drawBorder(t, p, a),
 		];
 		drawTileFunctions.forEach((drawTileFunction) =>
-			world.tilemap.forEach((tile, position) => {
+			world.tilemap.forEach((tile, position) =>
 				this.drawTileLayer(
 					tile,
 					position,
 					this.worldService.getAdjacentTileMatrix(world.tilemap, position),
 					drawTileFunction
 				)
-			}));
+			)
+		);
 	}
 
 	private drawTileLayer(tile: Tile, position: Position, adjacentTiles: Matrix<Maybe<Tile>>, drawTileFunction: (tile, tileRect, adjacentTiles) => void): void {
@@ -143,6 +158,34 @@ export class RenderService {
 		);
 
 		drawTileFunction(tile, tileRect, adjacentTiles);
+	}
+
+	private drawSprite(sprite: HTMLImageElement, position: Position, scale: number = 1.0): void {
+		const spriteRect = Rectangle.rectangleByOnePoint(
+			new Position(position.x, position.y),
+			new Shape(
+				sprite.width * scale,
+				sprite.height * scale
+			)
+		);
+		this.map.drawImage(
+			sprite,
+			spriteRect
+		);
+		const minimapRect = Rectangle.rectangleByOnePoint(
+			new Position(
+				(spriteRect.topLeft.x / config.tileResolution) * config.minimapResolution,
+				(spriteRect.topLeft.y / config.tileResolution) * config.minimapResolution
+			),
+			new Shape(
+				(spriteRect.shape.width / config.tileResolution) * config.minimapResolution,
+				(spriteRect.shape.height / config.tileResolution) * config.minimapResolution
+			)
+		);
+		this.minimap.drawImage(
+			sprite,
+			minimapRect
+		)
 	}
 
 	private drawSurface(tile: Tile, tileRect: Rectangle, _): void {
@@ -184,21 +227,6 @@ export class RenderService {
 			const sprite = this.spriteService.fetch('tree');
 			this.drawSprite(sprite, tileRect.topLeft);
 		}
-	}
-
-	private drawSprite(sprite: HTMLImageElement, position: Position, scale: number = 1.0): void {
-		this.map.drawImage(
-			sprite,
-			Rectangle.rectangleByOnePoint(
-				new Position(
-					position.x,
-					position.y),
-				new Shape(
-					sprite.width * scale,
-					sprite.height * scale
-				)
-			)
-		);
 	}
 
 }

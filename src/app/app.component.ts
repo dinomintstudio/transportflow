@@ -19,6 +19,9 @@ import {CityGenerationService} from "./generation/city/service/city-generation.s
 import {RenderService} from "./visualization/service/render.service";
 import {WorldService} from "./game-logic/service/world.service";
 import {WorldGenerationConfig} from "./generation/world/config/WorldGenerationConfig";
+import {DesertBiomeConfig} from "./generation/terrain/config/biome/DesertBiomeConfig";
+import {TaigaBiomeConfig} from "./generation/terrain/config/biome/TaigaBiomeConfig";
+import {JungleBiomeConfig} from "./generation/terrain/config/biome/JungleBiomeConfig";
 
 @Component({
 	selector: 'app-root',
@@ -38,33 +41,47 @@ export class AppComponent {
 		private worldService: WorldService
 	) {
 		const terrainGenerationConfig = new TerrainGenerationConfig(
-			Shape.square(128),
+			new Shape(512, 512),
 			0.001,
-			0.25,
 			new AltitudeMapConfig(
 				new NoiseConfig(
-					0.03
+					0.02
 				),
-				6,
-				3,
-				1
+				8,
+				5,
+				0
 			),
 			new TemperatureMapConfig(
 				new NoiseConfig(
-					0.005
+					0.001
 				),
-				3,
+				4,
 				1
 			),
 			new HumidityMapConfig(
 				new NoiseConfig(
-					0.005
+					0.01
 				),
-				4,
-				2,
-				1
+				9,
+				3,
+				2
 			),
-			new BiomesConfig()
+			new BiomesConfig(
+				new DesertBiomeConfig(
+					0.2
+				),
+				new TaigaBiomeConfig(
+					0.75
+				),
+				new JungleBiomeConfig(
+					0.9
+				)
+			),
+			new NoiseConfig(
+				0.03,
+				new Range(0, 1)
+			),
+			0.06
 		);
 
 		let tiledTerrain = this.terrainGenerationService.generate(
@@ -72,10 +89,10 @@ export class AppComponent {
 		);
 
 		const config: StreetGenerationConfig = new StreetGenerationConfig(
-			new Range(4, 12),
-			new Range(2, 4),
+			new Range(2, 12),
+			new Range(3, 4),
 			2,
-			new Range(2, 3)
+			new Range(1, 2)
 		);
 
 		let roads: Road[] = this.streetGenerationService.generate(config);
@@ -83,7 +100,7 @@ export class AppComponent {
 
 		const cityGenerationConfig = new CityGenerationConfig(
 			2,
-			0.5,
+			0.6,
 			config
 		);
 

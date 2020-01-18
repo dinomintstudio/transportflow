@@ -49,10 +49,14 @@ export class Rectangle {
 			this.shape.height + 1
 			),
 			null,
-			new Position(0, 0)
+			() => new Position(0, 0)
 		).map((position, positionPosition) => {
 			return position.add(positionPosition)
 		});
+	}
+
+	toString(): string {
+		return `${this.topLeft}-${this.bottomRight} ${this.shape.toString()}`
 	}
 
 	/**
