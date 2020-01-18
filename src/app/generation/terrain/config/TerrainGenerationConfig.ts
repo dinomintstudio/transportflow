@@ -47,6 +47,11 @@ export class TerrainGenerationConfig {
 	biomesConfig: BiomesConfig;
 
 	/**
+	 * Probability [0..1] of appearance of a random tree
+	 */
+	randomTreeProbability: number;
+
+	/**
 	 * How high above sea level beach will be generated.
 	 * Measured in height units after normalization [0..1]
 	 */
@@ -62,7 +67,7 @@ export class TerrainGenerationConfig {
 	 * @param biomesConfig
 	 * @param fertilityNoiseConfig
 	 */
-	constructor(mapSize: Shape, cityPerTile: number, altitudeMapConfig: AltitudeMapConfig, temperatureMapConfig: TemperatureMapConfig, humidityMapConfig: HumidityMapConfig, biomesConfig: BiomesConfig, fertilityNoiseConfig: NoiseConfig, beachHeight: number) {
+	constructor(mapSize: Shape, cityPerTile: number, altitudeMapConfig: AltitudeMapConfig, temperatureMapConfig: TemperatureMapConfig, humidityMapConfig: HumidityMapConfig, biomesConfig: BiomesConfig, fertilityNoiseConfig: NoiseConfig, randomTreeProbability: number, beachHeight: number) {
 		this.mapSize = mapSize;
 		this.cityPerTile = cityPerTile;
 		this.altitudeMapConfig = altitudeMapConfig;
@@ -70,6 +75,7 @@ export class TerrainGenerationConfig {
 		this.humidityMapConfig = humidityMapConfig;
 		this.biomesConfig = biomesConfig;
 		this.fertilityNoiseConfig = fertilityNoiseConfig;
+		this.randomTreeProbability = randomTreeProbability;
 		this.beachHeight = beachHeight;
 	}
 

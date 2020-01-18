@@ -41,7 +41,7 @@ export class AppComponent {
 		private worldService: WorldService
 	) {
 		const terrainGenerationConfig = new TerrainGenerationConfig(
-			new Shape(512, 512),
+			new Shape(128, 128),
 			0.001,
 			new AltitudeMapConfig(
 				new NoiseConfig(
@@ -81,6 +81,7 @@ export class AppComponent {
 				0.03,
 				new Range(0, 1)
 			),
+			0.1,
 			0.06
 		);
 

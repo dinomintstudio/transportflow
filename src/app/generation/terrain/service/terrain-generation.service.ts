@@ -174,9 +174,10 @@ export class TerrainGenerationService {
 	private tileIsPlant(config: TerrainGenerationConfig, position: Position, biome: Biome): Boolean {
 		// TODO: better way of separating noise map between terrain maps
 		const probability = this.noiseService.generate(position.add(new Position(4000, 4000)), config.fertilityNoiseConfig);
-		return this.randomService.withProbability(biome.config.plantK)
+		const isTreeByNoise: Boolean =  this.randomService.withProbability(biome.config.plantK)
 			? probability >= 0.5
 			: false;
+		return isTreeByNoise || this.randomService.withProbability(config.randomTreeProbability * biome.config.plantK);
 	}
 
 	/**
