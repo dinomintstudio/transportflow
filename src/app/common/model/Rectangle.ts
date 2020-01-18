@@ -40,6 +40,13 @@ export class Rectangle {
 		return new Rectangle(this.topLeft.add(position), this.shape);
 	}
 
+	multiply(factor: number): Rectangle {
+		return Rectangle.rectangleByOnePoint(
+			new Position(this.topLeft.x * factor, this.topLeft.y * factor),
+			new Shape(this.shape.width * factor, this.shape.height * factor)
+		);
+	}
+
 	/**
 	 * Only for integer point positions and shapes
 	 */
@@ -81,6 +88,17 @@ export class Rectangle {
 	 */
 	static rectangleByOnePoint(p1: Position, shape: Shape): Rectangle {
 		return new Rectangle(p1, shape);
+	}
+
+	/**
+	 * Returns distance between centers of two rectangles
+	 * @param r1 one rectangle
+	 * @param r2 another rectangle
+	 * @return distance between centers
+	 */
+	static distance(r1: Rectangle, r2: Rectangle) {
+		const center = (r: Rectangle): Position => r.topLeft.add(new Position(r.shape.width / 2, r.shape.height / 2));
+		return Position.distance(center(r1), center(r2));
 	}
 
 }

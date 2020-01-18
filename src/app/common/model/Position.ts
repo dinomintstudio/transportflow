@@ -47,4 +47,14 @@ export class Position {
 		return `[${this.x}, ${this.y}]`;
 	}
 
+	/**
+	 * Returns distance between two points
+	 * @param p1 one point
+	 * @param p2 another point
+	 * @return distance between points
+	 */
+	static distance(p1, p2): number {
+		return Math.hypot(p2.x - p1.x, p2.y - p1.y);
+	}
+
 }
