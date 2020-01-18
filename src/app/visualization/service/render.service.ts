@@ -24,6 +24,13 @@ export class RenderService {
 	private map: ChunkedCanvas;
 	private minimap: SingleCanvas;
 	private view: SingleCanvas;
+	private drawTileFunctions: ((tile: Tile, tileRect: Rectangle, adjacentTiles: Matrix<Maybe<Tile>>) => void)[] = [
+		(t, p, a) => this.drawSurface(t, p, a),
+		(t, p, a) => this.drawBuilding(t, p, a),
+		(t, p, a) => this.drawRoad(t, p, a),
+		(t, p, a) => this.drawPlant(t, p, a),
+		(t, p, a) => this.drawBorder(t, p, a),
+	];
 
 	constructor(
 		private cameraService: CameraService,
@@ -45,11 +52,17 @@ export class RenderService {
 		});
 	}
 
-	initMap(): void {
+	/**
+	 * Responsible for manipulating with map canvas.
+	 * Including:
+	 *  - loading and offloading sprites
+	 *  - rendering and offloading chunks
+	 */
+	private initMap(): void {
+		console.debug('initialize render map');
 		this.worldService.world.observable
 			.pipe(first())
-			.subscribe(world => {
-				console.debug('initialize render map');
+			.subscribe((world: World) => {
 				this.map = new ChunkedCanvas(
 					new Shape(
 						config.tileResolution * world.tilemap.shape.width,
@@ -227,6 +240,15 @@ export class RenderService {
 			const sprite = this.spriteService.fetch('tree');
 			this.drawSprite(sprite, tileRect.topLeft);
 		}
+	}
+
+	private static createCanvas(resolution?: Shape): HTMLCanvasElement {
+		const canvas: HTMLCanvasElement = document.createElement('canvas');
+		if (resolution) {
+			canvas.width = resolution.width;
+			canvas.height = resolution.height;
+		}
+		return canvas;
 	}
 
 }
