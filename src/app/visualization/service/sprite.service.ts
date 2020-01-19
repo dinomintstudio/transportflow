@@ -17,6 +17,8 @@ export class SpriteService {
 		let spritesLoaded = 0;
 		const spritesCount = spritesConfig.sprites.length;
 
+		if (this.spriteMap.size === spritesCount) onload();
+
 		this.spriteUrlMap.forEach((v, k) => {
 				return this.loadImage(v, (image => {
 						this.spriteMap.set(k, image);
