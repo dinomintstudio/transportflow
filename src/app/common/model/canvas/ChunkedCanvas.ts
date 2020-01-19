@@ -3,12 +3,13 @@ import {Rectangle} from "../Rectangle";
 import {Matrix} from "../Matrix";
 import {Position} from "../Position";
 import {Canvas, createCanvas} from "./Canvas";
+import {SingleCanvas} from "./SingleCanvas";
 
 export class ChunkedCanvas implements Canvas {
 
 	public resolution: Shape;
 	public chunkSize: Shape;
-	public chunkMatrix: Matrix<HTMLCanvasElement>;
+	public chunkMatrix: Matrix<SingleCanvas>;
 
 	constructor(resolution: Shape, chunkSize: Shape) {
 		this.resolution = resolution;
@@ -29,7 +30,7 @@ export class ChunkedCanvas implements Canvas {
 			Math.floor(destinationRect.topLeft.y / this.chunkSize.height)
 		);
 
-		const chunk: HTMLCanvasElement = this.chunkMatrix.at(chunkPosition);
+		const chunk: SingleCanvas = this.chunkMatrix.at(chunkPosition);
 		const origin: Position = new Position(
 			chunkPosition.x * this.chunkSize.width,
 			chunkPosition.y * this.chunkSize.height
@@ -38,35 +39,22 @@ export class ChunkedCanvas implements Canvas {
 		const mappedDestinationPosition: Position = destinationRect.topLeft.sub(origin);
 
 		// TODO: check if drawing is required
-		const context = chunk.getContext('2d');
-		context.imageSmoothingEnabled = false;
-		context.drawImage(
+		chunk.drawImage(
 			image,
-			sourceRect.topLeft.x,
-			sourceRect.topLeft.y,
-			sourceRect.shape.width,
-			sourceRect.shape.height,
-			mappedDestinationPosition.x,
-			mappedDestinationPosition.y,
-			destinationRect.shape.width,
-			destinationRect.shape.height,
-		);
+			Rectangle.rectangleByOnePoint(mappedDestinationPosition, destinationRect.shape),
+			sourceRect
+		)
 	}
 
 	private generateChunkMatrix() {
-		this.chunkMatrix = new Matrix<HTMLCanvasElement>(
+		this.chunkMatrix = new Matrix<SingleCanvas>(
 			new Shape(
 				Math.floor((this.resolution.width - 1) / this.chunkSize.width) + 1,
 				Math.floor((this.resolution.height - 1) / this.chunkSize.height) + 1,
 			),
 			null,
-			() => createCanvas()
+			() => new SingleCanvas(createCanvas(new Shape(this.chunkSize.width, this.chunkSize.height)))
 		);
-
-		this.chunkMatrix.forEach(c => {
-			c.width = this.chunkSize.width;
-			c.height = this.chunkSize.height;
-		});
 	}
 
 	of(rectangle: Rectangle): HTMLCanvasElement {
@@ -91,7 +79,7 @@ export class ChunkedCanvas implements Canvas {
 
 			resultContext.imageSmoothingEnabled = false;
 			resultContext.drawImage(
-				canvas,
+				canvas.canvas,
 				mappedDestinationPosition.x,
 				mappedDestinationPosition.y,
 				result.width,
