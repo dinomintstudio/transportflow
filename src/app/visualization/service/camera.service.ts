@@ -102,9 +102,9 @@ export class CameraService {
 		this.mouseService.mouseDrag.observable
 			.pipe(
 				pairwise(),
-				filter(([e1, e2]) => Math.abs(e1.timeStamp - e2.timeStamp) < 100),
-				map(a => a.map(e => new Position(e.clientX, e.clientY))),
-				map(([p1, p2]) => new Position(p1.x - p2.x, p1.y - p2.y)),
+				filter(([e1, e2]: [MouseEvent, MouseEvent]) => Math.abs(e1.timeStamp - e2.timeStamp) < 100),
+				map((pair: [MouseEvent, MouseEvent]) => pair.map(e => new Position(e.clientX, e.clientY))),
+				map(([p1, p2]: [Position, Position]) => p1.sub(p2)),
 			)
 			.subscribe(p => {
 				this.camera.observable
