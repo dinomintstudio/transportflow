@@ -75,8 +75,8 @@ export class RenderService {
 					config.chunkSize * config.tileResolution
 				);
 				this.minimap = new SingleCanvas(createCanvas(new Shape(
-					world.tilemap.shape.width * config.tileResolution,
-					world.tilemap.shape.height * config.tileResolution)
+					world.tilemap.shape.width * config.minimapResolution,
+					world.tilemap.shape.height * config.minimapResolution)
 				));
 
 				this.cameraService.camera.set(new Camera(
@@ -87,7 +87,7 @@ export class RenderService {
 					config.tileResolution,
 					new CameraConfig(
 						new Range(1, 100),
-						20
+						16
 					)
 				));
 
@@ -131,11 +131,7 @@ export class RenderService {
 			);
 			this.view.context.imageSmoothingEnabled = false;
 			if (camera.zoom > camera.config.minimapTriggerZoom) {
-				// TODO: maybe draw directly here without buffer canvas
-				this.view.drawImage(
-					this.map.of(sourceRect(config.tileResolution)),
-					destinationRect,
-				)
+				this.map.drawPartOn(sourceRect(config.tileResolution), this.view, destinationRect);
 			} else {
 				this.view.drawImage(
 					this.minimap.canvas,

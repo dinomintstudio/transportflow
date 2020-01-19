@@ -92,4 +92,34 @@ export class ChunkedCanvas implements Canvas {
 		return result;
 	}
 
+	drawPartOn(rectangle: Rectangle, destCanvas: SingleCanvas, destinationRect: Rectangle): void {
+		const visibleChunksRect = Rectangle.rectangleByTwoPoints(
+			rectangle.topLeft.map(c => Math.floor(c / this.chunkSize)),
+			rectangle.bottomRight.map(c => Math.floor(c / this.chunkSize) + 1),
+		);
+
+		this.chunkMatrix.of(visibleChunksRect).forEach((canvas, position) => {
+			if (!canvas) return;
+
+			const mappedDestinationPosition: Position = rectangle.topLeft.sub(position
+				.add(visibleChunksRect.topLeft).map(c => c * this.chunkSize)
+			);
+
+			destCanvas.drawImage(
+				canvas.canvas,
+				Rectangle.rectangleByOnePoint(
+					destinationRect.topLeft,
+					new Shape(
+						destCanvas.canvas.width,
+						destCanvas.canvas.height
+					)
+				),
+				Rectangle.rectangleByOnePoint(
+					mappedDestinationPosition,
+					rectangle.shape
+				)
+			);
+		});
+	}
+
 }
