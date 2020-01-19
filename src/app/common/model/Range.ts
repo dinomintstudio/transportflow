@@ -47,6 +47,14 @@ export class Range {
 	}
 
 	/**
+	 * Returns a number caped by range
+	 * @param value value
+	 */
+	limit(value: number): number {
+		return Math.min(Math.max(value, this.from), this.to);
+	}
+
+	/**
 	 * Weather two ranges have common values
 	 * @param r1 range
 	 * @param r2 range

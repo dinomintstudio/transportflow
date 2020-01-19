@@ -21,7 +21,7 @@ export class CameraService {
 		this.keyService.keypressObservable.observable.subscribe(e => {
 			this.camera.observable
 				.pipe(first())
-				.subscribe(camera => {
+				.subscribe((camera: Camera) => {
 					if (!e) return;
 
 					if (e.code === 'KeyW') {
@@ -32,7 +32,8 @@ export class CameraService {
 									-1
 								)
 							),
-							camera.zoom
+							camera.zoom,
+							camera.config
 						));
 					}
 					if (e.code === 'KeyS') {
@@ -43,7 +44,8 @@ export class CameraService {
 									1
 								)
 							),
-							camera.zoom
+							camera.zoom,
+							camera.config
 						));
 					}
 					if (e.code === 'KeyA') {
@@ -54,7 +56,8 @@ export class CameraService {
 									0
 								)
 							),
-							camera.zoom
+							camera.zoom,
+							camera.config
 						));
 					}
 					if (e.code === 'KeyD') {
@@ -65,7 +68,8 @@ export class CameraService {
 									0
 								)
 							),
-							camera.zoom
+							camera.zoom,
+							camera.config
 						));
 					}
 				});
@@ -77,7 +81,8 @@ export class CameraService {
 				.subscribe(camera => {
 					this.camera.set(new Camera(
 						camera.position,
-						camera.zoom *= 1.2
+						camera.config.zoomLimit.limit(camera.zoom * 1.2),
+						camera.config
 					));
 				});
 		});
@@ -88,7 +93,8 @@ export class CameraService {
 				.subscribe(camera => {
 					this.camera.set(new Camera(
 						camera.position,
-						camera.zoom /= 1.2
+						camera.config.zoomLimit.limit(camera.zoom / 1.2),
+						camera.config
 					));
 				});
 		});
@@ -111,7 +117,8 @@ export class CameraService {
 									p.y / camera.zoom
 								)
 							),
-							camera.zoom
+							camera.zoom,
+							camera.config
 						));
 					});
 			})

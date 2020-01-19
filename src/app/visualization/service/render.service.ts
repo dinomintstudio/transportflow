@@ -16,6 +16,8 @@ import {Maybe} from "../../common/model/Maybe";
 import {SingleCanvas} from "../../common/model/canvas/SingleCanvas";
 import {ChunkedCanvas} from "../../common/model/canvas/ChunkedCanvas";
 import {createCanvas} from "../../common/model/canvas/Canvas";
+import {CameraConfig} from "../config/CameraConfig";
+import {Range} from "../../common/model/Range";
 
 @Injectable({
 	providedIn: 'root'
@@ -81,7 +83,11 @@ export class RenderService {
 						world.tilemap.shape.width / 2,
 						world.tilemap.shape.height / 2
 					),
-					config.tileResolution
+					config.tileResolution,
+					new CameraConfig(
+						new Range(1, 100),
+						20
+					)
 				));
 
 				console.debug('load sprites');
@@ -114,7 +120,7 @@ export class RenderService {
 				new Shape(this.view.canvas.width, this.view.canvas.height)
 			);
 			this.view.context.imageSmoothingEnabled = false;
-			if (camera.zoom > 10) {
+			if (camera.zoom > camera.config.minimapTriggerZoom) {
 				this.view.drawImage(
 					this.map.of(sourceRect(config.tileResolution)),
 					destinationRect,
