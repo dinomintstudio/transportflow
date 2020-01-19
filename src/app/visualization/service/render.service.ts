@@ -42,6 +42,7 @@ export class RenderService {
 	) {
 		this.initMap();
 		this.drawView();
+		this.invokeDrawSprites();
 	}
 
 	initView(canvas: HTMLCanvasElement, canvasContainer: HTMLElement): void {
@@ -92,13 +93,22 @@ export class RenderService {
 
 				console.debug('load sprites');
 				this.spriteService.loadSprites(() => {
-					console.debug('initial draw of tilemap');
-					const start = new Date();
-					this.drawChunks(world.tilemap);
-					console.debug(`initial draw of tilemap complete in ${(new Date().getTime() - start.getTime())}ms`);
-					return this.cameraService.camera.update();
+					this.cameraService.camera.update();
 				});
 			})
+	}
+
+	private invokeDrawSprites() {
+		this.spriteService.loadSprites(() => {
+			this.worldService.world.observable.subscribe(world => {
+				this.cameraService.camera.observable.pipe(first()).subscribe(camera => {
+					console.debug('draw visible chunks');
+					const start = new Date();
+					this.drawChunks(world.tilemap, camera);
+					console.debug(`drawn visible chunks in ${(new Date().getTime() - start.getTime())}ms`);
+				});
+			});
+		});
 	}
 
 	private resizeCanvas(shape: Shape): void {
@@ -121,6 +131,7 @@ export class RenderService {
 			);
 			this.view.context.imageSmoothingEnabled = false;
 			if (camera.zoom > camera.config.minimapTriggerZoom) {
+				// TODO: maybe draw directly here without buffer canvas
 				this.view.drawImage(
 					this.map.of(sourceRect(config.tileResolution)),
 					destinationRect,
@@ -149,8 +160,13 @@ export class RenderService {
 		);
 	}
 
-	private drawChunks(tilemap: Matrix<Tile>) {
-		this.map.chunkMatrix.forEach((_, position) => this.drawChunk(position, tilemap));
+	private drawChunks(tilemap: Matrix<Tile>, camera: Camera) {
+		// const visibleChunkRect: Rectangle = Rectangle.rectangleByTwoPoints(
+		//
+		// )
+		this.map.chunkMatrix.forEach((chunk, position) => {
+			return this.drawChunk(position, tilemap);
+		});
 	}
 
 	private drawChunk(chunkPosition: Position, tilemap: Matrix<Tile>): void {
