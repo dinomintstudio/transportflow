@@ -81,7 +81,7 @@ export class CameraService {
 				.subscribe(camera => {
 					this.camera.set(new Camera(
 						camera.position,
-						camera.config.zoomLimit.limit(camera.zoom * camera.config.zoomFactor),
+						camera.config.zoomLimit.clamp(camera.zoom * camera.config.zoomFactor),
 						camera.config
 					));
 				});
@@ -93,7 +93,7 @@ export class CameraService {
 				.subscribe(camera => {
 					this.camera.set(new Camera(
 						camera.position,
-						camera.config.zoomLimit.limit(camera.zoom / camera.config.zoomFactor),
+						camera.config.zoomLimit.clamp(camera.zoom / camera.config.zoomFactor),
 						camera.config
 					));
 				});

@@ -47,10 +47,10 @@ export class Range {
 	}
 
 	/**
-	 * Returns a number caped by range
+	 * Returns a number clamped by range
 	 * @param value value
 	 */
-	limit(value: number): number {
+	clamp(value: number): number {
 		return Math.min(Math.max(value, this.from), this.to);
 	}
 
