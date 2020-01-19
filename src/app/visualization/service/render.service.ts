@@ -72,7 +72,7 @@ export class RenderService {
 						config.tileResolution * world.tilemap.shape.width,
 						config.tileResolution * world.tilemap.shape.height
 					),
-					Shape.square(config.chunkSize * config.tileResolution)
+					config.chunkSize * config.tileResolution
 				);
 				this.minimap = new SingleCanvas(createCanvas(new Shape(
 					world.tilemap.shape.width * config.tileResolution,
