@@ -20,6 +20,11 @@ export class Matrix<T> {
 	value: T[][];
 
 	/**
+	 * Total number of elements (shape area)
+	 */
+	length: number;
+
+	/**
 	 * Constructs new Matrix instance.
 	 * When both params `null` then empty matrix is constructed
 	 * @param shape matrix shape. When `null` then shape is automatically calculated from given @param value
@@ -41,6 +46,7 @@ export class Matrix<T> {
 				this.value[i] = Array.from({length: this.shape.width}, () => fill());
 			});
 		}
+		this.length = this.shape.area();
 	}
 
 	/**
