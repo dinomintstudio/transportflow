@@ -27,12 +27,12 @@ export class RenderService {
 	private map: ChunkedCanvas;
 	private minimap: SingleCanvas;
 	private view: SingleCanvas;
-	private drawTileFunctions: ((tile: Tile, tileRect: Rectangle, adjacentTiles: Matrix<Maybe<Tile>>) => void)[] = [
-		(t, p, a) => this.drawSurface(t, p, a),
-		(t, p, a) => this.drawBuilding(t, p, a),
-		(t, p, a) => this.drawRoad(t, p, a),
-		(t, p, a) => this.drawPlant(t, p, a),
-		(t, p, a) => this.drawBorder(t, p, a),
+	private getSpriteFunctions: ((tile: Tile, adjacentTiles: Matrix<Maybe<Tile>>) => Maybe<HTMLImageElement>)[] = [
+		(t, a) => this.getSurfaceSprite(t, a),
+		(t, a) => this.getBuildingSprite(t, a),
+		(t, a) => this.getRoadSprite(t, a),
+		(t, a) => this.getPlantSprite(t, a),
+		(t, a) => this.getBorderSprite(t, a),
 	];
 
 	constructor(
@@ -93,7 +93,10 @@ export class RenderService {
 
 				console.debug('load sprites');
 				this.spriteService.loadSprites(() => {
-					this.cameraService.camera.update();
+					console.debug('draw minimap');
+					const startDrawMinimap = new Date();
+					this.drawMinimap(world.tilemap);
+					console.debug(`drawn minimap in ${(new Date().getTime() - startDrawMinimap.getTime())}ms`);
 				});
 			})
 	}
@@ -103,9 +106,11 @@ export class RenderService {
 			this.worldService.world.observable.subscribe(world => {
 				this.cameraService.camera.observable.pipe(first()).subscribe(camera => {
 					console.debug('draw visible chunks');
-					const start = new Date();
+					const startDrawChunks = new Date();
 					this.drawChunks(world.tilemap, camera);
-					console.debug(`drawn visible chunks in ${(new Date().getTime() - start.getTime())}ms`);
+					console.debug(`drawn visible chunks in ${(new Date().getTime() - startDrawChunks.getTime())}ms`);
+
+					this.cameraService.camera.update();
 				});
 			});
 		});
@@ -156,12 +161,13 @@ export class RenderService {
 		);
 	}
 
-	private drawChunks(tilemap: Matrix<Tile>, camera: Camera) {
+	private drawChunks(tilemap: Matrix<Tile>, camera: Camera): void {
 		// const visibleChunkRect: Rectangle = Rectangle.rectangleByTwoPoints(
 		//
 		// )
 		this.map.chunkMatrix.forEach((chunk, position) => {
-			return this.drawChunk(position, tilemap);
+			if (chunk.isDrawn) return;
+			this.drawChunk(position, tilemap);
 		});
 	}
 
@@ -174,51 +180,58 @@ export class RenderService {
 			Shape.square(config.chunkSize)
 		);
 		const chunkTilemap: Matrix<Tile> = tilemap.of(chunkTileRect);
-		this.drawTileFunctions.forEach(drawTileFunction => {
+		this.getSpriteFunctions.forEach(getSpriteFunction => {
 			chunkTilemap.forEach((tile: Tile, position: Position) => {
 				if (!tile) return;
 				const tilePosition = position.add(chunkTileRect.topLeft);
-				this.drawTileLayer(
-					tile,
-					tilePosition,
-					this.worldService.getAdjacentTileMatrix(tilemap, tilePosition),
-					drawTileFunction
-				);
+				const sprite: Maybe<HTMLImageElement> = getSpriteFunction(tile, this.worldService.getAdjacentTileMatrix(tilemap, tilePosition));
+				sprite.ifPresent(s => {
+					this.drawMapSprite(
+						s,
+						tilePosition.map(c => c * config.tileResolution)
+					);
+				});
 			})
 		});
 	}
 
-	private drawTileLayer(tile: Tile, position: Position, adjacentTiles: Matrix<Maybe<Tile>>, drawTileFunction: (tile, tileRect, adjacentTiles) => void): void {
-		const tileRect: Rectangle = Rectangle.rectangleByOnePoint(
-			position.map(c => c * config.tileResolution),
-			Shape.square(
-				config.tileResolution
-			)
-		);
-
-		drawTileFunction(tile, tileRect, adjacentTiles);
+	private drawMinimap(tilemap: Matrix<Tile>): void {
+		this.getSpriteFunctions.forEach(getSpriteFunction => {
+			tilemap.forEach((tile, position) => {
+				const sprite = getSpriteFunction(
+					tile,
+					this.worldService.getAdjacentTileMatrix(tilemap, position)
+				);
+				sprite.ifPresent(s => {
+					this.drawMinimapSprite(
+						s,
+						position
+					);
+				});
+			});
+		});
 	}
 
-	private drawSprite(sprite: HTMLImageElement, position: Position, scale: number = 1.0): void {
+	private drawMapSprite(sprite: HTMLImageElement, position: Position): void {
 		const spriteRect = Rectangle.rectangleByOnePoint(
 			new Position(position.x, position.y),
 			new Shape(
-				sprite.width * scale,
-				sprite.height * scale
+				sprite.width,
+				sprite.height
 			)
 		);
 		this.map.drawImage(
 			sprite,
 			spriteRect
 		);
+	}
+
+	private drawMinimapSprite(sprite: HTMLImageElement, position: Position): void {
 		const minimapRect = Rectangle.rectangleByOnePoint(
-			new Position(
-				(spriteRect.topLeft.x / config.tileResolution) * config.minimapResolution,
-				(spriteRect.topLeft.y / config.tileResolution) * config.minimapResolution
-			),
+			position.map(c => c * config.minimapResolution),
 			new Shape(
-				(spriteRect.shape.width / config.tileResolution) * config.minimapResolution,
-				(spriteRect.shape.height / config.tileResolution) * config.minimapResolution
+				(sprite.width / config.tileResolution) * config.minimapResolution,
+				(sprite.height / config.tileResolution) * config.minimapResolution,
 			)
 		);
 		this.minimap.drawImage(
@@ -227,27 +240,27 @@ export class RenderService {
 		)
 	}
 
-	private drawSurface(tile: Tile, tileRect: Rectangle, _): void {
+	private getSurfaceSprite(tile: Tile, _): Maybe<HTMLImageElement> {
 		let surface: string = tile.surface.type === 'land' ? tile.biome.type : tile.surface.type;
 		if (tile.isSnow) surface = 'snow';
-		const sprite = this.spriteService.fetch(surface);
-		this.drawSprite(sprite, tileRect.topLeft);
+		return new Maybe(this.spriteService.fetch(surface));
 	}
 
-	private drawBorder(_, tileRect: Rectangle, __): void {
-		const sprite = this.spriteService.fetch('border');
-		this.drawSprite(sprite, tileRect.topLeft);
+	private getBorderSprite(_, __): Maybe<HTMLImageElement> {
+		return new Maybe(this.spriteService.fetch('border'));
 	}
 
-	private drawBuilding(tile: Tile, tileRect: Rectangle, _): void {
+	private getBuildingSprite(tile: Tile, _): Maybe<HTMLImageElement> {
 		if (tile.building.isPresent() && tile.building.get().position.topLeft.equals(tile.position)) {
 			const buildingShape: Shape = tile.building.get().position.shape;
-			const sprite = this.spriteService.fetch(`house_${buildingShape.width + 1}x${buildingShape.height + 1}`);
-			this.drawSprite(sprite, tileRect.topLeft);
+			return new Maybe(
+				this.spriteService.fetch(`house_${buildingShape.width + 1}x${buildingShape.height + 1}`)
+			);
 		}
+		return Maybe.empty();
 	}
 
-	private drawRoad(tile: Tile, tileRect: Rectangle, adjacentTiles: Matrix<Maybe<Tile>>): void {
+	private getRoadSprite(tile: Tile, adjacentTiles: Matrix<Maybe<Tile>>): Maybe<HTMLImageElement> {
 		if (tile.road.isPresent()) {
 			const adjacentRoads: Matrix<Boolean> = adjacentTiles.map(t => t.isPresent() && t.get().road.isPresent());
 			let asset = `road_${
@@ -256,16 +269,16 @@ export class RenderService {
 				(adjacentRoads.at(new Position(1, 2)) ? 's' : '') +
 				(adjacentRoads.at(new Position(0, 1)) ? 'w' : '')
 			}`;
-			const sprite = this.spriteService.fetch(asset);
-			this.drawSprite(sprite, tileRect.topLeft);
+			return new Maybe(this.spriteService.fetch(asset));
 		}
+		return Maybe.empty();
 	}
 
-	private drawPlant(tile: Tile, tileRect: Rectangle, _): void {
+	private getPlantSprite(tile: Tile, _): Maybe<HTMLImageElement> {
 		if (tile.isPlant) {
-			const sprite = this.spriteService.fetch('tree');
-			this.drawSprite(sprite, tileRect.topLeft);
+			return new Maybe(this.spriteService.fetch('tree'));
 		}
+		return Maybe.empty();
 	}
 
 }

@@ -7,10 +7,12 @@ export class SingleCanvas implements Canvas {
 
 	public canvas: HTMLCanvasElement;
 	public context: CanvasRenderingContext2D;
+	public isDrawn: Boolean;
 
 	constructor(canvas: HTMLCanvasElement) {
 		this.canvas = canvas;
 		this.context = canvas.getContext('2d');
+		this.isDrawn = false;
 	}
 
 	drawImage(image: CanvasImageSource, destinationRect: Rectangle, sourceRect?: Rectangle): void {
@@ -32,6 +34,7 @@ export class SingleCanvas implements Canvas {
 			destinationRect.shape.width,
 			destinationRect.shape.height,
 		);
+		this.isDrawn = true;
 	}
 
 	fill(color: string): void {
