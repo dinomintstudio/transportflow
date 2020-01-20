@@ -198,11 +198,10 @@ export class RenderService {
 	private drawMinimap(tilemap: Matrix<Tile>): void {
 		this.getSpriteFunctions.forEach(getSpriteFunction => {
 			tilemap.forEach((tile, position) => {
-				const sprite = getSpriteFunction(
+				getSpriteFunction(
 					tile,
 					this.worldService.getAdjacentTileMatrix(tilemap, position)
-				);
-				sprite.ifPresent(s => {
+				).ifPresent(s => {
 					this.drawMinimapSprite(
 						s,
 						position
@@ -228,12 +227,12 @@ export class RenderService {
 
 	private drawMinimapSprite(sprite: HTMLImageElement, position: Position): void {
 		const minimapRect = Rectangle.rectangleByOnePoint(
-			position.map(c => c * config.minimapResolution),
+			position,
 			new Shape(
-				(sprite.width / config.tileResolution) * config.minimapResolution,
-				(sprite.height / config.tileResolution) * config.minimapResolution,
+				sprite.width / config.tileResolution,
+				sprite.height / config.tileResolution,
 			)
-		);
+		).multiply(config.minimapResolution);
 		this.minimap.drawImage(
 			sprite,
 			minimapRect
