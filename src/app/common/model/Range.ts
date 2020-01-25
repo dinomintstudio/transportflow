@@ -23,6 +23,13 @@ export class Range {
 		this.to = to;
 	}
 
+	sort(): Range {
+		return new Range(
+			Math.min(this.from, this.to),
+			Math.max(this.from, this.to)
+		);
+	}
+
 	/**
 	 * Checks whether given value is in range
 	 * @param value value
@@ -67,5 +74,4 @@ export class Range {
 		return r2.in(r1.from) || r2.in(r1.to) ||
 			r1.in(r2.from) || r1.in(r2.to);
 	}
-
 }

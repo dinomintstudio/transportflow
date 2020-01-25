@@ -45,12 +45,9 @@ export class StreetGenerationService {
 			config
 		);
 		let roads = mainRoad.generateBranchRoads(
-			this.randomService.randomRangeInteger(config.propagationSteps)
+			this.randomService.randomRangeInteger(config.propagationSteps),
+			[mainRoad]
 		);
-
-		if (config.distanceBetweenParallelRoads !== 1) {
-			roads = this.filterCloseRoads(roads, config.distanceBetweenParallelRoads);
-		}
 
 		if (!config.totalRoadCount || config.totalRoadCount.in(roads.length)) {
 			return roads;
@@ -92,49 +89,6 @@ export class StreetGenerationService {
 			});
 
 		return tilemap;
-	}
-
-	private filterCloseRoads(roads: Road[], minimumDistance: number): Road[] {
-		const horizontal = roads
-			.filter(r => r.angle % Math.PI === 0);
-		const vertical = roads
-			.filter(r => r.angle % Math.PI === Math.PI / 2);
-
-		return this.filterHorizontalCloseRoads(horizontal, minimumDistance).concat(this.filterVerticalCloseRoads(vertical, minimumDistance));
-	}
-
-	private filterHorizontalCloseRoads(roads: Road[], minimumDistance: number): Road[] {
-		const result: Road[] = [];
-
-		roads
-			.sort((r1, r2) => r1.startPoint.y - r2.startPoint.y)
-			.forEach((r, i) => {
-				if (i === 0) result.push(r);
-
-				const prev = result[result.length - 1];
-				if (r.startPoint.y - prev.startPoint.y >= minimumDistance) {
-					result.push(r);
-				}
-			});
-
-		return result;
-	}
-
-	private filterVerticalCloseRoads(roads: Road[], minimumDistance: number): Road[] {
-		const result: Road[] = [];
-
-		roads
-			.sort((r1, r2) => r1.startPoint.x - r2.startPoint.x)
-			.forEach((r, i) => {
-				if (i === 0) result.push(r);
-
-				const prev = result[result.length - 1];
-				if (r.startPoint.x - prev.startPoint.x >= minimumDistance) {
-					result.push(r);
-				}
-			});
-
-		return result;
 	}
 
 	private roadToRectangle(road: TiledRoad): Rectangle {
