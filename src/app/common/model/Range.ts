@@ -54,6 +54,10 @@ export class Range {
 		return Math.min(Math.max(value, this.from), this.to);
 	}
 
+	toString(): string {
+		return `[${this.from}, ${this.to}]`;
+	}
+
 	/**
 	 * Weather two ranges have common values
 	 * @param r1 range
