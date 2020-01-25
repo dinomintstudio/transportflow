@@ -51,8 +51,10 @@ export class TerrainGenerationService {
 		console.debug('distribute city points');
 		const cityPoints = this.distributionService.distribute(config.mapSize, config.cityPerTile);
 
-		const tiledTerrain = new TiledTerrain(null, cityPoints);
-		tiledTerrain.tilemap = new Matrix<TerrainTile>(config.mapSize);
+		const tiledTerrain = new TiledTerrain(
+			new Matrix<TerrainTile>(config.mapSize),
+			cityPoints
+		);
 
 		console.debug('generate terrain tilemap');
 		const start = new Date();
@@ -165,7 +167,6 @@ export class TerrainGenerationService {
 		return pattern === 1;
 	}
 
-	// TODO: better algorithm for forests
 	/**
 	 * Is tile has plant
 	 * @param config
@@ -174,7 +175,7 @@ export class TerrainGenerationService {
 	private tileIsPlant(config: TerrainGenerationConfig, position: Position, biome: Biome): Boolean {
 		// TODO: better way of separating noise map between terrain maps
 		const probability = this.noiseService.generate(position.add(new Position(4000, 4000)), config.fertilityNoiseConfig);
-		const isTreeByNoise: Boolean =  this.randomService.withProbability(biome.config.plantK)
+		const isTreeByNoise: Boolean = this.randomService.withProbability(biome.config.plantK)
 			? probability >= 0.5
 			: false;
 		return isTreeByNoise || this.randomService.withProbability(config.randomTreeProbability * biome.config.plantK);
