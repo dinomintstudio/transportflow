@@ -21,8 +21,7 @@ export class StreetGenerationConfig {
 	distanceBetweenParallelRoads: number;
 
 	/**
-	 * Describes the amount of roads to be branches to current road. Must satisfy
-	 * `branchRoadsCount < roadLength.from / distanceBetweenParallelRoads`
+	 * Describes the amount of roads to be branches to current road
 	 */
 	branchRoadsCount: Range;
 
