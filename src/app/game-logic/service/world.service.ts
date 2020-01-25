@@ -32,17 +32,19 @@ export class WorldService {
 		console.debug('generate world');
 		const tilemap: Matrix<Tile> = this.mapTerrainMatrixToTileMatrix(tiledTerrain.tilemap);
 
-		tiledTerrain.cityPoints.forEach(cityPosition => {
-			const city: TiledCity = this.cityGenerationService.generate(config.cityGenerationConfig);
-			// place cityPoint in the center of city tilemap
-			const worldCityPosition: Position = cityPosition.add(new Position(
-				-city.tilemap.shape.width / 2,
-				-city.tilemap.shape.height / 2
-			).floor());
+		tiledTerrain.cityPoints
+			.filter(p => this.canPlaceCity(tiledTerrain.tilemap, p))
+			.forEach(cityPosition => {
+				const city: TiledCity = this.cityGenerationService.generate(config.cityGenerationConfig);
+				// place cityPoint in the center of city tilemap
+				const worldCityPosition: Position = cityPosition.add(new Position(
+					-city.tilemap.shape.width / 2,
+					-city.tilemap.shape.height / 2
+				).floor());
 
-			this.fillCityTile(city, worldCityPosition, tilemap);
-			this.placeBuildings(city, worldCityPosition, tilemap);
-		});
+				this.fillCityTile(city, worldCityPosition, tilemap);
+				this.placeBuildings(city, worldCityPosition, tilemap);
+			});
 
 		return new World(
 			tilemap,
@@ -146,4 +148,14 @@ export class WorldService {
 			Maybe.empty()
 		));
 	}
+
+	/**
+	 * City can be placed only on land surface
+	 * @param tilemap
+	 * @param position
+	 */
+	private canPlaceCity(tilemap: Matrix<TerrainTile>, position: Position) {
+		return tilemap.at(position).surface.type === 'land';
+	}
+
 }
