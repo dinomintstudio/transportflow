@@ -23,6 +23,9 @@ export class Range {
 		this.to = to;
 	}
 
+	/**
+	 * Order from and to in correct order so from is less than two
+	 */
 	sort(): Range {
 		return new Range(
 			Math.min(this.from, this.to),

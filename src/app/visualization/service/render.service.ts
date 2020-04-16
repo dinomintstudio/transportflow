@@ -42,7 +42,7 @@ export class RenderService {
 	) {
 		this.initMap();
 		this.drawView();
-		this.invokeDrawSprites();
+		this.loadSprites();
 	}
 
 	initView(canvas: HTMLCanvasElement, canvasContainer: HTMLElement): void {
@@ -91,27 +91,30 @@ export class RenderService {
 					)
 				));
 
-				console.debug('load sprites');
 				this.spriteService.loadSprites(() => {
-					console.debug('draw minimap');
-					const startDrawMinimap = new Date();
-					this.drawMinimap(world.tilemap);
-					console.debug(`drawn minimap in ${(new Date().getTime() - startDrawMinimap.getTime())}ms`);
 				});
 			})
 	}
 
-	private invokeDrawSprites() {
+	private loadSprites() {
 		this.spriteService.loadSprites(() => {
+			console.debug('load sprites');
 			this.worldService.world.observable.subscribe(world => {
-				this.cameraService.camera.observable.pipe(first()).subscribe(camera => {
-					console.debug('draw visible chunks');
-					const startDrawChunks = new Date();
-					this.drawChunks(world.tilemap, camera);
-					console.debug(`drawn visible chunks in ${(new Date().getTime() - startDrawChunks.getTime())}ms`);
+				this.cameraService.camera.observable
+					.pipe(first())
+					.subscribe(camera => {
+						console.debug('draw visible chunks');
+						const startDrawChunks = new Date();
+						this.drawChunks(world.tilemap, camera);
+						console.debug(`drawn visible chunks in ${(new Date().getTime() - startDrawChunks.getTime())}ms`);
 
-					this.cameraService.camera.update();
-				});
+						console.debug('draw minimap');
+						const startDrawMinimap = new Date();
+						this.drawMinimap(world.tilemap);
+						console.debug(`drawn minimap in ${(new Date().getTime() - startDrawMinimap.getTime())}ms`);
+
+						this.cameraService.camera.update();
+					});
 			});
 		});
 	}
@@ -162,9 +165,6 @@ export class RenderService {
 	}
 
 	private drawChunks(tilemap: Matrix<Tile>, camera: Camera): void {
-		// const visibleChunkRect: Rectangle = Rectangle.rectangleByTwoPoints(
-		//
-		// )
 		this.map.chunkMatrix.forEach((chunk, position) => {
 			if (chunk.isDrawn) return;
 			this.drawChunk(position, tilemap);
@@ -196,47 +196,27 @@ export class RenderService {
 	}
 
 	private drawMinimap(tilemap: Matrix<Tile>): void {
-		this.getSpriteFunctions.forEach(getSpriteFunction => {
-			tilemap.forEach((tile, position) => {
-				getSpriteFunction(
-					tile,
-					this.worldService.getAdjacentTileMatrix(tilemap, position)
-				).ifPresent(s => {
-					this.drawMinimapSprite(
-						s,
-						position
-					);
-				});
-			});
+		this.map.chunkMatrix.forEach((chunk, position) => {
+			this.minimap.drawImage(
+				chunk.canvas,
+				Rectangle.rectangleByOnePoint(
+					position.map(c => c * config.chunkSize),
+					Shape.square(config.chunkSize)
+				).multiply(config.minimapResolution)
+			)
 		});
 	}
 
 	private drawMapSprite(sprite: HTMLImageElement, position: Position): void {
 		const spriteRect = Rectangle.rectangleByOnePoint(
 			new Position(position.x, position.y),
-			new Shape(
-				sprite.width,
-				sprite.height
-			)
+			new Shape(sprite.width, sprite.height)
+				.map(s => (s / config.spriteResolution) * config.tileResolution)
 		);
 		this.map.drawImage(
 			sprite,
 			spriteRect
 		);
-	}
-
-	private drawMinimapSprite(sprite: HTMLImageElement, position: Position): void {
-		const minimapRect = Rectangle.rectangleByOnePoint(
-			position,
-			new Shape(
-				sprite.width / config.tileResolution,
-				sprite.height / config.tileResolution,
-			)
-		).multiply(config.minimapResolution);
-		this.minimap.drawImage(
-			sprite,
-			minimapRect
-		)
 	}
 
 	private getSurfaceSprite(tile: Tile, _): Maybe<HTMLImageElement> {
