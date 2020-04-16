@@ -38,7 +38,7 @@ export class NoiseService {
 	 * @param config noise config
 	 */
 	generate(position: Position, config: NoiseConfig): number {
-		// getting value in range of [-sqrt(n)/2, sqrt(n)/2]
+		// getting value in range of (-1; 1)
 		let noiseValue = this.simplexNoise.noise2D(position.x * config.scale, position.y * config.scale);
 
 		// mapping it to range [0, 1]
