@@ -12,7 +12,6 @@ import {LoggingService} from "./common/service/logging.service";
 import {StreetGenerationService} from "./generation/street/service/street-generation.service";
 import {StreetGenerationConfig} from "./generation/street/config/StreetGenerationConfig";
 import {Range} from "./common/model/Range";
-import {Road} from "./generation/street/model/Road";
 import {RandomService} from "./random/service/random.service";
 import {CityGenerationConfig} from "./generation/city/config/CityGenerationConfig";
 import {CityGenerationService} from "./generation/city/service/city-generation.service";
@@ -41,13 +40,13 @@ export class AppComponent {
 		private worldService: WorldService
 	) {
 		const terrainGenerationConfig = new TerrainGenerationConfig(
-			new Shape(128, 128),
-			0.001,
+			new Shape(256, 256),
+			0.002,
 			new AltitudeMapConfig(
 				new NoiseConfig(
-					0.02
+					0.01
 				),
-				8,
+				6,
 				5,
 				0
 			),
@@ -96,9 +95,6 @@ export class AppComponent {
 			new Range(1, 2)
 		);
 
-		let roads: Road[] = this.streetGenerationService.generate(config);
-		let tilemap = this.streetGenerationService.toTilemap(roads);
-
 		const cityGenerationConfig = new CityGenerationConfig(
 			2,
 			0.6,
@@ -113,7 +109,7 @@ export class AppComponent {
 					cityGenerationConfig
 				)
 			)
-		)
+		);
 	}
 
 }

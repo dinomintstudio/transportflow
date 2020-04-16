@@ -98,16 +98,16 @@ export class TerrainGenerationService {
 	 * @param position
 	 */
 	private tileSurface(config: TerrainGenerationConfig, position: Position): Surface {
-		const {altitudeMapConfig, mapSize} = config;
 		const pattern = this.fractionService.in(
 			this.fractionService.calculateRanges([
-				altitudeMapConfig.waterFraction,
-				altitudeMapConfig.landFraction,
-				altitudeMapConfig.mountainFraction
+				config.altitudeMapConfig.waterFraction,
+				config.altitudeMapConfig.landFraction,
+				config.altitudeMapConfig.mountainFraction
 			]),
 			this.noiseService.generate(
-				position.add(Position.fromShape(mapSize)),
-				altitudeMapConfig.noiseConfig
+				position.add(Position.fromShape(config.mapSize)),
+				config.altitudeMapConfig.noiseConfig,
+				config.mapSize
 			)
 		);
 
@@ -132,7 +132,8 @@ export class TerrainGenerationService {
 			]),
 			this.noiseService.generate(
 				position.add(Position.fromShape(config.mapSize).map(c => c * 2)),
-				config.humidityMapConfig.noiseConfig
+				config.humidityMapConfig.noiseConfig,
+				config.mapSize
 			)
 		);
 
@@ -144,7 +145,8 @@ export class TerrainGenerationService {
 
 		const altitude = this.noiseService.generate(
 			position.add(Position.fromShape(config.mapSize)),
-			config.altitudeMapConfig.noiseConfig
+			config.altitudeMapConfig.noiseConfig,
+			config.mapSize
 		);
 		if (altitude - seaLevelAltitude < config.beachHeight)
 			return new Biome('desert', config.biomesConfig.desertBiomeConfig);
@@ -162,15 +164,15 @@ export class TerrainGenerationService {
 	 * @param position
 	 */
 	private tileIsSnow(config: TerrainGenerationConfig, position: Position): Boolean {
-		const {temperatureMapConfig, mapSize} = config;
 		const pattern = this.fractionService.in(
 			this.fractionService.calculateRanges([
-				temperatureMapConfig.landFraction,
-				temperatureMapConfig.snowFraction
+				config.temperatureMapConfig.landFraction,
+				config.temperatureMapConfig.snowFraction
 			]),
 			this.noiseService.generate(
-				position.add(Position.fromShape(mapSize).map(c => c * 3)),
-				temperatureMapConfig.noiseConfig
+				position.add(Position.fromShape(config.mapSize).map(c => c * 3)),
+				config.temperatureMapConfig.noiseConfig,
+				config.mapSize
 			)
 		);
 
@@ -186,7 +188,8 @@ export class TerrainGenerationService {
 	private tileIsPlant(config: TerrainGenerationConfig, position: Position, biome: Biome): Boolean {
 		const probability = this.noiseService.generate(
 			position.add(Position.fromShape(config.mapSize).map(c => c * 4)),
-			config.fertilityNoiseConfig
+			config.fertilityNoiseConfig,
+			config.mapSize
 		);
 		const isTreeByNoise: Boolean = this.randomService.withProbability(biome.config.plantK)
 			? probability >= 0.5
