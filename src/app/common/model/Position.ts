@@ -1,6 +1,8 @@
 /**
  * Characteristic of an object that has position represented by x and y
  */
+import {Shape} from "./Shape";
+
 export class Position {
 
 	/**
@@ -59,6 +61,10 @@ export class Position {
 	 */
 	static distance(p1, p2): number {
 		return Math.hypot(p2.x - p1.x, p2.y - p1.y);
+	}
+
+	static fromShape(shape: Shape): Position {
+		return new Position(shape.width, shape.height);
 	}
 
 }

@@ -86,7 +86,7 @@ export class RenderService {
 					),
 					config.tileResolution,
 					new CameraConfig(
-						new Range(1, 100),
+						new Range(1, 1000),
 						16
 					)
 				));

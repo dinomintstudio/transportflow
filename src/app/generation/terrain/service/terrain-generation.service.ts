@@ -9,9 +9,7 @@ import {Position} from "../../../common/model/Position";
 import {NoiseService} from "../../../math/service/noise.service";
 import {FractionService} from "../../../math/service/fraction.service";
 import {Surface} from "../../../game-logic/model/Surface";
-import {AltitudeMapConfig} from "../config/noisemap/AltitudeMapConfig";
 import {Biome} from "../../../game-logic/model/Biome";
-import {TemperatureMapConfig} from "../config/noisemap/TemperatureMapConfig";
 import {RandomService} from "../../../random/service/random.service";
 import {DistributionService} from "../../../math/service/distribution.service";
 import {MatcherService} from "../../../util/service/matcher.service";
@@ -81,10 +79,10 @@ export class TerrainGenerationService {
 	private generateTile(config: TerrainGenerationConfig, position: Position, cityPoints: Position[]): TerrainTile {
 		let terrainTile = new TerrainTile();
 
-		terrainTile.surface = this.tileSurface(config.altitudeMapConfig, position);
+		terrainTile.surface = this.tileSurface(config, position);
 		terrainTile.biome = this.tileBiome(config, position);
 		if (terrainTile.surface.type !== 'water') {
-			terrainTile.isSnow = this.tileIsSnow(config.temperatureMapConfig, position);
+			terrainTile.isSnow = this.tileIsSnow(config, position);
 		}
 		if (terrainTile.surface.type === 'land') {
 			terrainTile.isPlant = this.tileIsPlant(config, position, terrainTile.biome);
@@ -99,15 +97,18 @@ export class TerrainGenerationService {
 	 * @param config
 	 * @param position
 	 */
-	private tileSurface(config: AltitudeMapConfig, position: Position): Surface {
+	private tileSurface(config: TerrainGenerationConfig, position: Position): Surface {
+		const {altitudeMapConfig, mapSize} = config;
 		const pattern = this.fractionService.in(
 			this.fractionService.calculateRanges([
-				config.waterFraction,
-				config.landFraction,
-				config.mountainFraction
+				altitudeMapConfig.waterFraction,
+				altitudeMapConfig.landFraction,
+				altitudeMapConfig.mountainFraction
 			]),
-			// TODO: better way of separating noise map between terrain maps
-			this.noiseService.generate(position.add(new Position(1000, 1000)), config.noiseConfig)
+			this.noiseService.generate(
+				position.add(Position.fromShape(mapSize)),
+				altitudeMapConfig.noiseConfig
+			)
 		);
 
 		return this.matcherService.match<number, Surface>(pattern, new Map([
@@ -129,8 +130,10 @@ export class TerrainGenerationService {
 				config.humidityMapConfig.taigaFraction,
 				config.humidityMapConfig.jungleFraction
 			]),
-			// TODO: better way of separating noise map between terrain maps
-			this.noiseService.generate(position.add(new Position(2000, 2000)), config.humidityMapConfig.noiseConfig)
+			this.noiseService.generate(
+				position.add(Position.fromShape(config.mapSize).map(c => c * 2)),
+				config.humidityMapConfig.noiseConfig
+			)
 		);
 
 		const seaLevelAltitude = this.fractionService.calculateRanges([
@@ -139,8 +142,12 @@ export class TerrainGenerationService {
 			config.altitudeMapConfig.mountainFraction
 		])[0].to;
 
-		const altitude = this.noiseService.generate(position.add(new Position(1000, 1000)), config.altitudeMapConfig.noiseConfig);
-		if (altitude - seaLevelAltitude < config.beachHeight) return new Biome('desert', config.biomesConfig.desertBiomeConfig);
+		const altitude = this.noiseService.generate(
+			position.add(Position.fromShape(config.mapSize)),
+			config.altitudeMapConfig.noiseConfig
+		);
+		if (altitude - seaLevelAltitude < config.beachHeight)
+			return new Biome('desert', config.biomesConfig.desertBiomeConfig);
 
 		return this.matcherService.match<number, Biome>(pattern, new Map([
 			[0, new Biome('desert', config.biomesConfig.desertBiomeConfig)],
@@ -154,14 +161,17 @@ export class TerrainGenerationService {
 	 * @param config
 	 * @param position
 	 */
-	private tileIsSnow(config: TemperatureMapConfig, position: Position): Boolean {
+	private tileIsSnow(config: TerrainGenerationConfig, position: Position): Boolean {
+		const {temperatureMapConfig, mapSize} = config;
 		const pattern = this.fractionService.in(
 			this.fractionService.calculateRanges([
-				config.landFraction,
-				config.snowFraction
+				temperatureMapConfig.landFraction,
+				temperatureMapConfig.snowFraction
 			]),
-			// TODO: better way of separating noise map between terrain maps
-			this.noiseService.generate(position.add(new Position(3000, 3000)), config.noiseConfig)
+			this.noiseService.generate(
+				position.add(Position.fromShape(mapSize).map(c => c * 3)),
+				temperatureMapConfig.noiseConfig
+			)
 		);
 
 		return pattern === 1;
@@ -170,11 +180,14 @@ export class TerrainGenerationService {
 	/**
 	 * Is tile has plant
 	 * @param config
+	 * @param position
 	 * @param biome
 	 */
 	private tileIsPlant(config: TerrainGenerationConfig, position: Position, biome: Biome): Boolean {
-		// TODO: better way of separating noise map between terrain maps
-		const probability = this.noiseService.generate(position.add(new Position(4000, 4000)), config.fertilityNoiseConfig);
+		const probability = this.noiseService.generate(
+			position.add(Position.fromShape(config.mapSize).map(c => c * 4)),
+			config.fertilityNoiseConfig
+		);
 		const isTreeByNoise: Boolean = this.randomService.withProbability(biome.config.plantK)
 			? probability >= 0.5
 			: false;
