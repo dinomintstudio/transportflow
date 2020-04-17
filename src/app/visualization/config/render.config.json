@@ -4,5 +4,6 @@
   "spriteResolution": 32,
   "minimapResolution": 4,
   "chunkSize": 32,
-  "chunkLoadOverhead": 3
+  "chunkLoadOverhead": 3,
+  "maxFps": 60
 }

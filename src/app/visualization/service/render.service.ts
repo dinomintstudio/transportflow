@@ -4,7 +4,7 @@ import {Camera} from "../model/Camera";
 import {Position} from "../../common/model/Position";
 import {WorldService} from "../../game-logic/service/world.service";
 import {SpriteService} from "./sprite.service";
-import {first} from "rxjs/operators";
+import {first, throttleTime} from "rxjs/operators";
 import {World} from "../../game-logic/model/World";
 
 import * as config from '../config/render.config.json'
@@ -127,27 +127,32 @@ export class RenderService {
 	}
 
 	private drawView(): void {
-		this.cameraService.camera.observable.subscribe(camera => {
-			if (!this.view) return;
+		const frameDelay = 1000 / (config.maxFps || Infinity);
+		this.cameraService.camera.observable
+			.pipe(
+				throttleTime(frameDelay)
+			)
+			.subscribe(camera => {
+				if (!this.view) return;
 
-			this.view.fill('white');
+				this.view.fill('white');
 
-			const sourceRect = this.getMapRectByCamera(camera);
-			const destinationRect = Rectangle.rectangleByOnePoint(
-				new Position(0, 0),
-				new Shape(this.view.canvas.width, this.view.canvas.height)
-			);
-			this.view.context.imageSmoothingEnabled = false;
-			if (camera.zoom > camera.config.minimapTriggerZoom) {
-				this.map.drawPartOn(sourceRect(config.tileResolution), this.view, destinationRect);
-			} else {
-				this.view.drawImage(
-					this.minimap.canvas,
-					destinationRect,
-					sourceRect(config.minimapResolution)
-				)
-			}
-		});
+				const sourceRect = this.getMapRectByCamera(camera);
+				const destinationRect = Rectangle.rectangleByOnePoint(
+					new Position(0, 0),
+					new Shape(this.view.canvas.width, this.view.canvas.height)
+				);
+				this.view.context.imageSmoothingEnabled = false;
+				if (camera.zoom > camera.config.minimapTriggerZoom) {
+					this.map.drawPartOn(sourceRect(config.tileResolution), this.view, destinationRect);
+				} else {
+					this.view.drawImage(
+						this.minimap.canvas,
+						destinationRect,
+						sourceRect(config.minimapResolution)
+					)
+				}
+			});
 	}
 
 	private getMapRectByCamera(camera) {
