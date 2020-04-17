@@ -159,39 +159,64 @@ export class RenderService {
 						);
 						this.view.context.imageSmoothingEnabled = false;
 						if (cyclicCamera.zoom > cyclicCamera.config.minimapTriggerZoom) {
-							this.map.drawPartOn(
-								this.getMapRectByCamera(cyclicCamera, config.tileResolution),
-								this.view,
-								destinationRect
-							);
+							this.drawMapView(cyclicCamera, destinationRect);
 						} else {
-							const tilesPerView = this.view.resolution
-								.mapEach(
-									w => w / (this.minimap.resolution.width * camera.zoom / config.minimapResolution),
-									h => h / (this.minimap.resolution.width * camera.zoom / config.minimapResolution)
-								)
-								.map(s => Math.floor(s / 2) + 1);
-							console.log(tilesPerView)
-							_.range(-tilesPerView.height, tilesPerView.height + 2).forEach(i => {
-								_.range(-tilesPerView.width, tilesPerView.width + 2).forEach(j => {
-									const adjacentCamera = new Camera(
-										cyclicCamera.position.mapEach(
-											c => c + (j * this.minimap.resolution.width / config.minimapResolution),
-											c => c + (i * this.minimap.resolution.height / config.minimapResolution)
-										),
-										cyclicCamera.zoom,
-										cyclicCamera.config
-									);
-									this.view.drawImage(
-										this.minimap.canvas,
-										destinationRect,
-										this.getMapRectByCamera(adjacentCamera, config.minimapResolution)
-									);
-								});
-							});
+							this.drawMinimapView(cyclicCamera, destinationRect);
 						}
 					});
 			});
+	}
+
+	private drawMinimapView(camera: Camera, destinationRect: Rectangle) {
+		const tilesPerView = this.view.resolution
+			.mapEach(
+				w => w / (this.minimap.resolution.width * camera.zoom / config.minimapResolution),
+				h => h / (this.minimap.resolution.width * camera.zoom / config.minimapResolution)
+			)
+			.map(s => Math.floor(s / 2) + 1);
+		_.range(-tilesPerView.height, tilesPerView.height + 2).forEach(i => {
+			_.range(-tilesPerView.width, tilesPerView.width + 2).forEach(j => {
+				const tileCamera = new Camera(
+					camera.position.mapEach(
+						c => c + (j * this.minimap.resolution.width / config.minimapResolution),
+						c => c + (i * this.minimap.resolution.height / config.minimapResolution)
+					),
+					camera.zoom,
+					camera.config
+				);
+				this.view.drawImage(
+					this.minimap.canvas,
+					destinationRect,
+					this.getMapRectByCamera(tileCamera, config.minimapResolution)
+				);
+			});
+		});
+	}
+
+	private drawMapView(camera: Camera, destinationRect: Rectangle) {
+		const tilesPerView = this.view.resolution
+			.mapEach(
+				w => w / (this.map.resolution.width * camera.zoom / config.tileResolution),
+				h => h / (this.map.resolution.width * camera.zoom / config.tileResolution)
+			)
+			.map(s => Math.floor(s / 2) + 1);
+		_.range(-tilesPerView.height, tilesPerView.height + 2).forEach(i => {
+			_.range(-tilesPerView.width, tilesPerView.width + 2).forEach(j => {
+				const tileCamera = new Camera(
+					camera.position.mapEach(
+						c => c + (j * this.minimap.resolution.width / config.minimapResolution),
+						c => c + (i * this.minimap.resolution.height / config.minimapResolution)
+					),
+					camera.zoom,
+					camera.config
+				);
+				this.map.drawPartOn(
+					this.getMapRectByCamera(tileCamera, config.tileResolution),
+					this.view,
+					destinationRect
+				);
+			});
+		});
 	}
 
 	private getMapRectByCamera(camera, tileResolution: number): Rectangle {
