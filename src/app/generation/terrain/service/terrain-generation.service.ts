@@ -13,6 +13,7 @@ import {Biome} from "../../../game-logic/model/Biome";
 import {RandomService} from "../../../random/service/random.service";
 import {DistributionService} from "../../../math/service/distribution.service";
 import {MatcherService} from "../../../util/service/matcher.service";
+import {Log} from "../../../common/service/log.service";
 
 /**
  * Terrain generation service. Responsible for terrain generation
@@ -21,6 +22,8 @@ import {MatcherService} from "../../../util/service/matcher.service";
 	providedIn: 'root'
 })
 export class TerrainGenerationService {
+
+	log: Log = new Log(this);
 
 	/**
 	 * Constructs service
@@ -46,7 +49,7 @@ export class TerrainGenerationService {
 	 * @param config terrain generation config
 	 */
 	generate(config: TerrainGenerationConfig): TiledTerrain {
-		console.debug('distribute city points');
+		this.log.debug('distribute city points');
 		const cityPoints = this.distributionService.distribute(config.mapSize, config.cityPerTile);
 
 		const tiledTerrain = new TiledTerrain(
@@ -54,7 +57,7 @@ export class TerrainGenerationService {
 			cityPoints
 		);
 
-		console.debug('generate terrain tilemap');
+		this.log.debug('generate terrain tilemap');
 		const start = new Date();
 
 		_.range(config.mapSize.width).forEach(x => {
@@ -65,7 +68,7 @@ export class TerrainGenerationService {
 			})
 		});
 
-		console.debug(`tilemap generation complete in ${(new Date().getTime() - start.getTime())}ms`);
+		this.log.debug(`tilemap generation complete in ${(new Date().getTime() - start.getTime())}ms`);
 
 		return tiledTerrain;
 	}

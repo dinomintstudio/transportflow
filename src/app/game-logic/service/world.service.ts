@@ -15,11 +15,14 @@ import {RoadTile} from "../model/RoadTile";
 import {Building} from "../model/Building";
 import {Rectangle} from "../../common/model/Rectangle";
 import {Shape} from "../../common/model/Shape";
+import {Log} from "../../common/service/log.service";
 
 @Injectable({
 	providedIn: 'root'
 })
 export class WorldService {
+
+	log: Log = new Log(this);
 
 	world: ObservableData<World> = new ObservableData<World>();
 
@@ -29,7 +32,7 @@ export class WorldService {
 	}
 
 	generate(tiledTerrain: TiledTerrain, config: WorldGenerationConfig): World {
-		console.debug('generate world');
+		this.log.debug('generate world');
 		const tilemap: Matrix<Tile> = this.mapTerrainMatrixToTileMatrix(tiledTerrain.tilemap);
 
 		tiledTerrain.cityPoints

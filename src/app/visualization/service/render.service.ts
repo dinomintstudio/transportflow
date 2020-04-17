@@ -18,11 +18,14 @@ import {ChunkedCanvas} from "../../common/model/canvas/ChunkedCanvas";
 import {createCanvas} from "../../common/model/canvas/Canvas";
 import {CameraConfig} from "../config/CameraConfig";
 import {Range} from "../../common/model/Range";
+import {Log} from "../../common/service/log.service";
 
 @Injectable({
 	providedIn: 'root'
 })
 export class RenderService {
+
+	log: Log = new Log(this);
 
 	private map: ChunkedCanvas;
 	private minimap: SingleCanvas;
@@ -46,7 +49,7 @@ export class RenderService {
 	}
 
 	initView(canvas: HTMLCanvasElement, canvasContainer: HTMLElement): void {
-		console.debug('initialize render view');
+		this.log.debug('initialize render view');
 		this.view = new SingleCanvas(canvas);
 
 		this.resizeCanvas(new Shape(canvasContainer.offsetWidth, canvasContainer.offsetHeight));
@@ -63,7 +66,7 @@ export class RenderService {
 	 *  - rendering and offloading chunks
 	 */
 	private initMap(): void {
-		console.debug('initialize render map');
+		this.log.debug('initialize render map');
 		this.worldService.world.observable
 			.pipe(first())
 			.subscribe((world: World) => {
@@ -98,20 +101,20 @@ export class RenderService {
 
 	private loadSprites() {
 		this.spriteService.loadSprites(() => {
-			console.debug('load sprites');
+			this.log.debug('load sprites');
 			this.worldService.world.observable.subscribe(world => {
 				this.cameraService.camera.observable
 					.pipe(first())
 					.subscribe(camera => {
-						console.debug('draw visible chunks');
+						this.log.debug('draw visible chunks');
 						const startDrawChunks = new Date();
 						this.drawChunks(world.tilemap, camera);
-						console.debug(`drawn visible chunks in ${(new Date().getTime() - startDrawChunks.getTime())}ms`);
+						this.log.debug(`drawn visible chunks in ${(new Date().getTime() - startDrawChunks.getTime())}ms`);
 
-						console.debug('draw minimap');
+						this.log.debug('draw minimap');
 						const startDrawMinimap = new Date();
 						this.drawMinimap(world.tilemap);
-						console.debug(`drawn minimap in ${(new Date().getTime() - startDrawMinimap.getTime())}ms`);
+						this.log.debug(`drawn minimap in ${(new Date().getTime() - startDrawMinimap.getTime())}ms`);
 
 						this.cameraService.camera.update();
 					});

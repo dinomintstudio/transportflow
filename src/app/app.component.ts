@@ -8,7 +8,6 @@ import {NoiseConfig} from "./math/config/NoiseConfig";
 import {TemperatureMapConfig} from "./generation/terrain/config/noisemap/TemperatureMapConfig";
 import {HumidityMapConfig} from "./generation/terrain/config/noisemap/HumidityMapConfig";
 import {BiomesConfig} from "./generation/terrain/config/biome/BiomesConfig";
-import {LoggingService} from "./common/service/logging.service";
 import {StreetGenerationService} from "./generation/street/service/street-generation.service";
 import {StreetGenerationConfig} from "./generation/street/config/StreetGenerationConfig";
 import {Range} from "./common/model/Range";
@@ -33,7 +32,6 @@ export class AppComponent {
 		private initService: InitService,
 		private terrainGenerationService: TerrainGenerationService,
 		private streetGenerationService: StreetGenerationService,
-		private log: LoggingService,
 		private randomService: RandomService,
 		private cityGenerationService: CityGenerationService,
 		private renderService: RenderService,

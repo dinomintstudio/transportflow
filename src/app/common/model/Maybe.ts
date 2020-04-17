@@ -37,9 +37,9 @@ export class Maybe<T> {
 	 *
 	 * Example:
 	 * <pre>
-	 *      maybeNumber.ifPresent((number) => {
-	 *          console.log(number);
-	 *      });
+	 * maybeNumber.ifPresent((number) => {
+	 *     console.log(number);
+	 * });
 	 * </pre>
 	 * If the number is present (i.e. 6) then output will be 6.
 	 * If the number is not present (i.e. null) then there will be no output at all. Consumer function will not be
