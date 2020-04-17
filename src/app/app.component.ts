@@ -38,13 +38,13 @@ export class AppComponent {
 		private worldService: WorldService
 	) {
 		const terrainGenerationConfig = new TerrainGenerationConfig(
-			new Shape(256, 256),
+			new Shape(8, 8),
 			0.002,
 			new AltitudeMapConfig(
 				new NoiseConfig(
 					0.01
 				),
-				6,
+				7,
 				5,
 				0
 			),

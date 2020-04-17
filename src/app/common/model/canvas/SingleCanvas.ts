@@ -6,13 +6,21 @@ import {Canvas} from "./Canvas";
 export class SingleCanvas implements Canvas {
 
 	public canvas: HTMLCanvasElement;
+	public resolution: Shape;
 	public context: CanvasRenderingContext2D;
 	public isDrawn: Boolean;
 
 	constructor(canvas: HTMLCanvasElement) {
 		this.canvas = canvas;
+		this.resolution = new Shape(canvas.width, canvas.height);
 		this.context = canvas.getContext('2d');
 		this.isDrawn = false;
+	}
+
+	setResolution(resolution: Shape) {
+		this.resolution = resolution;
+		this.canvas.width = resolution.width;
+		this.canvas.height = resolution.height;
 	}
 
 	drawImage(image: CanvasImageSource, destinationRect: Rectangle, sourceRect?: Rectangle): void {

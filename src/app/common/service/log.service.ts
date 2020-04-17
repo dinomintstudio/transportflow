@@ -33,7 +33,7 @@ export class Log {
 
 	private formatMessage(level: Level, message: string): string {
 		return `${
-			moment().format('YYYY-MM-DD:HH-mm-ss')
+			moment().format('YYYY-MM-DD HH:mm:ss.SSS')
 		} [${level}] ${this.padEnd(this.callerName, 30)} ${message}`;
 	}
 

@@ -37,8 +37,18 @@ export class Position {
 		return new Position(-this.x, -this.y);
 	}
 
+	/**
+	 * Map both coordinates with mapping function
+	 */
 	map(mapFunction: (coordinate: number) => number): Position {
-		return new Position(mapFunction(this.x), mapFunction(this.y));
+		return this.mapEach(mapFunction, mapFunction);
+	}
+
+	/**
+	 * Map each coordinate with mapping function
+	 */
+	mapEach(xMapFunction: (x: number) => number, yMapFunction: (y: number) => number): Position {
+		return new Position(xMapFunction(this.x), yMapFunction(this.y));
 	}
 
 	floor(): Position {

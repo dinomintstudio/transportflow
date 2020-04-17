@@ -19,6 +19,7 @@ import {createCanvas} from "../../common/model/canvas/Canvas";
 import {CameraConfig} from "../config/CameraConfig";
 import {Range} from "../../common/model/Range";
 import {Log} from "../../common/service/log.service";
+import _ from 'lodash'
 
 @Injectable({
 	providedIn: 'root'
@@ -123,52 +124,84 @@ export class RenderService {
 	}
 
 	private resizeCanvas(shape: Shape): void {
-		this.view.canvas.width = shape.width;
-		this.view.canvas.height = shape.height;
+		this.view.setResolution(shape);
 
 		this.cameraService.camera.update();
 	}
 
 	private drawView(): void {
 		const frameDelay = 1000 / (config.maxFps || Infinity);
-		this.cameraService.camera.observable
+		this.worldService.world.observable
 			.pipe(
-				throttleTime(frameDelay)
+				first()
 			)
-			.subscribe(camera => {
-				if (!this.view) return;
-
-				this.view.fill('white');
-
-				const sourceRect = this.getMapRectByCamera(camera);
-				const destinationRect = Rectangle.rectangleByOnePoint(
-					new Position(0, 0),
-					new Shape(this.view.canvas.width, this.view.canvas.height)
-				);
-				this.view.context.imageSmoothingEnabled = false;
-				if (camera.zoom > camera.config.minimapTriggerZoom) {
-					this.map.drawPartOn(sourceRect(config.tileResolution), this.view, destinationRect);
-				} else {
-					this.view.drawImage(
-						this.minimap.canvas,
-						destinationRect,
-						sourceRect(config.minimapResolution)
+			.subscribe(world => {
+				this.cameraService.camera.observable
+					.pipe(
+						throttleTime(frameDelay)
 					)
-				}
+					.subscribe(camera => {
+						const cyclicCamera = new Camera(
+							camera.position.mapEach(
+								x => x % world.tilemap.shape.width,
+								y => y % world.tilemap.shape.height
+							),
+							camera.zoom,
+							camera.config
+						)
+						if (!this.view) return;
+
+						this.view.fill('white');
+
+						const destinationRect = Rectangle.rectangleByOnePoint(
+							new Position(0, 0),
+							this.view.resolution
+						);
+						this.view.context.imageSmoothingEnabled = false;
+						if (cyclicCamera.zoom > cyclicCamera.config.minimapTriggerZoom) {
+							this.map.drawPartOn(
+								this.getMapRectByCamera(cyclicCamera, config.tileResolution),
+								this.view,
+								destinationRect
+							);
+						} else {
+							const tilesPerView = this.view.resolution
+								.mapEach(
+									w => w / (this.minimap.resolution.width * camera.zoom / config.minimapResolution),
+									h => h / (this.minimap.resolution.width * camera.zoom / config.minimapResolution)
+								)
+								.map(s => Math.floor(s / 2) + 1);
+							console.log(tilesPerView)
+							_.range(-tilesPerView.height, tilesPerView.height + 2).forEach(i => {
+								_.range(-tilesPerView.width, tilesPerView.width + 2).forEach(j => {
+									const adjacentCamera = new Camera(
+										cyclicCamera.position.mapEach(
+											c => c + (j * this.minimap.resolution.width / config.minimapResolution),
+											c => c + (i * this.minimap.resolution.height / config.minimapResolution)
+										),
+										cyclicCamera.zoom,
+										cyclicCamera.config
+									);
+									this.view.drawImage(
+										this.minimap.canvas,
+										destinationRect,
+										this.getMapRectByCamera(adjacentCamera, config.minimapResolution)
+									);
+								});
+							});
+						}
+					});
 			});
 	}
 
-	private getMapRectByCamera(camera) {
-		const viewShape = (tileResolution) => new Shape(
-			(this.view.canvas.width * tileResolution) / camera.zoom,
-			(this.view.canvas.height * tileResolution) / camera.zoom
-		);
-		return (tileResolution) => Rectangle.rectangleByOnePoint(
+	private getMapRectByCamera(camera, tileResolution: number): Rectangle {
+		const viewShape = this.view.resolution.map(s => (s * tileResolution) / camera.zoom);
+		return Rectangle.rectangleByOnePoint(
 			new Position(
-				(camera.position.x * tileResolution) - (viewShape(tileResolution).width / 2),
-				(camera.position.y * tileResolution) - (viewShape(tileResolution).height / 2)
+				(camera.position.x * tileResolution) - (viewShape.width / 2),
+				(camera.position.y * tileResolution) - (viewShape.height / 2)
 			),
-			new Shape(viewShape(tileResolution).width, viewShape(tileResolution).height)
+			viewShape
 		);
 	}
 
