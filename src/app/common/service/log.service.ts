@@ -9,10 +9,10 @@ export enum Level {
 
 export class Log {
 
-	private caller: any;
+	private callerName: string;
 
 	constructor(caller?: any) {
-		this.caller = caller;
+		this.callerName = caller && caller.constructor && caller.constructor.name ? caller.constructor.name : '';
 	}
 
 	debug(message: string): void {
@@ -34,7 +34,7 @@ export class Log {
 	private formatMessage(level: Level, message: string): string {
 		return `${
 			moment().format('YYYY-MM-DD:HH-mm-ss')
-		} [${level}] ${this.padEnd(this.caller.constructor.name, 30)} ${message}`;
+		} [${level}] ${this.padEnd(this.callerName, 30)} ${message}`;
 	}
 
 	private padEnd(s: string, length: number): string {
