@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {interval} from "rxjs";
+import {interval, Observable} from "rxjs";
 import {distinct, first, map, scan, withLatestFrom} from "rxjs/operators";
 import {lerp} from "../../common/model/Lerp";
 import * as renderConfig from "../config/render.config.json";
@@ -8,11 +8,16 @@ import {CameraService} from "./camera.service";
 import {WorldService} from "../../game-logic/service/world.service";
 import {MouseService} from "../../input/service/mouse.service";
 import {RenderService} from "./render.service";
+import {Position} from "../../common/model/Position";
 
 @Injectable({
 	providedIn: 'root'
 })
 export class InteractionService {
+
+	tileHover: Observable<Position>;
+
+	tileClick: Observable<Position>;
 
 	constructor(
 		private cameraService: CameraService,
@@ -21,6 +26,39 @@ export class InteractionService {
 		private renderService: RenderService
 	) {
 		this.handleZoom();
+
+		this.tileHover = this.mouseService.mouseMove.observable
+			.pipe(
+				map(mouse => new Position(mouse.clientX, mouse.clientY)),
+				map(pos => pos
+					.add(Position
+						.fromShape(this.renderService.view.resolution)
+						.map(c => -c / 2)
+					)
+				),
+				withLatestFrom(
+					this.cameraService.camera.observable,
+					(pos, camera) => pos
+						.map(c => c / camera.zoom)
+						.add(camera.position)
+				),
+				withLatestFrom(
+					this.worldService.world.observable,
+					(pos, world) => pos.mapEach(
+						x => x > 0
+							? x % world.tilemap.shape.width
+							: world.tilemap.shape.width - x,
+						y => y > 0
+							? y % world.tilemap.shape.height
+							: world.tilemap.shape.height - y,
+					)
+				)
+			);
+
+		this.tileClick = this.mouseService.mouseClick.observable
+			.pipe(
+				withLatestFrom(this.tileHover, (_, pos) => pos)
+			);
 	}
 
 	private handleZoom() {
@@ -41,6 +79,6 @@ export class InteractionService {
 							camera.config
 						));
 					});
-			})
+			});
 	}
 }
