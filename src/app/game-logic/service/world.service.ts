@@ -158,7 +158,7 @@ export class WorldService {
 	 * @param position
 	 */
 	private canPlaceCity(tilemap: Matrix<TerrainTile>, position: Position) {
-		return tilemap.at(position).surface.type === 'land';
+		return tilemap.has(position) && tilemap.at(position).surface.type === 'land';
 	}
 
 }
