@@ -27,8 +27,8 @@ export class Log {
 		console.warn(this.formatMessage(Level.WARN, message));
 	}
 
-	error(message: string): void {
-		console.error(this.formatMessage(Level.ERROR, message));
+	error(message: string, error?: Error): void {
+		console.error(this.formatMessage(Level.ERROR, message), error);
 	}
 
 	private formatMessage(level: Level, message: string): string {
