@@ -23,63 +23,6 @@ export class CameraService {
 		private keyService: KeyService,
 		private mouseService: MouseService
 	) {
-		this.keyService.keypressObservable.observable.subscribe(e => {
-			this.camera.observable
-				.pipe(first())
-				.subscribe((camera: Camera) => {
-					if (!e) return;
-
-					if (e.code === 'KeyW') {
-						this.camera.set(new Camera(
-							camera.position.add(
-								new Position(
-									0,
-									-1
-								)
-							),
-							camera.zoom,
-							camera.config
-						));
-					}
-					if (e.code === 'KeyS') {
-						this.camera.set(new Camera(
-							camera.position.add(
-								new Position(
-									0,
-									1
-								)
-							),
-							camera.zoom,
-							camera.config
-						));
-					}
-					if (e.code === 'KeyA') {
-						this.camera.set(new Camera(
-							camera.position.add(
-								new Position(
-									-1,
-									0
-								)
-							),
-							camera.zoom,
-							camera.config
-						));
-					}
-					if (e.code === 'KeyD') {
-						this.camera.set(new Camera(
-							camera.position.add(
-								new Position(
-									1,
-									0
-								)
-							),
-							camera.zoom,
-							camera.config
-						));
-					}
-				});
-		});
-
 		this.zoom = this.camera.observable
 			.pipe(
 				first(),
