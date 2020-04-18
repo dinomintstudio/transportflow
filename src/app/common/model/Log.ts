@@ -9,7 +9,7 @@ export enum Level {
 
 export class Log {
 
-	private callerName: string;
+	private readonly callerName: string;
 
 	constructor(caller?: any) {
 		this.callerName = caller && caller.constructor && caller.constructor.name ? caller.constructor.name : '';

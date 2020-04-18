@@ -18,7 +18,7 @@ import {ChunkedCanvas} from "../../common/model/canvas/ChunkedCanvas";
 import {createCanvas} from "../../common/model/canvas/Canvas";
 import {CameraConfig} from "../config/CameraConfig";
 import {Range} from "../../common/model/Range";
-import {Log} from "../../common/service/log.service";
+import {Log} from "../../common/model/Log";
 import _ from 'lodash'
 
 @Injectable({

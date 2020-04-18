@@ -15,7 +15,7 @@ import {RoadTile} from "../model/RoadTile";
 import {Building} from "../model/Building";
 import {Rectangle} from "../../common/model/Rectangle";
 import {Shape} from "../../common/model/Shape";
-import {Log} from "../../common/service/log.service";
+import {Log} from "../../common/model/Log";
 
 @Injectable({
 	providedIn: 'root'

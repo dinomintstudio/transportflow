@@ -13,7 +13,7 @@ import {Biome} from "../../../game-logic/model/Biome";
 import {RandomService} from "../../../random/service/random.service";
 import {DistributionService} from "../../../math/service/distribution.service";
 import {MatcherService} from "../../../util/service/matcher.service";
-import {Log} from "../../../common/service/log.service";
+import {Log} from "../../../common/model/Log";
 
 /**
  * Terrain generation service. Responsible for terrain generation

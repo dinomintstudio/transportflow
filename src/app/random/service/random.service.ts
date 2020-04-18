@@ -4,7 +4,7 @@ import {Range} from "../../common/model/Range";
 import {ObservableData} from "../../common/model/ObservableData";
 
 import uuidv4 from "uuid/v4";
-import {Log} from "../../common/service/log.service";
+import {Log} from "../../common/model/Log";
 
 /**
  * Service that responsible for PRNG (Pseudorandom number generation) within the application. It uses `seedrandom`
