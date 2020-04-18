@@ -1,1 +1,18 @@
-{}
+{
+  "type": "object",
+  "description": "Sprites configuration schema",
+  "additionalProperties": false,
+  "required": [
+	"sprites"
+  ],
+  "properties": {
+	"$schema": {
+	  "type": "string",
+	  "description": "Path to config schema"
+	},
+	"sprites": {
+	  "type": "array",
+	  "description": "Array of key-value tuples (sprite name)->(sprite path)"
+	}
+  }
+}

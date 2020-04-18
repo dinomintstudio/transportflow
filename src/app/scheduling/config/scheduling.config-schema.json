@@ -1,32 +1,28 @@
 {
-  "definitions": {},
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://example.com/root.json",
   "type": "object",
-  "description": "Describes scheduling module options",
+  "description": "Scheduling config schema",
+  "additionalProperties": false,
   "required": [
 	"ups",
 	"shortTermK",
 	"longTermK"
   ],
   "properties": {
+	"$schema": {
+	  "type": "string",
+	  "description": "Path to config schema"
+	},
 	"ups": {
-	  "$id": "#/properties/ups",
 	  "type": "integer",
-	  "description": "Updates per second (ups) is the number of updates (ticks) clock will generate in second",
-	  "default": 0
+	  "description": "Updates per second (ups) is the number of updates (ticks) clock will generate in second"
 	},
 	"shortTermK": {
-	  "$id": "#/properties/shortTermK",
 	  "type": "integer",
-	  "description": "Describes periodicity in which short term event emits",
-	  "default": 0
+	  "description": "Describes periodicity in which short term event emits"
 	},
 	"longTermK": {
-	  "$id": "#/properties/longTermK",
 	  "type": "integer",
-	  "description": "Describes periodicity in which long term event emits",
-	  "default": 0
+	  "description": "Describes periodicity in which long term event emits"
 	}
   }
 }
