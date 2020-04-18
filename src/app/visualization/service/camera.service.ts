@@ -3,11 +3,9 @@ import {ObservableData} from "../../common/model/ObservableData";
 import {Camera} from "../model/Camera";
 import {KeyService} from "../../input/service/key.service";
 import {Position} from "../../common/model/Position";
-import {distinct, filter, first, flatMap, map, pairwise, scan, withLatestFrom} from "rxjs/operators";
+import {filter, first, flatMap, map, pairwise, withLatestFrom} from "rxjs/operators";
 import {MouseService} from "../../input/service/mouse.service";
-import {concat, interval, merge, Observable, of} from "rxjs";
-import * as renderConfig from '../config/render.config.json'
-import {lerp} from "../../common/model/Lerp";
+import {concat, merge, Observable, of} from "rxjs";
 
 
 @Injectable({
@@ -68,24 +66,7 @@ export class CameraService {
 					});
 			})
 
-		interval()
-			.pipe(
-				withLatestFrom(this.zoom, (_, z) => z),
-				scan((current, next) => lerp(current, next, renderConfig.zoomAnimationSpeed)),
-				map(z => Math.round(z * 100) / 100),
-				distinct()
-			)
-			.subscribe(zoom => {
-				this.camera.observable
-					.pipe(first())
-					.subscribe(camera => {
-						this.camera.set(new Camera(
-							camera.position,
-							camera.config.zoomLimit.clamp(zoom),
-							camera.config
-						));
-					});
-			});
+		;
 
 	}
 

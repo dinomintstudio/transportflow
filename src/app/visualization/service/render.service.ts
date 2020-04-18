@@ -28,9 +28,10 @@ export class RenderService {
 
 	log: Log = new Log(this);
 
-	private map: ChunkedCanvas;
-	private minimap: SingleCanvas;
-	private view: SingleCanvas;
+	map: ChunkedCanvas;
+	minimap: SingleCanvas;
+	view: SingleCanvas;
+
 	private getSpriteFunctions: ((tile: Tile, adjacentTiles: Matrix<Maybe<Tile>>) => Maybe<HTMLImageElement>)[] = [
 		(t, a) => this.getSurfaceSprite(t, a),
 		(t, a) => this.getBuildingSprite(t, a),

@@ -20,6 +20,8 @@ import {WorldGenerationConfig} from "./generation/world/config/WorldGenerationCo
 import {DesertBiomeConfig} from "./generation/terrain/config/biome/DesertBiomeConfig";
 import {TaigaBiomeConfig} from "./generation/terrain/config/biome/TaigaBiomeConfig";
 import {JungleBiomeConfig} from "./generation/terrain/config/biome/JungleBiomeConfig";
+import {Log} from "./common/model/Log";
+import {InteractionService} from "./visualization/service/interaction.service";
 
 @Component({
 	selector: 'app-root',
@@ -28,6 +30,8 @@ import {JungleBiomeConfig} from "./generation/terrain/config/biome/JungleBiomeCo
 })
 export class AppComponent {
 
+	log: Log = new Log(this);
+
 	constructor(
 		private initService: InitService,
 		private terrainGenerationService: TerrainGenerationService,
@@ -35,7 +39,8 @@ export class AppComponent {
 		private randomService: RandomService,
 		private cityGenerationService: CityGenerationService,
 		private renderService: RenderService,
-		private worldService: WorldService
+		private worldService: WorldService,
+		private interactionService: InteractionService
 	) {
 		const terrainGenerationConfig = new TerrainGenerationConfig(
 			new Shape(64, 64),
