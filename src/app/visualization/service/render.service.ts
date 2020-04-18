@@ -273,9 +273,7 @@ export class RenderService {
 				).multiply(config.minimapResolution)
 			)
 		});
-		this.minimap.context.lineWidth = 1;
-		this.minimap.context.strokeStyle = "rgba(0, 0, 0, 0.3)";
-		this.minimap.context.strokeRect(0, 0, this.minimap.resolution.width, this.minimap.resolution.height);
+		this.minimap.drawBorder(1, "rgba(0, 0, 0, 0.3)")
 	}
 
 	private drawMapSprite(sprite: HTMLImageElement, position: Position): void {

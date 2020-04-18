@@ -50,5 +50,11 @@ export class SingleCanvas implements Canvas {
 		this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
 	}
 
+	drawBorder(strokeWidth: number, color: string) {
+		this.context.lineWidth = strokeWidth;
+		this.context.strokeStyle = color;
+		this.context.strokeRect(0, 0, this.resolution.width, this.resolution.height);
+	}
+
 }
 
