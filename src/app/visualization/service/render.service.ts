@@ -90,7 +90,7 @@ export class RenderService {
 					),
 					config.tileResolution,
 					new CameraConfig(
-						new Range(1, 1000),
+						new Range(0.1, 1000),
 						16
 					)
 				));
@@ -167,6 +167,7 @@ export class RenderService {
 			});
 	}
 
+	// TODO: refactor
 	private drawMinimapView(camera: Camera, destinationRect: Rectangle) {
 		const tilesPerView = this.view.resolution
 			.mapEach(
@@ -193,6 +194,7 @@ export class RenderService {
 		});
 	}
 
+	// TODO: refactor
 	private drawMapView(camera: Camera, destinationRect: Rectangle) {
 		const tilesPerView = this.view.resolution
 			.mapEach(
@@ -204,8 +206,8 @@ export class RenderService {
 			_.range(-tilesPerView.width, tilesPerView.width + 2).forEach(j => {
 				const tileCamera = new Camera(
 					camera.position.mapEach(
-						c => c + (j * this.minimap.resolution.width / config.minimapResolution),
-						c => c + (i * this.minimap.resolution.height / config.minimapResolution)
+						c => c + (j * this.map.resolution.width / config.tileResolution),
+						c => c + (i * this.map.resolution.height / config.tileResolution)
 					),
 					camera.zoom,
 					camera.config
