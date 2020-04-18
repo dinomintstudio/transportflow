@@ -90,7 +90,7 @@ export class RenderService {
 					),
 					config.tileResolution,
 					new CameraConfig(
-						new Range(0.1, 1000),
+						new Range(1, 1000),
 						16
 					)
 				));
@@ -114,7 +114,7 @@ export class RenderService {
 
 						this.log.debug('draw minimap');
 						const startDrawMinimap = new Date();
-						this.drawMinimap(world.tilemap);
+						this.drawMinimap();
 						this.log.debug(`drawn minimap in ${(new Date().getTime() - startDrawMinimap.getTime())}ms`);
 
 						this.cameraService.camera.update();
@@ -172,7 +172,7 @@ export class RenderService {
 		const tilesPerView = this.view.resolution
 			.mapEach(
 				w => w / (this.minimap.resolution.width * camera.zoom / config.minimapResolution),
-				h => h / (this.minimap.resolution.width * camera.zoom / config.minimapResolution)
+				h => h / (this.minimap.resolution.height * camera.zoom / config.minimapResolution)
 			)
 			.map(s => Math.floor(s / 2) + 1);
 		_.range(-tilesPerView.height, tilesPerView.height + 2).forEach(i => {
@@ -199,7 +199,7 @@ export class RenderService {
 		const tilesPerView = this.view.resolution
 			.mapEach(
 				w => w / (this.map.resolution.width * camera.zoom / config.tileResolution),
-				h => h / (this.map.resolution.width * camera.zoom / config.tileResolution)
+				h => h / (this.map.resolution.height * camera.zoom / config.tileResolution)
 			)
 			.map(s => Math.floor(s / 2) + 1);
 		_.range(-tilesPerView.height, tilesPerView.height + 2).forEach(i => {
@@ -263,7 +263,7 @@ export class RenderService {
 		});
 	}
 
-	private drawMinimap(tilemap: Matrix<Tile>): void {
+	private drawMinimap(): void {
 		this.map.chunkMatrix.forEach((chunk, position) => {
 			this.minimap.drawImage(
 				chunk.canvas,
@@ -273,6 +273,9 @@ export class RenderService {
 				).multiply(config.minimapResolution)
 			)
 		});
+		this.minimap.context.lineWidth = 1;
+		this.minimap.context.strokeStyle = "rgba(0, 0, 0, 0.3)";
+		this.minimap.context.strokeRect(0, 0, this.minimap.resolution.width, this.minimap.resolution.height);
 	}
 
 	private drawMapSprite(sprite: HTMLImageElement, position: Position): void {
