@@ -7,7 +7,6 @@ import {Camera} from "../model/Camera";
 import {CameraService} from "./camera.service";
 import {WorldService} from "../../game-logic/service/world.service";
 import {MouseService} from "../../input/service/mouse.service";
-import {RenderService} from "./render.service";
 import {Position} from "../../common/model/Position";
 
 @Injectable({
@@ -23,18 +22,22 @@ export class InteractionService {
 		private cameraService: CameraService,
 		private worldService: WorldService,
 		private mouseService: MouseService,
-		private renderService: RenderService
 	) {
 		this.handleZoom();
 
 		this.tileHover = this.mouseService.mouseMove.observable
 			.pipe(
 				map(mouse => new Position(mouse.clientX, mouse.clientY)),
-				map(pos => pos
-					.add(Position
-						.fromShape(this.renderService.view.resolution)
-						.map(c => -c / 2)
-					)
+				// TODO: refactor
+				// problem with circular dependency
+				withLatestFrom(
+					this.mouseService.mouseMove.observable,
+					(pos, e) => pos
+						.add(new Position(
+							(<HTMLCanvasElement>e.srcElement).width,
+							(<HTMLCanvasElement>e.srcElement).height
+							).map(c => -c / 2)
+						)
 				),
 				withLatestFrom(
 					this.cameraService.camera.observable,

@@ -20,6 +20,7 @@ import {CameraConfig} from "../config/CameraConfig";
 import {Range} from "../../common/model/Range";
 import {Log} from "../../common/model/Log";
 import _ from 'lodash'
+import {InteractionService} from "./interaction.service";
 
 @Injectable({
 	providedIn: 'root'
@@ -43,7 +44,8 @@ export class RenderService {
 	constructor(
 		private cameraService: CameraService,
 		private worldService: WorldService,
-		private spriteService: SpriteService
+		private spriteService: SpriteService,
+		private interactionService: InteractionService
 	) {
 		this.initMap();
 		this.drawView();
@@ -189,7 +191,7 @@ export class RenderService {
 				this.view.drawImage(
 					this.minimap.canvas,
 					destinationRect,
-					this.getMapRectByCamera(tileCamera, config.minimapResolution)
+					this.getViewCameraRect(tileCamera, config.minimapResolution)
 				);
 			});
 		});
@@ -214,7 +216,7 @@ export class RenderService {
 					camera.config
 				);
 				this.map.drawPartOn(
-					this.getMapRectByCamera(tileCamera, config.tileResolution),
+					this.getViewCameraRect(tileCamera, config.tileResolution),
 					this.view,
 					destinationRect
 				);
@@ -222,7 +224,7 @@ export class RenderService {
 		});
 	}
 
-	private getMapRectByCamera(camera, tileResolution: number): Rectangle {
+	private getViewCameraRect(camera, tileResolution: number): Rectangle {
 		const viewShape = this.view.resolution.map(s => (s * tileResolution) / camera.zoom);
 		return Rectangle.rectangleByOnePoint(
 			new Position(
