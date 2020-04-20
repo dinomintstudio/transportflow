@@ -86,8 +86,7 @@ export class RenderService {
 						config.tileResolution * world.tilemap.shape.width,
 						config.tileResolution * world.tilemap.shape.height
 					),
-					config.chunkSize * config.tileResolution,
-					{alpha: false}
+					config.chunkSize * config.tileResolution
 				);
 
 				this.minimap = new SingleCanvas(createCanvas(
@@ -300,7 +299,11 @@ export class RenderService {
 			chunkTilemap.forEach((tile: Tile, position: Position) => {
 				if (!tile) return;
 				const tilePosition = position.add(chunkTileRect.topLeft);
-				const sprite: Maybe<HTMLImageElement> = getSpriteFunction(tile, this.worldService.getAdjacentTileMatrix(tilemap, tilePosition));
+				// TODO: optimization: do not fetch adjacent tiles for functions that not need them
+				const sprite: Maybe<HTMLImageElement> = getSpriteFunction(
+					tile,
+					this.worldService.getAdjacentTileMatrix(tilemap, tilePosition)
+				);
 				sprite.ifPresent(s => {
 					this.drawMapSprite(
 						s,
