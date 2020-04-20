@@ -21,6 +21,7 @@ import {Range} from "../../common/model/Range";
 import {Log} from "../../common/model/Log";
 import _ from 'lodash'
 import {InteractionService} from "./interaction.service";
+import {SpriteRenderer} from "../model/SpriteRenderer";
 
 @Injectable({
 	providedIn: 'root'
@@ -36,12 +37,12 @@ export class RenderService {
 	viewCanvas: SingleCanvas;
 	interactionCanvas: SingleCanvas;
 
-	private getSpriteFunctions: ((tile: Tile, adjacentTiles: Matrix<Maybe<Tile>>) => Maybe<HTMLImageElement>)[] = [
-		(t, a) => this.getSurfaceSprite(t, a),
-		(t, a) => this.getBuildingSprite(t, a),
-		(t, a) => this.getRoadSprite(t, a),
-		(t, a) => this.getPlantSprite(t, a),
-		(t, a) => this.getBorderSprite(t, a),
+	private spriteRenderers: SpriteRenderer[] = [
+		new SpriteRenderer((t) => this.getSurfaceSprite(t)),
+		new SpriteRenderer((t) => this.getBuildingSprite(t)),
+		new SpriteRenderer((t, a) => this.getRoadSprite(t, a), true),
+		new SpriteRenderer((t) => this.getPlantSprite(t)),
+		new SpriteRenderer((t) => this.getBorderSprite(t)),
 	];
 
 	constructor(
@@ -104,7 +105,7 @@ export class RenderService {
 					),
 					config.tileResolution,
 					new CameraConfig(
-						new Range(1, 1000),
+						new Range(10, 1000),
 						16
 					)
 				));
@@ -295,21 +296,24 @@ export class RenderService {
 			Shape.square(config.chunkSize)
 		);
 		const chunkTilemap: Matrix<Tile> = tilemap.of(chunkTileRect);
-		this.getSpriteFunctions.forEach(getSpriteFunction => {
+		this.spriteRenderers.forEach(spriteRenderer => {
 			chunkTilemap.forEach((tile: Tile, position: Position) => {
 				if (!tile) return;
 				const tilePosition = position.add(chunkTileRect.topLeft);
-				// TODO: optimization: do not fetch adjacent tiles for functions that not need them
-				const sprite: Maybe<HTMLImageElement> = getSpriteFunction(
-					tile,
-					this.worldService.getAdjacentTileMatrix(tilemap, tilePosition)
-				);
-				sprite.ifPresent(s => {
-					this.drawMapSprite(
-						s,
-						tilePosition.map(c => c * config.tileResolution)
-					);
-				});
+
+				spriteRenderer
+					.getSprite(
+						tile,
+						spriteRenderer.needAdjacentTiles
+							? this.worldService.getAdjacentTileMatrix(tilemap, tilePosition)
+							: null
+					)
+					.ifPresent(sprite => {
+						this.drawMapSprite(
+							sprite,
+							tilePosition.map(c => c * config.tileResolution)
+						);
+					});
 			})
 		});
 	}
@@ -339,17 +343,17 @@ export class RenderService {
 		);
 	}
 
-	private getSurfaceSprite(tile: Tile, _): Maybe<HTMLImageElement> {
+	private getSurfaceSprite(tile: Tile): Maybe<HTMLImageElement> {
 		let surface: string = tile.surface.type === 'land' ? tile.biome.type : tile.surface.type;
 		if (tile.isSnow) surface = 'snow';
 		return new Maybe(this.spriteService.fetch(surface));
 	}
 
-	private getBorderSprite(_, __): Maybe<HTMLImageElement> {
+	private getBorderSprite(_): Maybe<HTMLImageElement> {
 		return new Maybe(this.spriteService.fetch('border'));
 	}
 
-	private getBuildingSprite(tile: Tile, _): Maybe<HTMLImageElement> {
+	private getBuildingSprite(tile: Tile): Maybe<HTMLImageElement> {
 		if (tile.building.isPresent() && tile.building.get().position.topLeft.equals(tile.position)) {
 			const buildingShape: Shape = tile.building.get().position.shape;
 			return new Maybe(
@@ -373,7 +377,7 @@ export class RenderService {
 		return Maybe.empty();
 	}
 
-	private getPlantSprite(tile: Tile, _): Maybe<HTMLImageElement> {
+	private getPlantSprite(tile: Tile): Maybe<HTMLImageElement> {
 		if (tile.isPlant) {
 			return new Maybe(this.spriteService.fetch('tree'));
 		}
