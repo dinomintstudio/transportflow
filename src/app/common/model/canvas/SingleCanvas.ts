@@ -26,7 +26,7 @@ export class SingleCanvas implements Canvas {
 	drawImage(image: CanvasImageSource, destinationRect: Rectangle, sourceRect?: Rectangle): void {
 		if (!sourceRect) {
 			sourceRect = Rectangle.rectangleByOnePoint(
-				new Position(0, 0),
+				Position.ZERO,
 				new Shape(<number>image.width, <number>image.height)
 			);
 		}

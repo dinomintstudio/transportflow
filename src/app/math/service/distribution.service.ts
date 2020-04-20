@@ -37,12 +37,12 @@ export class DistributionService {
 		_.range(gridShape.width).forEach(j => {
 			_.range(gridShape.height).forEach(i => {
 				points.push(
-					new Position(
-						Math.floor(j * sizeLength +
-							this.randomService.randomRange(new Range(0, sizeLength))),
-						Math.floor(i * sizeLength +
-							this.randomService.randomRange(new Range(0, sizeLength))),
-					)
+					new Position(j, i)
+						.map(c =>
+							Math.floor(
+								c * sizeLength + this.randomService.randomRange(new Range(0, sizeLength))
+							)
+						)
 				)
 			});
 		});

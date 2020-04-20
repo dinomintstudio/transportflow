@@ -121,7 +121,9 @@ export class Matrix<T> {
 		return new Matrix<D>(
 			this.shape,
 			this.value
-				.map((row, i) => row.map((e, j) => func(e, new Position(j, i))))
+				.map((row, i) =>
+					row.map((e, j) => func(e, new Position(j, i)))
+				)
 		);
 	}
 

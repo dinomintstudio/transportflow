@@ -33,9 +33,9 @@ export class RenderService {
 	map: ChunkedCanvas;
 	minimap: SingleCanvas;
 
-	worldCanvas: SingleCanvas;
+	worldLayer: SingleCanvas;
 	viewCanvas: SingleCanvas;
-	interactionCanvas: SingleCanvas;
+	interactionLayer: SingleCanvas;
 
 	private spriteRenderers: SpriteRenderer[] = [
 		new SpriteRenderer((t) => this.getSurfaceSprite(t)),
@@ -62,8 +62,8 @@ export class RenderService {
 		this.log.debug('initialize render view');
 		this.viewCanvas = new SingleCanvas(canvas, {alpha: false});
 
-		this.worldCanvas = new SingleCanvas(createCanvas(this.viewCanvas.resolution), {alpha: false});
-		this.interactionCanvas = new SingleCanvas(createCanvas(this.viewCanvas.resolution));
+		this.worldLayer = new SingleCanvas(createCanvas(this.viewCanvas.resolution), {alpha: false});
+		this.interactionLayer = new SingleCanvas(createCanvas(this.viewCanvas.resolution));
 
 		window.addEventListener('resize', () =>
 			this.resizeCanvas(new Shape(canvasContainer.offsetWidth, canvasContainer.offsetHeight))
@@ -83,35 +83,27 @@ export class RenderService {
 			.pipe(first())
 			.subscribe((world: World) => {
 				this.map = new ChunkedCanvas(
-					new Shape(
-						config.tileResolution * world.tilemap.shape.width,
-						config.tileResolution * world.tilemap.shape.height
-					),
+					world.tilemap.shape.map(s => s * config.tileResolution),
 					config.chunkSize * config.tileResolution
 				);
 
-				this.minimap = new SingleCanvas(createCanvas(
-					new Shape(
-						world.tilemap.shape.width * config.minimapResolution,
-						world.tilemap.shape.height * config.minimapResolution),
-					),
+				this.minimap = new SingleCanvas(
+					createCanvas(world.tilemap.shape.map(s => s * config.minimapResolution)),
 					{alpha: false}
 				);
 
 				this.cameraService.camera.set(new Camera(
-					new Position(
-						world.tilemap.shape.width / 2,
-						world.tilemap.shape.height / 2
-					),
+					Position.fromShape(world.tilemap.shape).map(c => c / 2),
 					config.tileResolution,
 					new CameraConfig(
-						new Range(10, 1000),
+						new Range(1, 1000),
 						16
 					)
 				));
 
-				this.spriteService.loadSprites();
-			})
+			});
+
+		this.spriteService.loadSprites();
 	}
 
 	private loadSprites(): void {
@@ -139,19 +131,19 @@ export class RenderService {
 
 	private resizeCanvas(shape: Shape): void {
 		this.viewCanvas.setResolution(shape);
-		this.worldCanvas.setResolution(shape);
-		this.interactionCanvas.setResolution(shape);
+		this.worldLayer.setResolution(shape);
+		this.interactionLayer.setResolution(shape);
 
 		this.cameraService.camera.update();
 	}
 
 	/**
-	 * Compose all view canvases into main worldCanvas
+	 * Compose all visible layers into main viewCanvas
 	 */
 	private composeView() {
 		this.viewCanvas.compose(
-			this.worldCanvas,
-			this.interactionCanvas
+			this.worldLayer,
+			this.interactionLayer
 		);
 	}
 
@@ -164,15 +156,15 @@ export class RenderService {
 						.pipe(first())
 						.subscribe(hoverPos => {
 							this.spriteService.loadSprites(() => {
-								this.interactionCanvas.clear();
-								this.interactionCanvas.drawImage(
+								this.interactionLayer.clear();
+								this.interactionLayer.drawImage(
 									this.spriteService.fetch('hover'),
 									Rectangle.rectangleByOnePoint(
 										hoverPos
 											.map(c => Math.floor(c))
 											.sub(camera.position)
 											.map(c => c * camera.zoom)
-											.add(Position.fromShape(this.worldCanvas.resolution.map(c => c / 2))),
+											.add(Position.fromShape(this.worldLayer.resolution.map(c => c / 2))),
 										Shape.square(camera.zoom)
 									)
 								);
@@ -180,7 +172,7 @@ export class RenderService {
 							})
 						});
 				} else {
-					this.interactionCanvas.clear();
+					this.interactionLayer.clear();
 				}
 			});
 	}
@@ -197,7 +189,7 @@ export class RenderService {
 						throttleTime(1000 / (config.maxFps || Infinity))
 					)
 					.subscribe(camera => {
-						if (!this.worldCanvas) return;
+						if (!this.worldLayer) return;
 
 						const cyclicCamera = new Camera(
 							camera.position.mapEach(
@@ -209,14 +201,14 @@ export class RenderService {
 						)
 
 						const destinationRect = Rectangle.rectangleByOnePoint(
-							new Position(0, 0),
-							this.worldCanvas.resolution
+							Position.ZERO,
+							this.worldLayer.resolution
 						);
-						this.worldCanvas.context.imageSmoothingEnabled = false;
-						this.worldCanvas.clear();
+						this.worldLayer.context.imageSmoothingEnabled = false;
+						this.worldLayer.clear();
 						if (cyclicCamera.zoom > cyclicCamera.config.minimapTriggerZoom) {
 							this.drawMapView(cyclicCamera, destinationRect);
-							this.interactionCanvas.clear();
+							this.interactionLayer.clear();
 						} else {
 							this.drawMinimapView(cyclicCamera, destinationRect);
 						}
@@ -227,7 +219,7 @@ export class RenderService {
 
 	private drawMinimapView(camera: Camera, destinationRect: Rectangle): void {
 		this.provideUnboundedCameras(camera, this.minimap.resolution, config.minimapResolution, unboundedCamera => {
-			this.worldCanvas.drawImage(
+			this.worldLayer.drawImage(
 				this.minimap.canvas,
 				destinationRect,
 				this.getViewCameraRect(unboundedCamera, config.minimapResolution)
@@ -239,14 +231,14 @@ export class RenderService {
 		this.provideUnboundedCameras(camera, this.map.resolution, config.tileResolution, unboundedCamera => {
 			this.map.drawPartOn(
 				this.getViewCameraRect(unboundedCamera, config.tileResolution),
-				this.worldCanvas,
+				this.worldLayer,
 				destinationRect
 			);
 		});
 	}
 
 	private provideUnboundedCameras(camera: Camera, mapResolution: Shape, tileResolution: number, cameraSupplier: (camera: Camera) => void): void {
-		const tilesPerView = this.worldCanvas.resolution
+		const tilesPerView = this.worldLayer.resolution
 			.mapEach(
 				w => w / (mapResolution.width * camera.zoom / tileResolution),
 				h => h / (mapResolution.height * camera.zoom / tileResolution)
@@ -270,11 +262,11 @@ export class RenderService {
 	}
 
 	private getViewCameraRect(camera, tileResolution: number): Rectangle {
-		const viewShape = this.worldCanvas.resolution.map(s => (s * tileResolution) / camera.zoom);
+		const viewShape = this.worldLayer.resolution.map(s => (s * tileResolution) / camera.zoom);
 		return Rectangle.rectangleByOnePoint(
-			new Position(
-				(camera.position.x * tileResolution) - (viewShape.width / 2),
-				(camera.position.y * tileResolution) - (viewShape.height / 2)
+			camera.position.mapEach(
+				x => (x * tileResolution) - (viewShape.width / 2),
+				y => (y * tileResolution) - (viewShape.height / 2)
 			),
 			viewShape
 		);
@@ -289,10 +281,7 @@ export class RenderService {
 
 	private drawChunk(chunkPosition: Position, tilemap: Matrix<Tile>): void {
 		const chunkTileRect: Rectangle = Rectangle.rectangleByOnePoint(
-			new Position(
-				chunkPosition.x * config.chunkSize,
-				chunkPosition.y * config.chunkSize
-			),
+			chunkPosition.map(c => c * config.chunkSize),
 			Shape.square(config.chunkSize)
 		);
 		const chunkTilemap: Matrix<Tile> = tilemap.of(chunkTileRect);
@@ -322,10 +311,12 @@ export class RenderService {
 		this.map.chunkMatrix.forEach((chunk, position) => {
 			this.minimap.drawImage(
 				chunk.canvas,
-				Rectangle.rectangleByOnePoint(
-					position.map(c => c * config.chunkSize),
-					Shape.square(config.chunkSize)
-				).multiply(config.minimapResolution)
+				Rectangle
+					.rectangleByOnePoint(
+						position.map(c => c * config.chunkSize),
+						Shape.square(config.chunkSize)
+					)
+					.multiply(config.minimapResolution)
 			)
 		});
 		this.minimap.drawBorder(1, "rgba(0, 0, 0, 0.3)")
@@ -333,9 +324,10 @@ export class RenderService {
 
 	private drawMapSprite(sprite: HTMLImageElement, position: Position): void {
 		const spriteRect = Rectangle.rectangleByOnePoint(
-			new Position(position.x, position.y),
-			new Shape(sprite.width, sprite.height)
-				.map(s => (s / config.spriteResolution) * config.tileResolution)
+			position,
+			new Shape(sprite.width, sprite.height).map(s =>
+				(s / config.spriteResolution) * config.tileResolution
+			)
 		);
 		this.map.drawImage(
 			sprite,

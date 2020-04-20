@@ -22,40 +22,34 @@ export class ChunkedCanvas implements Canvas {
 	drawImage(image: CanvasImageSource, destinationRect: Rectangle, sourceRect?: Rectangle): void {
 		if (!sourceRect) {
 			sourceRect = Rectangle.rectangleByOnePoint(
-				new Position(0, 0),
+				Position.ZERO,
 				new Shape(<number>image.width, <number>image.height)
 			);
 		}
 
-		const chunkPosition: Position = new Position(
-			Math.floor(destinationRect.topLeft.x / this.chunkSize),
-			Math.floor(destinationRect.topLeft.y / this.chunkSize)
+		const chunkPosition: Position = destinationRect.topLeft.map(c =>
+			Math.floor(c / this.chunkSize)
 		);
 
 		const chunk: SingleCanvas = this.chunkMatrix.at(chunkPosition);
-		const origin: Position = new Position(
-			chunkPosition.x * this.chunkSize,
-			chunkPosition.y * this.chunkSize
-		);
-
-		const mappedDestinationPosition: Position = destinationRect.topLeft.sub(origin);
-
 		// TODO: check if drawing is required
 		chunk.drawImage(
 			image,
-			Rectangle.rectangleByOnePoint(mappedDestinationPosition, destinationRect.shape),
+			Rectangle.rectangleByOnePoint(
+				destinationRect.topLeft.sub(
+					chunkPosition.map(c => c * this.chunkSize)
+				),
+				destinationRect.shape
+			),
 			sourceRect
 		)
 	}
 
 	private generateChunkMatrix() {
 		this.chunkMatrix = new Matrix<SingleCanvas>(
-			new Shape(
-				Math.floor((this.resolution.width - 1) / this.chunkSize) + 1,
-				Math.floor((this.resolution.height - 1) / this.chunkSize) + 1,
-			),
+			this.resolution.map(c => Math.floor((c - 1) / this.chunkSize) + 1),
 			null,
-			() => new SingleCanvas(createCanvas(new Shape(this.chunkSize, this.chunkSize)), this.attributes)
+			() => new SingleCanvas(createCanvas(Shape.square(this.chunkSize)), this.attributes)
 		);
 	}
 
@@ -100,28 +94,32 @@ export class ChunkedCanvas implements Canvas {
 			rectangle.bottomRight.map(c => Math.floor(c / this.chunkSize) + 1),
 		);
 
-		this.chunkMatrix.of(visibleChunksRect).forEach((canvas, position) => {
-			if (!canvas) return;
+		this.chunkMatrix
+			.of(visibleChunksRect)
+			.forEach((canvas, position) => {
+				if (!canvas) return;
 
-			const mappedDestinationPosition: Position = rectangle.topLeft.sub(position
-				.add(visibleChunksRect.topLeft).map(c => c * this.chunkSize)
-			);
+				const mappedDestinationPosition: Position = rectangle.topLeft.sub(
+					position
+						.add(visibleChunksRect.topLeft)
+						.map(c => c * this.chunkSize)
+				);
 
-			destCanvas.drawImage(
-				canvas.canvas,
-				Rectangle.rectangleByOnePoint(
-					destinationRect.topLeft,
-					new Shape(
-						destCanvas.canvas.width,
-						destCanvas.canvas.height
+				destCanvas.drawImage(
+					canvas.canvas,
+					Rectangle.rectangleByOnePoint(
+						destinationRect.topLeft,
+						new Shape(
+							destCanvas.canvas.width,
+							destCanvas.canvas.height
+						)
+					),
+					Rectangle.rectangleByOnePoint(
+						mappedDestinationPosition,
+						rectangle.shape
 					)
-				),
-				Rectangle.rectangleByOnePoint(
-					mappedDestinationPosition,
-					rectangle.shape
-				)
-			);
-		});
+				);
+			});
 	}
 
 }

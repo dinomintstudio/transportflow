@@ -4,6 +4,7 @@ import {Range} from "../../../common/model/Range";
 /**
  * Configuration of street generation
  */
+// TODO: convert all dynamic configs to interfaces
 export class StreetGenerationConfig {
 	/**
 	 * Length of the branch road
@@ -62,7 +63,7 @@ export class StreetGenerationConfig {
 	 * @param roadEdgeStickiness
 	 * @param totalRoadCount
 	 */
-	constructor(roadLength: Range, propagationSteps: Range, distanceBetweenParallelRoads: number, branchRoadsCount: Range, angularDeviation: Range = new Range(0, 0), mainRoadHorizontal: Boolean = true, mainRoadCenterPosition: Position = new Position(0, 0), roadEdgeStickiness: number = 0, totalRoadCount: Range = null) {
+	constructor(roadLength: Range, propagationSteps: Range, distanceBetweenParallelRoads: number, branchRoadsCount: Range, angularDeviation: Range = new Range(0, 0), mainRoadHorizontal: Boolean = true, mainRoadCenterPosition: Position = Position.ZERO, roadEdgeStickiness: number = 0, totalRoadCount: Range = null) {
 		this.roadLength = roadLength;
 		this.propagationSteps = propagationSteps;
 		this.distanceBetweenParallelRoads = distanceBetweenParallelRoads;

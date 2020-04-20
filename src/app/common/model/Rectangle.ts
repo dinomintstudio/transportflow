@@ -56,7 +56,7 @@ export class Rectangle {
 			this.shape.height + 1
 			),
 			null,
-			() => new Position(0, 0)
+			() => Position.ZERO
 		).map((position, positionPosition) => {
 			return position.add(positionPosition)
 		});
@@ -97,7 +97,12 @@ export class Rectangle {
 	 * @return distance between centers
 	 */
 	static distance(r1: Rectangle, r2: Rectangle) {
-		const center = (r: Rectangle): Position => r.topLeft.add(new Position(r.shape.width / 2, r.shape.height / 2));
+		const center = (r: Rectangle): Position =>
+			r.topLeft.add(
+				Position
+					.fromShape(r.shape)
+					.map(c => c / 2)
+			);
 		return Position.distance(center(r1), center(r2));
 	}
 

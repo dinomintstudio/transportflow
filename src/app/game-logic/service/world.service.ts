@@ -40,10 +40,11 @@ export class WorldService {
 			.forEach(cityPosition => {
 				const city: TiledCity = this.cityGenerationService.generate(config.cityGenerationConfig);
 				// place cityPoint in the center of city tilemap
-				const worldCityPosition: Position = cityPosition.add(new Position(
-					-city.tilemap.shape.width / 2,
-					-city.tilemap.shape.height / 2
-				).floor());
+				const worldCityPosition: Position = cityPosition.add(
+					Position
+						.fromShape(city.tilemap.shape.map(c => -c / 2))
+						.floor()
+				);
 
 				this.fillCityTile(city, worldCityPosition, tilemap);
 				this.placeBuildings(city, worldCityPosition, tilemap);
@@ -58,7 +59,7 @@ export class WorldService {
 	public getAdjacentTileMatrix(tilemap: Matrix<Tile>, position: Position): Matrix<Maybe<Tile>> {
 		return tilemap
 			.of(Rectangle.rectangleByOnePoint(
-				new Position(position.x - 1, position.y - 1),
+				position.map(c => c - 1),
 				Shape.square(3)
 			))
 			.map(t => new Maybe<Tile>(t));

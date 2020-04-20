@@ -125,7 +125,7 @@ export class CityGenerationService {
 			_.range(4).forEach(() => {
 				let buildingArea: Matrix<IndexedCityTile> = neighboursMatrix.of(
 					Rectangle.rectangleByOnePoint(
-						new Position(0, 0),
+						Position.ZERO,
 						new Shape(2, 2)
 					)
 				);
