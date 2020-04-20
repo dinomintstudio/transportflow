@@ -10,10 +10,10 @@ export class SingleCanvas implements Canvas {
 	public context: CanvasRenderingContext2D;
 	public isDrawn: Boolean;
 
-	constructor(canvas: HTMLCanvasElement) {
+	constructor(canvas: HTMLCanvasElement, attributes?: CanvasRenderingContext2DSettings) {
 		this.canvas = canvas;
 		this.resolution = new Shape(canvas.width, canvas.height);
-		this.context = canvas.getContext('2d');
+		this.context = canvas.getContext('2d', attributes);
 		this.isDrawn = false;
 	}
 
@@ -50,10 +50,26 @@ export class SingleCanvas implements Canvas {
 		this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
 	}
 
-	drawBorder(strokeWidth: number, color: string) {
+	drawBorder(strokeWidth: number, color: string): void {
 		this.context.lineWidth = strokeWidth;
 		this.context.strokeStyle = color;
 		this.context.strokeRect(0, 0, this.resolution.width, this.resolution.height);
+	}
+
+	compose(...canvases: SingleCanvas[]): void {
+		canvases.forEach(canvas => {
+			this.drawImage(
+				canvas.canvas,
+				Rectangle.rectangleByOnePoint(
+					Position.ZERO,
+					this.resolution
+				)
+			)
+		});
+	}
+
+	clear() {
+		this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 	}
 
 }

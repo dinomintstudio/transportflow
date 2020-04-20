@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
-import {interval, Observable} from "rxjs";
-import {distinct, first, map, scan, withLatestFrom} from "rxjs/operators";
+import {interval, MonoTypeOperatorFunction, Observable} from "rxjs";
+import {distinct, distinctUntilChanged, first, map, scan, withLatestFrom} from "rxjs/operators";
 import {lerp} from "../../common/model/Lerp";
 import * as renderConfig from "../config/render.config.json";
 import {Camera} from "../model/Camera";
@@ -44,17 +44,6 @@ export class InteractionService {
 					(pos, camera) => pos
 						.map(c => c / camera.zoom)
 						.add(camera.position)
-				),
-				withLatestFrom(
-					this.worldService.world.observable,
-					(pos, world) => pos.mapEach(
-						x => x > 0
-							? x % world.tilemap.shape.width
-							: world.tilemap.shape.width - x,
-						y => y > 0
-							? y % world.tilemap.shape.height
-							: world.tilemap.shape.height - y,
-					)
 				)
 			);
 
@@ -64,13 +53,31 @@ export class InteractionService {
 			);
 	}
 
+	/**
+	 * Map unbounded world position to bounded position.
+	 * For example, if world map is [32, 32] tiles and input position is [-2, 40], output will be [30, 8].
+	 */
+	public boundPosition(): MonoTypeOperatorFunction<Position> {
+		return withLatestFrom(
+			this.worldService.world.observable,
+			(pos, world) => pos.mapEach(
+				x => x > 0
+					? x % world.tilemap.shape.width
+					: world.tilemap.shape.width - x,
+				y => y > 0
+					? y % world.tilemap.shape.height
+					: world.tilemap.shape.height - y,
+			)
+		);
+	}
+
 	private handleZoom() {
 		interval()
 			.pipe(
 				withLatestFrom(this.cameraService.zoom, (_, z) => z),
 				scan((current, next) => lerp(current, next, renderConfig.zoomAnimationSpeed)),
 				map(z => Math.round(z * 100) / 100),
-				distinct()
+				distinctUntilChanged()
 			)
 			.subscribe(zoom => {
 				this.cameraService.camera.observable

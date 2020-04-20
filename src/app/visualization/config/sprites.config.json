@@ -5,6 +5,7 @@
 	["house_1x2", "assets/sprite/city/house_1x2.png"],
 	["house_2x1", "assets/sprite/city/house_2x1.png"],
 	["house_2x2", "assets/sprite/city/house_2x2.png"],
+
 	["road_", "assets/sprite/road/road_.png"],
 	["road_e", "assets/sprite/road/road_e.png"],
 	["road_es", "assets/sprite/road/road_es.png"],
@@ -23,6 +24,7 @@
 	["road_sw", "assets/sprite/road/road_sw.png"],
 	["road_w", "assets/sprite/road/road_w.png"],
 	["road_we", "assets/sprite/road/road_we.png"],
+
 	["bg", "assets/sprite/terrain/bg.png"],
 	["border", "assets/sprite/terrain/border.png"],
 	["desert", "assets/sprite/terrain/desert.png"],
@@ -31,6 +33,8 @@
 	["snow", "assets/sprite/terrain/snow.png"],
 	["taiga", "assets/sprite/terrain/taiga.png"],
 	["tree", "assets/sprite/terrain/tree.png"],
-	["water", "assets/sprite/terrain/water.png"]
+	["water", "assets/sprite/terrain/water.png"],
+
+	["hover", "assets/sprite/interaction/hover.png"]
   ]
 }

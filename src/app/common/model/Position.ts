@@ -63,6 +63,8 @@ export class Position {
 		return `[${this.x}, ${this.y}]`;
 	}
 
+	static ZERO: Position = new Position(0, 0);
+
 	/**
 	 * Returns distance between two points
 	 * @param p1 one point

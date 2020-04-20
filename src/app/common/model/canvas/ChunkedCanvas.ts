@@ -8,12 +8,14 @@ import {SingleCanvas} from "./SingleCanvas";
 export class ChunkedCanvas implements Canvas {
 
 	public resolution: Shape;
-	public chunkSize: number;
 	public chunkMatrix: Matrix<SingleCanvas>;
+	private readonly chunkSize: number;
+	private readonly attributes: CanvasRenderingContext2DSettings;
 
-	constructor(resolution: Shape, chunkSize: number) {
+	constructor(resolution: Shape, chunkSize: number, attributes?: CanvasRenderingContext2DSettings) {
 		this.resolution = resolution;
 		this.chunkSize = chunkSize;
+		this.attributes = attributes;
 		this.generateChunkMatrix();
 	}
 
@@ -53,7 +55,7 @@ export class ChunkedCanvas implements Canvas {
 				Math.floor((this.resolution.height - 1) / this.chunkSize) + 1,
 			),
 			null,
-			() => new SingleCanvas(createCanvas(new Shape(this.chunkSize, this.chunkSize)))
+			() => new SingleCanvas(createCanvas(new Shape(this.chunkSize, this.chunkSize)), this.attributes)
 		);
 	}
 
