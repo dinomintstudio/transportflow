@@ -35,8 +35,8 @@ export class GuiComponent implements OnInit {
 		this.mouseService.mouseMove.set(e);
 	}
 
-	@HostListener('document:mousewheel', ['$event'])
-	onMouseWheel(e: WheelEvent) {
+	@HostListener('document:wheel', ['$event'])
+	onWheel(e: WheelEvent) {
 		this.mouseService.mouseWheel.set(e);
 	}
 

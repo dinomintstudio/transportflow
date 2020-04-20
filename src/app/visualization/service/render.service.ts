@@ -89,6 +89,7 @@ export class RenderService {
 					config.chunkSize * config.tileResolution,
 					{alpha: false}
 				);
+
 				this.minimap = new SingleCanvas(createCanvas(
 					new Shape(
 						world.tilemap.shape.width * config.minimapResolution,
@@ -109,8 +110,7 @@ export class RenderService {
 					)
 				));
 
-				this.spriteService.loadSprites(() => {
-				});
+				this.spriteService.loadSprites();
 			})
 	}
 
@@ -225,55 +225,45 @@ export class RenderService {
 			});
 	}
 
-	// TODO: refactor
 	private drawMinimapView(camera: Camera, destinationRect: Rectangle): void {
-		const tilesPerView = this.worldCanvas.resolution
-			.mapEach(
-				w => w / (this.minimap.resolution.width * camera.zoom / config.minimapResolution),
-				h => h / (this.minimap.resolution.height * camera.zoom / config.minimapResolution)
+		this.provideUnboundedCameras(camera, this.minimap.resolution, config.minimapResolution, unboundedCamera => {
+			this.worldCanvas.drawImage(
+				this.minimap.canvas,
+				destinationRect,
+				this.getViewCameraRect(unboundedCamera, config.minimapResolution)
 			)
-			.map(s => Math.floor(s / 2) + 1);
-		_.range(-tilesPerView.height, tilesPerView.height + 2).forEach(i => {
-			_.range(-tilesPerView.width, tilesPerView.width + 2).forEach(j => {
-				const tileCamera = new Camera(
-					camera.position.mapEach(
-						c => c + (j * this.minimap.resolution.width / config.minimapResolution),
-						c => c + (i * this.minimap.resolution.height / config.minimapResolution)
-					),
-					camera.zoom,
-					camera.config
-				);
-				this.worldCanvas.drawImage(
-					this.minimap.canvas,
-					destinationRect,
-					this.getViewCameraRect(tileCamera, config.minimapResolution)
-				);
-			});
 		});
 	}
 
-	// TODO: refactor
 	private drawMapView(camera: Camera, destinationRect: Rectangle): void {
+		this.provideUnboundedCameras(camera, this.map.resolution, config.tileResolution, unboundedCamera => {
+			this.map.drawPartOn(
+				this.getViewCameraRect(unboundedCamera, config.tileResolution),
+				this.worldCanvas,
+				destinationRect
+			);
+		});
+	}
+
+	private provideUnboundedCameras(camera: Camera, mapResolution: Shape, tileResolution: number, cameraSupplier: (camera: Camera) => void): void {
 		const tilesPerView = this.worldCanvas.resolution
 			.mapEach(
-				w => w / (this.map.resolution.width * camera.zoom / config.tileResolution),
-				h => h / (this.map.resolution.height * camera.zoom / config.tileResolution)
+				w => w / (mapResolution.width * camera.zoom / tileResolution),
+				h => h / (mapResolution.height * camera.zoom / tileResolution)
 			)
 			.map(s => Math.floor(s / 2) + 1);
-		_.range(-tilesPerView.height, tilesPerView.height + 2).forEach(i => {
-			_.range(-tilesPerView.width, tilesPerView.width + 2).forEach(j => {
-				const tileCamera = new Camera(
-					camera.position.mapEach(
-						c => c + (j * this.map.resolution.width / config.tileResolution),
-						c => c + (i * this.map.resolution.height / config.tileResolution)
-					),
-					camera.zoom,
-					camera.config
-				);
-				this.map.drawPartOn(
-					this.getViewCameraRect(tileCamera, config.tileResolution),
-					this.worldCanvas,
-					destinationRect
+
+		_.range(-tilesPerView.width, tilesPerView.width + 2).forEach(x => {
+			_.range(-tilesPerView.height, tilesPerView.height + 2).forEach(y => {
+				cameraSupplier(
+					new Camera(
+						camera.position.mapEach(
+							c => c + (x * mapResolution.width / tileResolution),
+							c => c + (y * mapResolution.height / tileResolution)
+						),
+						camera.zoom,
+						camera.config
+					)
 				);
 			});
 		});

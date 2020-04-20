@@ -13,7 +13,7 @@ export class SpriteService {
 	constructor() {
 	}
 
-	loadSprites(onload: () => void): void {
+	loadSprites(onload: () => void = () => {}): void {
 		let spritesLoaded = 0;
 		const spritesCount = spritesConfig.sprites.length;
 
