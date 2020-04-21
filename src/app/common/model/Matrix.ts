@@ -2,7 +2,7 @@ import {Shape} from "./Shape";
 import {Position} from "./Position";
 import {Rectangle} from "./Rectangle";
 
-import _ from 'lodash'
+import * as _ from 'lodash'
 
 /**
  * Library wrapper of a jagged 2d array acting as matrix data structure

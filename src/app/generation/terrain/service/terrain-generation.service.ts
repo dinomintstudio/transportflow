@@ -4,7 +4,7 @@ import {TerrainGenerationConfig} from "../config/TerrainGenerationConfig";
 import {TerrainTile} from "../model/TerrainTile";
 import {Matrix} from "../../../common/model/Matrix";
 
-import _ from 'lodash'
+import * as _ from 'lodash'
 import {Position} from "../../../common/model/Position";
 import {NoiseService} from "../../../math/service/noise.service";
 import {FractionService} from "../../../math/service/fraction.service";

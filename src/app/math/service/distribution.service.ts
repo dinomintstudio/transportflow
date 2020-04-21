@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {Shape} from "../../common/model/Shape";
 import {RandomService} from "../../random/service/random.service";
 
-import _ from 'lodash'
+import * as _ from 'lodash'
 import {Position} from "../../common/model/Position";
 import {Range} from "../../common/model/Range";
 

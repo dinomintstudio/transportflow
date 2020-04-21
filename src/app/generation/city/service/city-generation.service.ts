@@ -14,7 +14,7 @@ import {Building} from "../../../game-logic/model/Building";
 import {GeneratedCityTemplate} from "../model/GeneratedCityTemplate";
 import {IndexedCityTile} from "../model/IndexedCityTile";
 
-import _ from 'lodash'
+import * as _ from 'lodash'
 import {BuildingImpl} from "../model/BuildingImpl";
 import {GeneratedBuilding} from "../model/GeneratedBuilding";
 

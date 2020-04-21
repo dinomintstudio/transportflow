@@ -4,8 +4,6 @@ import {Road} from "../model/Road";
 import {RandomService} from "../../../random/service/random.service";
 import {Range} from "../../../common/model/Range";
 import {Matrix} from "../../../common/model/Matrix";
-
-import _ from 'lodash'
 import {Position} from "../../../common/model/Position";
 import {Rectangle} from "../../../common/model/Rectangle";
 import {TiledRoad} from "../model/TiledRoad";
@@ -99,18 +97,10 @@ export class StreetGenerationService {
 	}
 
 	private calculateTilemapRectangle(roads: Rectangle[]): Rectangle {
-		const left = _(roads)
-			.map(r => r.topLeft.x)
-			.min();
-		const top = _(roads)
-			.map(r => r.topLeft.y)
-			.min();
-		const right = _(roads)
-			.map(r => r.bottomRight.x)
-			.max();
-		const bottom = _(roads)
-			.map(r => r.bottomRight.y)
-			.max();
+		const left = Math.min(...roads.map(r => r.topLeft.x));
+		const top = Math.min(...roads.map(r => r.topLeft.y));
+		const right = Math.max(...roads.map(r => r.bottomRight.x));
+		const bottom = Math.max(...roads.map(r => r.bottomRight.y));
 
 		return Rectangle.rectangleByTwoPoints(new Position(left, top), new Position(right, bottom));
 	}

@@ -34,8 +34,8 @@ export class InteractionService {
 					this.mouseService.mouseMove.observable,
 					(pos, e) => pos
 						.add(new Position(
-							(<HTMLCanvasElement>e.srcElement).width,
-							(<HTMLCanvasElement>e.srcElement).height
+							(<HTMLCanvasElement>e.target).width,
+							(<HTMLCanvasElement>e.target).height
 							).map(c => -c / 2)
 						)
 				),

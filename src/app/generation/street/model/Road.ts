@@ -3,7 +3,7 @@ import {Position} from "../../../common/model/Position";
 import {Range} from "../../../common/model/Range";
 import {RandomService} from "../../../random/service/random.service";
 
-import _ from 'lodash'
+import * as _ from 'lodash'
 
 /**
  * Generated road instance. Output of city street generator

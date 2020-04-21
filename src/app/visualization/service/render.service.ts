@@ -19,7 +19,7 @@ import {createCanvas} from "../../common/model/canvas/Canvas";
 import {CameraConfig} from "../config/CameraConfig";
 import {Range} from "../../common/model/Range";
 import {Log} from "../../common/model/Log";
-import _ from 'lodash'
+import * as _ from 'lodash'
 import {InteractionService} from "./interaction.service";
 import {SpriteRenderer} from "../model/SpriteRenderer";
 import {RenderProfileService} from "./render-profile.service";
