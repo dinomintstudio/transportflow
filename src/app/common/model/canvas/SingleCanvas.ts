@@ -5,10 +5,10 @@ import {Canvas} from "./Canvas";
 
 export class SingleCanvas implements Canvas {
 
-	public canvas: HTMLCanvasElement;
-	public resolution: Shape;
-	public context: CanvasRenderingContext2D;
-	public isDrawn: Boolean;
+	canvas: HTMLCanvasElement;
+	resolution: Shape;
+	context: CanvasRenderingContext2D;
+	isDrawn: Boolean;
 
 	constructor(canvas: HTMLCanvasElement, attributes?: CanvasRenderingContext2DSettings) {
 		this.canvas = canvas;

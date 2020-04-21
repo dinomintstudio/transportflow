@@ -13,7 +13,7 @@ export class Road {
 	/**
 	 * Center position
 	 */
-	public center: Position;
+	center: Position;
 
 	/**
 	 * Center offset. Value between `[0, 1]`.
@@ -21,32 +21,32 @@ export class Road {
 	 * If 0.5 - center in the middle
 	 * If 1 - center in end point etc.
 	 */
-	public centerOffset: number;
+	centerOffset: number;
 
 	/**
 	 * Road angle
 	 */
-	public angle: number;
+	angle: number;
 
 	/**
 	 * Road length
 	 */
-	public length: number;
+	length: number;
 
 	/**
 	 * Config by which street where generated
 	 */
-	public config: StreetGenerationConfig;
+	config: StreetGenerationConfig;
 
 	/**
 	 * Road start point
 	 */
-	public startPoint: Position;
+	startPoint: Position;
 
 	/**
 	 * Road end point
 	 */
-	public endPoint: Position;
+	endPoint: Position;
 
 	/**
 	 * Constructs new Road instance

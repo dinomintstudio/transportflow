@@ -42,7 +42,7 @@ export class GuiComponent implements OnInit {
 
 	@HostListener('document:keydown', ['$event'])
 	onKeydown(e: KeyboardEvent) {
-		this.keyService.keypressObservable.set(e);
+		this.keyService.keypress.set(e);
 	}
 
 	ngOnInit() {

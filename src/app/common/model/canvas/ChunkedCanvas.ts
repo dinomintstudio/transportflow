@@ -7,9 +7,9 @@ import {SingleCanvas} from "./SingleCanvas";
 
 export class ChunkedCanvas implements Canvas {
 
-	public resolution: Shape;
-	public chunkMatrix: Matrix<SingleCanvas>;
-	private readonly chunkSize: number;
+	resolution: Shape;
+	chunkMatrix: Matrix<SingleCanvas>;
+	chunkSize: number;
 	private readonly attributes: CanvasRenderingContext2DSettings;
 
 	constructor(resolution: Shape, chunkSize: number, attributes?: CanvasRenderingContext2DSettings) {

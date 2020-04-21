@@ -6,12 +6,12 @@ export class TiledRoad {
 	/**
 	 * Road start point
 	 */
-	public startPoint: Position;
+	startPoint: Position;
 
 	/**
 	 * Road end point
 	 */
-	public endPoint: Position;
+	endPoint: Position;
 
 	constructor(startPoint: Position, endPoint: Position) {
 		this.startPoint = startPoint;

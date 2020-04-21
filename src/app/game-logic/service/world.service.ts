@@ -16,6 +16,8 @@ import {Building} from "../model/Building";
 import {Rectangle} from "../../common/model/Rectangle";
 import {Shape} from "../../common/model/Shape";
 import {Log} from "../../common/model/Log";
+import {MonoTypeOperatorFunction} from "rxjs";
+import {withLatestFrom} from "rxjs/operators";
 
 @Injectable({
 	providedIn: 'root'
@@ -56,13 +58,31 @@ export class WorldService {
 		)
 	}
 
-	public getAdjacentTileMatrix(tilemap: Matrix<Tile>, position: Position): Matrix<Maybe<Tile>> {
+	getAdjacentTileMatrix(tilemap: Matrix<Tile>, position: Position): Matrix<Maybe<Tile>> {
 		return tilemap
 			.of(Rectangle.rectangleByOnePoint(
 				position.map(c => c - 1),
 				Shape.square(3)
 			))
 			.map(t => new Maybe<Tile>(t));
+	}
+
+	/**
+	 * Map unbounded world position to bounded position.
+	 * For example, if world map is [32, 32] tiles and input position is [-2, 40], output will be [30, 8].
+	 */
+	boundPosition(): MonoTypeOperatorFunction<Position> {
+		return withLatestFrom(
+			this.world.observable,
+			(pos, world) => pos.mapEach(
+				x => x > 0
+					? x % world.tilemap.shape.width
+					: world.tilemap.shape.width + (x % world.tilemap.shape.width),
+				y => y > 0
+					? y % world.tilemap.shape.height
+					: world.tilemap.shape.height + (y % world.tilemap.shape.height),
+			)
+		);
 	}
 
 	private placeBuildings(city: TiledCity, worldCityPosition: Position, tilemap: Matrix<Tile>): void {

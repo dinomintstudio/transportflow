@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {interval, MonoTypeOperatorFunction, Observable} from "rxjs";
+import {interval, Observable} from "rxjs";
 import {distinctUntilChanged, first, map, scan, withLatestFrom} from "rxjs/operators";
 import {lerp} from "../../common/model/Lerp";
 import * as renderConfig from "../config/render.config.json";
@@ -51,24 +51,6 @@ export class InteractionService {
 			.pipe(
 				withLatestFrom(this.tileHover, (_, pos) => pos)
 			);
-	}
-
-	/**
-	 * Map unbounded world position to bounded position.
-	 * For example, if world map is [32, 32] tiles and input position is [-2, 40], output will be [30, 8].
-	 */
-	public boundPosition(): MonoTypeOperatorFunction<Position> {
-		return withLatestFrom(
-			this.worldService.world.observable,
-			(pos, world) => pos.mapEach(
-				x => x > 0
-					? x % world.tilemap.shape.width
-					: world.tilemap.shape.width - x,
-				y => y > 0
-					? y % world.tilemap.shape.height
-					: world.tilemap.shape.height - y,
-			)
-		);
 	}
 
 	private handleZoom() {

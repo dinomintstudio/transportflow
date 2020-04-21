@@ -6,10 +6,10 @@ import {ObservableData} from "../../common/model/ObservableData";
 })
 export class KeyService {
 
-	keypressObservable: ObservableData<KeyboardEvent>;
+	keypress: ObservableData<KeyboardEvent>;
 
 	constructor() {
-		this.keypressObservable = new ObservableData<KeyboardEvent>();
+		this.keypress = new ObservableData<KeyboardEvent>();
 	}
 
 }

@@ -6,7 +6,14 @@
 
   overflow: hidden;
 
-  canvas {
+  canvas, app-debug-overlay {
 	position: absolute;
   }
+
+  app-debug-overlay {
+	pointer-events: none;
+	top: 0;
+	left: 0;
+  }
+
 }

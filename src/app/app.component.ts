@@ -47,11 +47,11 @@ export class AppComponent {
 			0.002,
 			new AltitudeMapConfig(
 				new NoiseConfig(
-					0.01
+					0.015
 				),
+				4,
 				5,
-				5,
-				0
+				2
 			),
 			new TemperatureMapConfig(
 				new NoiseConfig(
@@ -65,8 +65,8 @@ export class AppComponent {
 					0.01
 				),
 				9,
-				3,
-				2
+				0,
+				0
 			),
 			new BiomesConfig(
 				new DesertBiomeConfig(

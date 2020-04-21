@@ -5,13 +5,15 @@ import {AppComponent} from './app.component';
 import {GuiComponent} from './web/gui/gui.component';
 import {MenuComponent} from './web/menu/menu.component';
 import {CanvasComponent} from './web/canvas/canvas.component';
+import {DebugOverlayComponent} from './web/debug-overlay/debug-overlay.component';
 
 @NgModule({
 	declarations: [
 		AppComponent,
 		GuiComponent,
 		MenuComponent,
-		CanvasComponent
+		CanvasComponent,
+		DebugOverlayComponent
 	],
 	imports: [
 		BrowserModule

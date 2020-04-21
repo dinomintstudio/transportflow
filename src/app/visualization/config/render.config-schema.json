@@ -8,7 +8,8 @@
 	"minimapResolution",
 	"chunkSize",
 	"chunkLoadOverhead",
-	"zoomAnimationSpeed"
+	"zoomAnimationSpeed",
+	"debugOverlayKey"
   ],
   "properties": {
 	"$schema": {
@@ -47,6 +48,10 @@
 	  "description": "Speed of zoom animation",
 	  "minimum": 0,
 	  "maximum": 1
+	},
+	"debugOverlayKey": {
+	  "type": "string",
+	  "description": "Key that triggers visibility of the debug overlay"
 	}
   }
 }

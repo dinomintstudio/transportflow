@@ -22,6 +22,7 @@ import {Log} from "../../common/model/Log";
 import _ from 'lodash'
 import {InteractionService} from "./interaction.service";
 import {SpriteRenderer} from "../model/SpriteRenderer";
+import {RenderProfileService} from "./render-profile.service";
 
 @Injectable({
 	providedIn: 'root'
@@ -37,6 +38,7 @@ export class RenderService {
 	viewCanvas: SingleCanvas;
 	interactionLayer: SingleCanvas;
 
+
 	private spriteRenderers: SpriteRenderer[] = [
 		new SpriteRenderer((t) => this.getSurfaceSprite(t)),
 		new SpriteRenderer((t) => this.getBuildingSprite(t)),
@@ -49,7 +51,8 @@ export class RenderService {
 		private cameraService: CameraService,
 		private worldService: WorldService,
 		private spriteService: SpriteService,
-		private interactionService: InteractionService
+		private interactionService: InteractionService,
+		private renderProfileService: RenderProfileService
 	) {
 		this.initMap();
 		this.loadSprites();
@@ -190,6 +193,7 @@ export class RenderService {
 					)
 					.subscribe(camera => {
 						if (!this.worldLayer) return;
+						this.renderProfileService.frame.set();
 
 						const cyclicCamera = new Camera(
 							camera.position.mapEach(
