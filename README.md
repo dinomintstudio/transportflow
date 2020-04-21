@@ -1,5 +1,6 @@
-# Transportflow
+[![main](https://github.com/dynomintstudio/transportflow/workflows/main/badge.svg)](https://github.com/dynomintstudio/transportflow/actions)
 
+# Transportflow
 
 **Transportflow** is a web-based single-player business simulation video game. Connect cities with various transport routes, supply them with needs, arrange citizens transportation and many more.
 
