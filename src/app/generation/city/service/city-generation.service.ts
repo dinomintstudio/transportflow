@@ -32,6 +32,7 @@ export class CityGenerationService {
 	generate(config: CityGenerationConfig): TiledCity {
 		const roads: Road[] = this.streetGenerationService.generate(config.streetGenerationConfig);
 
+		console.log(roads);
 		const tilemap: Matrix<Boolean> = this.streetGenerationService.toTilemap(roads);
 
 		const extendedTilemap = this.extendRoadTilemap(tilemap, config.closestRoadDistance);
