@@ -6,7 +6,8 @@
 	  "jasmine",
 	  "node"
 	],
-	"resolveJsonModule": true
+	"resolveJsonModule": true,
+	"target": "es5"
   },
   "files": [
 	"src/test.ts",

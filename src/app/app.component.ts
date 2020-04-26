@@ -21,7 +21,6 @@ import {DesertBiomeConfig} from "./generation/terrain/config/biome/DesertBiomeCo
 import {TaigaBiomeConfig} from "./generation/terrain/config/biome/TaigaBiomeConfig";
 import {JungleBiomeConfig} from "./generation/terrain/config/biome/JungleBiomeConfig";
 import {Log} from "./common/model/Log";
-import {InteractionService} from "./visualization/service/interaction.service";
 
 @Component({
 	selector: 'app-root',
@@ -39,11 +38,10 @@ export class AppComponent {
 		private randomService: RandomService,
 		private cityGenerationService: CityGenerationService,
 		private renderService: RenderService,
-		private worldService: WorldService,
-		private interactionService: InteractionService
+		private worldService: WorldService
 	) {
 		const terrainGenerationConfig = new TerrainGenerationConfig(
-			new Shape(64, 64),
+			new Shape(512, 512),
 			0.002,
 			new AltitudeMapConfig(
 				new NoiseConfig(

@@ -2,6 +2,7 @@ import {Injectable} from '@angular/core';
 import {ObservableData} from "../../common/model/ObservableData";
 import {first} from 'rxjs/operators';
 import * as config from '../config/scheduling.config.json'
+import Timer = NodeJS.Timer;
 
 /**
  * Responsible for generation in game updates (ticks)
@@ -24,14 +25,14 @@ export class ClockService {
 	/**
 	 * Id of `setInterval()` handler;
 	 */
-	private intervalId: number;
+	private interval: Timer;
 
 	/**
 	 * Construct service
 	 */
 	constructor() {
 		this.tick = new ObservableData<number>();
-		this.intervalId = setInterval(() => this.loop(), 1000 / config.ups);
+		this.interval = setInterval(() => this.loop(), 1000 / config.ups);
 	}
 
 	/**
