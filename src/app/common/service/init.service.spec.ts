@@ -10,7 +10,6 @@ describe('InitService', () => {
 
 	it('should initialize', () => {
 		service = TestBed.get(InitService);
-		console.log(service);
 		expect().nothing();
 	});
 
