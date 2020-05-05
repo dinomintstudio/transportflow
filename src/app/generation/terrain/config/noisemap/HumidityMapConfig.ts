@@ -1,4 +1,4 @@
-import {NoiseConfig} from "../../../../math/config/NoiseConfig";
+import {NoiseConfig} from "../../../../util/config/NoiseConfig";
 
 /**
  * Options for humidity noise map generation

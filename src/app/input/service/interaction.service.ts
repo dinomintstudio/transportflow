@@ -2,11 +2,11 @@ import {Injectable} from '@angular/core';
 import {interval, Observable} from "rxjs";
 import {distinctUntilChanged, first, map, scan, withLatestFrom} from "rxjs/operators";
 import {lerp} from "../../common/model/Lerp";
-import * as renderConfig from "../config/render.config.json";
-import {Camera} from "../model/Camera";
-import {CameraService} from "./camera.service";
+import * as renderConfig from "../../render/config/render.config.json";
+import {Camera} from "../../render/model/Camera";
+import {CameraService} from "../../render/service/camera.service";
 import {WorldService} from "../../game-logic/service/world.service";
-import {MouseService} from "../../input/service/mouse.service";
+import {MouseService} from "./mouse.service";
 import {Position} from "../../common/model/Position";
 
 @Injectable({

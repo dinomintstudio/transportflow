@@ -3,7 +3,7 @@ import {TemperatureMapConfig} from "./noisemap/TemperatureMapConfig";
 import {AltitudeMapConfig} from "./noisemap/AltitudeMapConfig";
 import {HumidityMapConfig} from "./noisemap/HumidityMapConfig";
 import {BiomesConfig} from "./biome/BiomesConfig";
-import {NoiseConfig} from "../../../math/config/NoiseConfig";
+import {NoiseConfig} from "../../../util/config/NoiseConfig";
 
 /**
  * Configuration of terrain generation

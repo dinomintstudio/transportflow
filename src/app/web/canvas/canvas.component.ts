@@ -1,5 +1,5 @@
 import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
-import {RenderService} from "../../visualization/service/render.service";
+import {RenderService} from "../../render/service/render.service";
 
 @Component({
 	selector: 'app-canvas',

@@ -6,12 +6,12 @@ import {Matrix} from "../../../common/model/Matrix";
 
 import * as _ from 'lodash'
 import {Position} from "../../../common/model/Position";
-import {NoiseService} from "../../../math/service/noise.service";
-import {FractionService} from "../../../math/service/fraction.service";
+import {NoiseService} from "../../../util/service/noise.service";
+import {FractionService} from "../../../util/service/fraction.service";
 import {Surface} from "../../../game-logic/model/Surface";
 import {Biome} from "../../../game-logic/model/Biome";
-import {RandomService} from "../../../random/service/random.service";
-import {DistributionService} from "../../../math/service/distribution.service";
+import {RandomService} from "../../../util/service/random.service";
+import {DistributionService} from "../../../util/service/distribution.service";
 import {MatcherService} from "../../../util/service/matcher.service";
 import {Log} from "../../../common/model/Log";
 

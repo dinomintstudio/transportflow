@@ -9,7 +9,7 @@ import {Position} from "../../../common/model/Position";
 import {Maybe} from "../../../common/model/Maybe";
 import {CityTile} from "../model/CityTile";
 import {Rectangle} from "../../../common/model/Rectangle";
-import {RandomService} from "../../../random/service/random.service";
+import {RandomService} from "../../../util/service/random.service";
 import {Building} from "../../../game-logic/model/Building";
 import {GeneratedCityTemplate} from "../model/GeneratedCityTemplate";
 import {IndexedCityTile} from "../model/IndexedCityTile";
@@ -31,12 +31,10 @@ export class CityGenerationService {
 
 	generate(config: CityGenerationConfig): TiledCity {
 		const roads: Road[] = this.streetGenerationService.generate(config.streetGenerationConfig);
-
-		console.log(roads);
 		const tilemap: Matrix<Boolean> = this.streetGenerationService.toTilemap(roads);
-
 		const extendedTilemap = this.extendRoadTilemap(tilemap, config.closestRoadDistance);
-		let cityTilemap: Matrix<Maybe<CityTile>> = this.roadTilemapToCityTilemap(extendedTilemap);
+		const cityTilemap: Matrix<Maybe<CityTile>> = this.roadTilemapToCityTilemap(extendedTilemap);
+
 		this.placeBuildingBlocks(cityTilemap, config);
 
 		const buildings: Building[] = this.mergeBuildingBlocks(cityTilemap);

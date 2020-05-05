@@ -1,15 +1,15 @@
 import {Component, OnInit} from '@angular/core';
 import {Shape} from "../../common/model/Shape";
-import {RenderService} from "../../visualization/service/render.service";
-import * as renderConfig from '../../visualization/config/render.config.json'
+import {RenderService} from "../../render/service/render.service";
+import * as renderConfig from '../../render/config/render.config.json'
 import {WorldService} from "../../game-logic/service/world.service";
-import {Camera} from "../../visualization/model/Camera";
-import {CameraService} from "../../visualization/service/camera.service";
+import {Camera} from "../../render/model/Camera";
+import {CameraService} from "../../render/service/camera.service";
 import {filter, map} from "rxjs/operators";
-import {RenderProfileService} from "../../visualization/service/render-profile.service";
+import {RenderProfileService} from "../../render/service/render-profile.service";
 import {KeyService} from "../../input/service/key.service";
 import {Position} from "../../common/model/Position";
-import {InteractionService} from "../../visualization/service/interaction.service";
+import {InteractionService} from "../../input/service/interaction.service";
 import {interval} from "rxjs";
 
 @Component({

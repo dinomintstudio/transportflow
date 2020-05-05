@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {Shape} from "../../common/model/Shape";
-import {RandomService} from "../../random/service/random.service";
+import {RandomService} from "./random.service";
 
 import * as _ from 'lodash'
 import {Position} from "../../common/model/Position";

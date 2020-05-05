@@ -20,7 +20,7 @@ import {CameraConfig} from "../config/CameraConfig";
 import {Range} from "../../common/model/Range";
 import {Log} from "../../common/model/Log";
 import * as _ from 'lodash'
-import {InteractionService} from "./interaction.service";
+import {InteractionService} from "../../input/service/interaction.service";
 import {SpriteRenderer} from "../model/SpriteRenderer";
 import {RenderProfileService} from "./render-profile.service";
 
