@@ -70,8 +70,3 @@ import 'core-js/es/regexp';
 import 'core-js/es/map';
 import 'core-js/es/weak-map';
 import 'core-js/es/set';
-/***************************************************************************************************
- * APPLICATION IMPORTS
- */
-import 'intl';
-import 'intl/locale-data/jsonp/en';

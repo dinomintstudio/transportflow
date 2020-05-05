@@ -7,5 +7,6 @@
   "chunkLoadOverhead": 3,
   "maxFps": null,
   "zoomAnimationSpeed": 0.2,
-  "debugOverlayKey": "F2"
+  "debugOverlayKey": "F2",
+  "consoleKey": "F4"
 }

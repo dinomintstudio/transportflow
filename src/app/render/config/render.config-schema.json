@@ -9,7 +9,8 @@
 	"chunkSize",
 	"chunkLoadOverhead",
 	"zoomAnimationSpeed",
-	"debugOverlayKey"
+	"debugOverlayKey",
+	"consoleKey"
   ],
   "properties": {
 	"$schema": {
@@ -52,6 +53,10 @@
 	"debugOverlayKey": {
 	  "type": "string",
 	  "description": "Key that triggers visibility of the debug overlay"
+	},
+	"consoleKey": {
+	  "type": "string",
+	  "description": "Key that triggers console visibility"
 	}
   }
 }

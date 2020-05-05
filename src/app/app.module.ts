@@ -6,6 +6,7 @@ import {GuiComponent} from './web/gui/gui.component';
 import {MenuComponent} from './web/menu/menu.component';
 import {CanvasComponent} from './web/canvas/canvas.component';
 import {DebugOverlayComponent} from './web/debug-overlay/debug-overlay.component';
+import {ConsoleComponent} from './web/console/console.component';
 
 @NgModule({
 	declarations: [
@@ -13,7 +14,8 @@ import {DebugOverlayComponent} from './web/debug-overlay/debug-overlay.component
 		GuiComponent,
 		MenuComponent,
 		CanvasComponent,
-		DebugOverlayComponent
+		DebugOverlayComponent,
+		ConsoleComponent
 	],
 	imports: [
 		BrowserModule
