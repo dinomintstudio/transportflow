@@ -1,4 +1,5 @@
 import * as moment from 'moment';
+import {ObservableData} from "./ObservableData";
 
 export enum Level {
 	DEBUG = 'DEBUG',
@@ -11,24 +12,34 @@ export class Log {
 
 	private readonly callerName: string;
 
+	static content: ObservableData<string> = new ObservableData<string>();
+
 	constructor(caller?: any) {
 		this.callerName = caller && caller.constructor && caller.constructor.name ? caller.constructor.name : '';
 	}
 
 	debug(message: string): void {
-		console.debug(this.formatMessage(Level.DEBUG, message));
+		const formatMessage = this.formatMessage(Level.DEBUG, message);
+		console.debug(formatMessage);
+		Log.content.set(formatMessage);
 	}
 
 	info(message: string): void {
-		console.info(this.formatMessage(Level.INFO, message));
+		const formatMessage = this.formatMessage(Level.INFO, message);
+		console.info(formatMessage);
+		Log.content.set(formatMessage);
 	}
 
 	warn(message: string): void {
-		console.warn(this.formatMessage(Level.WARN, message));
+		const formatMessage = this.formatMessage(Level.WARN, message);
+		console.warn(formatMessage);
+		Log.content.set(formatMessage);
 	}
 
 	error(message: string, error?: Error): void {
-		console.error(this.formatMessage(Level.ERROR, message), error);
+		const formatMessage = this.formatMessage(Level.ERROR, message);
+		console.error(formatMessage, error);
+		Log.content.set(formatMessage);
 	}
 
 	private formatMessage(level: Level, message: string): string {
