@@ -7,6 +7,7 @@ import {MenuComponent} from './web/menu/menu.component';
 import {CanvasComponent} from './web/canvas/canvas.component';
 import {DebugOverlayComponent} from './web/debug-overlay/debug-overlay.component';
 import {ConsoleComponent} from './web/console/console.component';
+import {EventSourceDirective} from "./web/directive/event-source.directive";
 
 @NgModule({
 	declarations: [
@@ -15,7 +16,8 @@ import {ConsoleComponent} from './web/console/console.component';
 		MenuComponent,
 		CanvasComponent,
 		DebugOverlayComponent,
-		ConsoleComponent
+		ConsoleComponent,
+		EventSourceDirective
 	],
 	imports: [
 		BrowserModule

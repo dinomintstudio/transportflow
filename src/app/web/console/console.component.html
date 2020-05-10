@@ -1,6 +1,6 @@
-<div class='console' *ngIf='visible'>
-	<div class='logs'>
-		<span class='log' *ngFor='let log of logs.reverse()'>
+<div class='console'>
+	<div class='logs' #scroll>
+		<span class='log' *ngFor='let log of logs'>
 			{{log}}
 		</span>
 	</div>

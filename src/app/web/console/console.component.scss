@@ -1,18 +1,22 @@
 .console {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
   background: rgba(0, 0, 0, 0.7);
   height: 100vh;
-  overflow-x: hidden;
-  overflow-y: scroll;
 
   .logs {
 	display: flex;
-	flex-direction: column-reverse;
+	flex-direction: column;
 
-	min-height: 100%;
+	//min-height: 100%;
 	padding: 10px;
 
 	color: white;
 	font-family: monospace;
+
+	overflow-x: hidden;
+	overflow-y: auto;
   }
 }
 

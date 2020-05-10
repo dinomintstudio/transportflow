@@ -1,5 +1,5 @@
 import * as moment from 'moment';
-import {ObservableData} from "./ObservableData";
+import {ReplaySubject} from "rxjs";
 
 export enum Level {
 	DEBUG = 'DEBUG',
@@ -12,7 +12,7 @@ export class Log {
 
 	private readonly callerName: string;
 
-	static content: ObservableData<string> = new ObservableData<string>();
+	static content: ReplaySubject<string> = new ReplaySubject<string>();
 
 	constructor(caller?: any) {
 		this.callerName = caller && caller.constructor && caller.constructor.name ? caller.constructor.name : '';
@@ -21,25 +21,25 @@ export class Log {
 	debug(message: string): void {
 		const formatMessage = this.formatMessage(Level.DEBUG, message);
 		console.debug(formatMessage);
-		Log.content.set(formatMessage);
+		Log.content.next(formatMessage);
 	}
 
 	info(message: string): void {
 		const formatMessage = this.formatMessage(Level.INFO, message);
 		console.info(formatMessage);
-		Log.content.set(formatMessage);
+		Log.content.next(formatMessage);
 	}
 
 	warn(message: string): void {
 		const formatMessage = this.formatMessage(Level.WARN, message);
 		console.warn(formatMessage);
-		Log.content.set(formatMessage);
+		Log.content.next(formatMessage);
 	}
 
 	error(message: string, error?: Error): void {
 		const formatMessage = this.formatMessage(Level.ERROR, message);
 		console.error(formatMessage, error);
-		Log.content.set(formatMessage);
+		Log.content.next(formatMessage);
 	}
 
 	private formatMessage(level: Level, message: string): string {

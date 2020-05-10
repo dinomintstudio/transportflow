@@ -5,9 +5,8 @@ import * as renderConfig from '../../render/config/render.config.json'
 import {WorldService} from "../../game-logic/service/world.service";
 import {Camera} from "../../render/model/Camera";
 import {CameraService} from "../../render/service/camera.service";
-import {filter, map} from "rxjs/operators";
+import {map} from "rxjs/operators";
 import {RenderProfileService} from "../../render/service/render-profile.service";
-import {KeyService} from "../../input/service/key.service";
 import {Position} from "../../common/model/Position";
 import {InteractionService} from "../../input/service/interaction.service";
 import {interval} from "rxjs";
@@ -43,10 +42,8 @@ export class DebugOverlayComponent implements OnInit {
 		private renderProfileService: RenderProfileService,
 		private worldService: WorldService,
 		private cameraService: CameraService,
-		private keyService: KeyService,
 		private interactionService: InteractionService
 	) {
-		this.visible = false;
 	}
 
 	ngOnInit(): void {
@@ -89,15 +86,6 @@ export class DebugOverlayComponent implements OnInit {
 			)
 			.subscribe(pos => this.boundedCameraPosition = pos);
 
-		this.keyService.keypress.observable
-			.pipe(
-				filter(e => e.key === renderConfig.debugOverlayKey)
-			)
-			.subscribe(e => {
-				this.toggle();
-				e.preventDefault();
-			});
-
 		this.interactionService.tileHover
 			.pipe(
 				map(pos => pos.map(Math.floor))
@@ -116,10 +104,6 @@ export class DebugOverlayComponent implements OnInit {
 			// @ts-ignore
 			interval(1000).subscribe(() => this.memory = this.formatMemory(performance.memory));
 		}
-	}
-
-	toggle(): void {
-		this.visible = !this.visible;
 	}
 
 	formatMemory(memoryInfo: any): string {

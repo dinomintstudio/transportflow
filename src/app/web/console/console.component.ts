@@ -1,66 +1,49 @@
-import {Component, OnInit} from '@angular/core';
-import {filter, take} from "rxjs/operators";
-import * as renderConfig from "../../render/config/render.config.json";
-import {KeyService} from "../../input/service/key.service";
+import {AfterViewChecked, Component, ElementRef, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
 import {Log} from "../../common/model/Log";
-import {interval} from "rxjs";
+import {KeyService} from "../../input/service/key.service";
+import {filter} from "rxjs/operators";
 
 @Component({
 	selector: 'app-console',
 	templateUrl: './console.component.html',
 	styleUrls: ['./console.component.scss']
 })
-export class ConsoleComponent implements OnInit {
+export class ConsoleComponent implements OnInit, AfterViewChecked {
 
-	visible: boolean;
+	@ViewChild('scroll', {static: true})
+	scroll: ElementRef;
+
+	@Output() onClose: EventEmitter<void>;
+
 	logs: string[];
 	input: string;
 
 	constructor(
 		private keyService: KeyService,
 	) {
-		this.visible = true;
+		this.onClose = new EventEmitter<void>();
 		this.logs = [];
 		this.logs.push('Welcome to console.');
 		this.input = '';
-	}
 
-	ngOnInit(): void {
-		this.keyService.keypress.observable
-			.pipe(
-				filter(e => e.key === renderConfig.consoleKey)
-			)
-			.subscribe(e => {
-				e.preventDefault();
-				this.trigger();
-			});
+		Log.content.asObservable().subscribe(log => {
+			this.logs.push(log);
+		});
 
 		this.keyService.keypress.observable
 			.pipe(
 				filter(e => e.key === 'Escape')
 			)
-			.subscribe(e => {
-				e.preventDefault();
-				this.close();
+			.subscribe(() => {
+				this.onClose.emit();
 			});
-
-		Log.content.observable.subscribe(log => {
-			this.logs.push(log);
-		});
-
-		interval(100)
-			.pipe(take(60))
-			.subscribe(i => {
-				new Log().info('new info: ' + i);
-			})
 	}
 
-	private trigger(): void {
-		this.visible = !this.visible;
+	ngOnInit(): void {
 	}
 
-	private close(): void {
-		this.visible = false;
+	ngAfterViewChecked(): void {
+		this.scroll.nativeElement.scrollTop = this.scroll.nativeElement.scrollHeight;
 	}
 
 }
