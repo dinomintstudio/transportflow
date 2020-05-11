@@ -8,6 +8,7 @@ import {CanvasComponent} from './web/canvas/canvas.component';
 import {DebugOverlayComponent} from './web/debug-overlay/debug-overlay.component';
 import {ConsoleComponent} from './web/console/console.component';
 import {EventSourceDirective} from "./web/directive/event-source.directive";
+import {FormsModule} from "@angular/forms";
 
 @NgModule({
 	declarations: [
@@ -20,7 +21,8 @@ import {EventSourceDirective} from "./web/directive/event-source.directive";
 		EventSourceDirective
 	],
 	imports: [
-		BrowserModule
+		BrowserModule,
+		FormsModule
 	],
 	providers: [],
 	bootstrap: [AppComponent]

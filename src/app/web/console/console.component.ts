@@ -25,9 +25,12 @@ export class ConsoleComponent implements OnInit, AfterViewChecked {
 
 	@Output() onClose: EventEmitter<void>;
 
+	log: Log = new Log(this)
+
 	logs: string[];
 	input: string;
 	scrollBottom: boolean;
+	prefix: string;
 
 	constructor(
 		private keyService: KeyService,
@@ -37,6 +40,7 @@ export class ConsoleComponent implements OnInit, AfterViewChecked {
 		this.logs.push('Welcome to console.');
 		this.input = '';
 		this.scrollBottom = true;
+		this.prefix = '> '
 
 		Log.content.asObservable().subscribe(log => {
 			this.logs.push(log);
@@ -71,4 +75,8 @@ export class ConsoleComponent implements OnInit, AfterViewChecked {
 		}
 	}
 
+	command() {
+		this.log.raw(this.prefix + this.input)
+		this.input = '';
+	}
 }

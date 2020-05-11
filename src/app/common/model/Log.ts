@@ -18,6 +18,10 @@ export class Log {
 		this.callerName = caller && caller.constructor && caller.constructor.name ? caller.constructor.name : '';
 	}
 
+	raw(message: string): void {
+		Log.content.next(message);
+	}
+
 	debug(message: string): void {
 		const formatMessage = this.formatMessage(Level.DEBUG, message);
 		console.debug(formatMessage);
