@@ -2,9 +2,7 @@ import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {RenderService} from "../../render/service/render.service";
 import * as renderConfig from "../../render/config/render.config.json";
 import {KeyService} from "../../input/service/key.service";
-import {filter, take} from "rxjs/operators";
-import {interval} from "rxjs";
-import {Log} from "../../common/model/Log";
+import {filter} from "rxjs/operators";
 
 @Component({
 	selector: 'app-canvas',
@@ -36,12 +34,6 @@ export class CanvasComponent implements OnInit {
 				filter(e => e.key === renderConfig.debugOverlayKey)
 			)
 			.subscribe(() => this.overlayVisible = !this.overlayVisible)
-
-		interval(100)
-			.pipe(take(60))
-			.subscribe(i => {
-				new Log().info('new info: ' + i);
-			})
 	}
 
 	ngOnInit() {
