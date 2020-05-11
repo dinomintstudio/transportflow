@@ -6,10 +6,10 @@ export class CityTile {
 	/**
 	 * City tile type
 	 */
-	type: 'building' | 'road';
+	type: 'building' | 'road'
 
-	constructor(type: "building" | "road") {
-		this.type = type;
+	constructor(type: 'building' | 'road') {
+		this.type = type
 	}
 
 }

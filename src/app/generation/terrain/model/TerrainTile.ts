@@ -1,5 +1,5 @@
-import {Surface} from "../../../game-logic/model/Surface";
-import {Biome} from "../../../game-logic/model/Biome";
+import {Surface} from '../../../game-logic/model/Surface'
+import {Biome} from '../../../game-logic/model/Biome'
 
 /**
  * Terrain tile. Output of terrain generator
@@ -9,26 +9,26 @@ export class TerrainTile {
 	/**
 	 * Surface of tile
 	 */
-	surface: Surface;
+	surface: Surface
 
 	/**
 	 * Biome of tile
 	 */
-	biome: Biome;
+	biome: Biome
 
 	/**
 	 * Is tile covered in snow
 	 */
-	isSnow: Boolean;
+	isSnow: Boolean
 
 	/**
 	 * Is tile contain plant
 	 */
-	isPlant: Boolean;
+	isPlant: Boolean
 
 	/**
 	 * Is tile is a starting position of a city
 	 */
-	isCity: Boolean;
+	isCity: Boolean
 
 }

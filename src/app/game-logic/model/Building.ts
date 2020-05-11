@@ -1,4 +1,4 @@
-import {Rectangle} from "../../common/model/Rectangle";
+import {Rectangle} from '../../common/model/Rectangle'
 
 export interface Building {
 

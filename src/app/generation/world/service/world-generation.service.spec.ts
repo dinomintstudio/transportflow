@@ -1,17 +1,17 @@
-import {TestBed} from "@angular/core/testing";
-import {WorldGenerationService} from "./world-generation.service";
+import {TestBed} from '@angular/core/testing'
+import {WorldGenerationService} from './world-generation.service'
 
 describe('TerrainGenerationService', () => {
 
-	let service: WorldGenerationService;
+	let service: WorldGenerationService
 
 	beforeEach(() => {
-		TestBed.configureTestingModule({providers: [WorldGenerationService]});
-		service = TestBed.get(WorldGenerationService);
-	});
+		TestBed.configureTestingModule({providers: [WorldGenerationService]})
+		service = TestBed.get(WorldGenerationService)
+	})
 
 	it('should initialize', () => {
-		expect(service).toBeDefined();
-	});
+		expect(service).toBeDefined()
+	})
 
-});
+})

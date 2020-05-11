@@ -1,8 +1,8 @@
-import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
-import {RenderService} from "../../render/service/render.service";
-import * as renderConfig from "../../render/config/render.config.json";
-import {KeyService} from "../../input/service/key.service";
-import {filter} from "rxjs/operators";
+import {Component, ElementRef, OnInit, ViewChild} from '@angular/core'
+import {RenderService} from '../../render/service/render.service'
+import * as renderConfig from '../../render/config/render.config.json'
+import {KeyService} from '../../input/service/key.service'
+import {filter} from 'rxjs/operators'
 
 @Component({
 	selector: 'app-canvas',
@@ -11,17 +11,17 @@ import {filter} from "rxjs/operators";
 })
 export class CanvasComponent implements OnInit {
 
-	@ViewChild('canvasContainer', {static: true}) container: ElementRef;
+	@ViewChild('canvasContainer', {static: true}) container: ElementRef
 
 	consoleOpen: boolean
-	overlayVisible: boolean;
+	overlayVisible: boolean
 
 	constructor(
 		private renderService: RenderService,
 		private keyService: KeyService
 	) {
-		this.consoleOpen = false;
-		this.overlayVisible = false;
+		this.consoleOpen = false
+		this.overlayVisible = false
 
 		this.keyService.keypress.observable
 			.pipe(
@@ -40,7 +40,7 @@ export class CanvasComponent implements OnInit {
 		this.renderService.initView(
 			<HTMLCanvasElement>document.getElementById('viewCanvas'),
 			this.container.nativeElement
-		);
+		)
 	}
 
 }

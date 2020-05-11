@@ -1,29 +1,29 @@
-import {Injectable} from '@angular/core';
-import {interval, Observable} from "rxjs";
-import {distinctUntilChanged, first, map, scan, withLatestFrom} from "rxjs/operators";
-import {lerp} from "../../common/model/Lerp";
-import * as renderConfig from "../../render/config/render.config.json";
-import {Camera} from "../../render/model/Camera";
-import {CameraService} from "../../render/service/camera.service";
-import {WorldService} from "../../game-logic/service/world.service";
-import {MouseService} from "./mouse.service";
-import {Position} from "../../common/model/Position";
+import {Injectable} from '@angular/core'
+import {interval, Observable} from 'rxjs'
+import {distinctUntilChanged, first, map, scan, withLatestFrom} from 'rxjs/operators'
+import {lerp} from '../../common/model/Lerp'
+import * as renderConfig from '../../render/config/render.config.json'
+import {Camera} from '../../render/model/Camera'
+import {CameraService} from '../../render/service/camera.service'
+import {WorldService} from '../../game-logic/service/world.service'
+import {MouseService} from './mouse.service'
+import {Position} from '../../common/model/Position'
 
 @Injectable({
 	providedIn: 'root'
 })
 export class InteractionService {
 
-	tileHover: Observable<Position>;
+	tileHover: Observable<Position>
 
-	tileClick: Observable<Position>;
+	tileClick: Observable<Position>
 
 	constructor(
 		private cameraService: CameraService,
 		private worldService: WorldService,
 		private mouseService: MouseService,
 	) {
-		this.handleZoom();
+		this.handleZoom()
 
 		this.tileHover = this.mouseService.mouseMove.observable
 			.pipe(
@@ -45,12 +45,12 @@ export class InteractionService {
 						.map(c => c / camera.zoom)
 						.add(camera.position)
 				)
-			);
+			)
 
 		this.tileClick = this.mouseService.mouseClick.observable
 			.pipe(
 				withLatestFrom(this.tileHover, (_, pos) => pos)
-			);
+			)
 	}
 
 	private handleZoom() {
@@ -69,8 +69,8 @@ export class InteractionService {
 							camera.position,
 							camera.config.zoomLimit.clamp(zoom),
 							camera.config
-						));
-					});
-			});
+						))
+					})
+			})
 	}
 }

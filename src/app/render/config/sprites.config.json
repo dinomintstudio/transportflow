@@ -1,40 +1,133 @@
 {
   "$schema": "sprites.config-schema.json",
   "sprites": [
-	["house_1x1", "assets/sprite/city/house_1x1.png"],
-	["house_1x2", "assets/sprite/city/house_1x2.png"],
-	["house_2x1", "assets/sprite/city/house_2x1.png"],
-	["house_2x2", "assets/sprite/city/house_2x2.png"],
-
-	["road_", "assets/sprite/road/road_.png"],
-	["road_e", "assets/sprite/road/road_e.png"],
-	["road_es", "assets/sprite/road/road_es.png"],
-	["road_esw", "assets/sprite/road/road_esw.png"],
-	["road_ew", "assets/sprite/road/road_ew.png"],
-	["road_n", "assets/sprite/road/road_n.png"],
-	["road_ne", "assets/sprite/road/road_ne.png"],
-	["road_nes", "assets/sprite/road/road_nes.png"],
-	["road_nesw", "assets/sprite/road/road_nesw.png"],
-	["road_new", "assets/sprite/road/road_new.png"],
-	["road_ns", "assets/sprite/road/road_ns.png"],
-	["road_nsw", "assets/sprite/road/road_nsw.png"],
-	["road_nw", "assets/sprite/road/road_nw.png"],
-	["road_s", "assets/sprite/road/road_s.png"],
-	["road_sn", "assets/sprite/road/road_sn.png"],
-	["road_sw", "assets/sprite/road/road_sw.png"],
-	["road_w", "assets/sprite/road/road_w.png"],
-	["road_we", "assets/sprite/road/road_we.png"],
-
-	["bg", "assets/sprite/terrain/bg.png"],
-	["border", "assets/sprite/terrain/border.png"],
-	["desert", "assets/sprite/terrain/desert.png"],
-	["jungle", "assets/sprite/terrain/jungle.png"],
-	["mountain", "assets/sprite/terrain/mountain.png"],
-	["snow", "assets/sprite/terrain/snow.png"],
-	["taiga", "assets/sprite/terrain/taiga.png"],
-	["tree", "assets/sprite/terrain/tree.png"],
-	["water", "assets/sprite/terrain/water.png"],
-
-	["hover", "assets/sprite/interaction/hover.png"]
+    [
+      "house_1x1",
+      "assets/sprite/city/house_1x1.png"
+    ],
+    [
+      "house_1x2",
+      "assets/sprite/city/house_1x2.png"
+    ],
+    [
+      "house_2x1",
+      "assets/sprite/city/house_2x1.png"
+    ],
+    [
+      "house_2x2",
+      "assets/sprite/city/house_2x2.png"
+    ],
+    [
+      "road_",
+      "assets/sprite/road/road_.png"
+    ],
+    [
+      "road_e",
+      "assets/sprite/road/road_e.png"
+    ],
+    [
+      "road_es",
+      "assets/sprite/road/road_es.png"
+    ],
+    [
+      "road_esw",
+      "assets/sprite/road/road_esw.png"
+    ],
+    [
+      "road_ew",
+      "assets/sprite/road/road_ew.png"
+    ],
+    [
+      "road_n",
+      "assets/sprite/road/road_n.png"
+    ],
+    [
+      "road_ne",
+      "assets/sprite/road/road_ne.png"
+    ],
+    [
+      "road_nes",
+      "assets/sprite/road/road_nes.png"
+    ],
+    [
+      "road_nesw",
+      "assets/sprite/road/road_nesw.png"
+    ],
+    [
+      "road_new",
+      "assets/sprite/road/road_new.png"
+    ],
+    [
+      "road_ns",
+      "assets/sprite/road/road_ns.png"
+    ],
+    [
+      "road_nsw",
+      "assets/sprite/road/road_nsw.png"
+    ],
+    [
+      "road_nw",
+      "assets/sprite/road/road_nw.png"
+    ],
+    [
+      "road_s",
+      "assets/sprite/road/road_s.png"
+    ],
+    [
+      "road_sn",
+      "assets/sprite/road/road_sn.png"
+    ],
+    [
+      "road_sw",
+      "assets/sprite/road/road_sw.png"
+    ],
+    [
+      "road_w",
+      "assets/sprite/road/road_w.png"
+    ],
+    [
+      "road_we",
+      "assets/sprite/road/road_we.png"
+    ],
+    [
+      "bg",
+      "assets/sprite/terrain/bg.png"
+    ],
+    [
+      "border",
+      "assets/sprite/terrain/border.png"
+    ],
+    [
+      "desert",
+      "assets/sprite/terrain/desert.png"
+    ],
+    [
+      "jungle",
+      "assets/sprite/terrain/jungle.png"
+    ],
+    [
+      "mountain",
+      "assets/sprite/terrain/mountain.png"
+    ],
+    [
+      "snow",
+      "assets/sprite/terrain/snow.png"
+    ],
+    [
+      "taiga",
+      "assets/sprite/terrain/taiga.png"
+    ],
+    [
+      "tree",
+      "assets/sprite/terrain/tree.png"
+    ],
+    [
+      "water",
+      "assets/sprite/terrain/water.png"
+    ],
+    [
+      "hover",
+      "assets/sprite/interaction/hover.png"
+    ]
   ]
 }

@@ -1,6 +1,6 @@
-import {Shape} from "./Shape";
-import {Position} from "./Position";
-import {Matrix} from "./Matrix";
+import {Shape} from './Shape'
+import {Position} from './Position'
+import {Matrix} from './Matrix'
 
 /**
  * Rectangle area on coordinate system. Use static factory methods `rectangleByTwoPoints()` and
@@ -11,17 +11,17 @@ export class Rectangle {
 	/**
 	 * Top left rectangle point position
 	 */
-	topLeft: Position;
+	topLeft: Position
 
 	/**
 	 * Top right rectangle point position
 	 */
-	bottomRight: Position;
+	bottomRight: Position
 
 	/**
 	 * Rectangle shape
 	 */
-	shape: Shape;
+	shape: Shape
 
 	/**
 	 * Construct new Rectangle instance. Constructor is private. Use static factory methods `rectangleByTwoPoints()` and
@@ -30,21 +30,21 @@ export class Rectangle {
 	 * @param shape
 	 */
 	private constructor(p: Position, shape: Shape) {
-		this.topLeft = p;
-		this.shape = shape;
+		this.topLeft = p
+		this.shape = shape
 
-		this.bottomRight = new Position(this.topLeft.x + this.shape.width, this.topLeft.y + this.shape.height);
+		this.bottomRight = new Position(this.topLeft.x + this.shape.width, this.topLeft.y + this.shape.height)
 	}
 
 	translate(position: Position): Rectangle {
-		return new Rectangle(this.topLeft.add(position), this.shape);
+		return new Rectangle(this.topLeft.add(position), this.shape)
 	}
 
 	multiply(factor: number): Rectangle {
 		return Rectangle.rectangleByOnePoint(
 			new Position(this.topLeft.x * factor, this.topLeft.y * factor),
 			new Shape(this.shape.width * factor, this.shape.height * factor)
-		);
+		)
 	}
 
 	/**
@@ -59,7 +59,7 @@ export class Rectangle {
 			() => Position.ZERO
 		).map((position, positionPosition) => {
 			return position.add(positionPosition)
-		});
+		})
 	}
 
 	toString(): string {
@@ -73,12 +73,12 @@ export class Rectangle {
 	 */
 	static rectangleByTwoPoints(p1: Position, p2: Position): Rectangle {
 		if (p1.x > p2.x || p1.y > p2.y) {
-			[p1, p2] = [p2, p1];
+			[p1, p2] = [p2, p1]
 		}
 
-		const width = p2.x - p1.x;
-		const height = p2.y - p1.y;
-		return new Rectangle(p1, new Shape(width, height));
+		const width = p2.x - p1.x
+		const height = p2.y - p1.y
+		return new Rectangle(p1, new Shape(width, height))
 	}
 
 	/**
@@ -87,7 +87,7 @@ export class Rectangle {
 	 * @param shape rectangle shape
 	 */
 	static rectangleByOnePoint(p1: Position, shape: Shape): Rectangle {
-		return new Rectangle(p1, shape);
+		return new Rectangle(p1, shape)
 	}
 
 	/**
@@ -102,8 +102,8 @@ export class Rectangle {
 				Position
 					.fromShape(r.shape)
 					.map(c => c / 2)
-			);
-		return Position.distance(center(r1), center(r2));
+			)
+		return Position.distance(center(r1), center(r2))
 	}
 
 }

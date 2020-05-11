@@ -1,19 +1,19 @@
-import {Injectable} from '@angular/core';
-import {TiledTerrain} from "../model/TiledTerrain";
-import {TerrainGenerationConfig} from "../config/TerrainGenerationConfig";
-import {TerrainTile} from "../model/TerrainTile";
-import {Matrix} from "../../../common/model/Matrix";
+import {Injectable} from '@angular/core'
+import {TiledTerrain} from '../model/TiledTerrain'
+import {TerrainGenerationConfig} from '../config/TerrainGenerationConfig'
+import {TerrainTile} from '../model/TerrainTile'
+import {Matrix} from '../../../common/model/Matrix'
 
 import * as _ from 'lodash'
-import {Position} from "../../../common/model/Position";
-import {NoiseService} from "../../../util/service/noise.service";
-import {FractionService} from "../../../util/service/fraction.service";
-import {Surface} from "../../../game-logic/model/Surface";
-import {Biome} from "../../../game-logic/model/Biome";
-import {RandomService} from "../../../util/service/random.service";
-import {DistributionService} from "../../../util/service/distribution.service";
-import {MatcherService} from "../../../util/service/matcher.service";
-import {Log} from "../../../common/model/Log";
+import {Position} from '../../../common/model/Position'
+import {NoiseService} from '../../../util/service/noise.service'
+import {FractionService} from '../../../util/service/fraction.service'
+import {Surface} from '../../../game-logic/model/Surface'
+import {Biome} from '../../../game-logic/model/Biome'
+import {RandomService} from '../../../util/service/random.service'
+import {DistributionService} from '../../../util/service/distribution.service'
+import {MatcherService} from '../../../util/service/matcher.service'
+import {Log} from '../../../common/model/Log'
 
 /**
  * Terrain generation service. Responsible for terrain generation
@@ -23,7 +23,7 @@ import {Log} from "../../../common/model/Log";
 })
 export class TerrainGenerationService {
 
-	log: Log = new Log(this);
+	log: Log = new Log(this)
 
 	/**
 	 * Constructs service
@@ -49,28 +49,28 @@ export class TerrainGenerationService {
 	 * @param config terrain generation config
 	 */
 	generate(config: TerrainGenerationConfig): TiledTerrain {
-		this.log.debug('distribute city points');
-		const cityPoints = this.distributionService.distribute(config.mapSize, config.cityPerTile);
+		this.log.debug('distribute city points')
+		const cityPoints = this.distributionService.distribute(config.mapSize, config.cityPerTile)
 
 		const tiledTerrain = new TiledTerrain(
 			new Matrix<TerrainTile>(config.mapSize),
 			cityPoints
-		);
+		)
 
-		this.log.debug('generate terrain tilemap');
-		const start = new Date();
+		this.log.debug('generate terrain tilemap')
+		const start = new Date()
 
 		_.range(config.mapSize.width).forEach(x => {
 			_.range(config.mapSize.height).forEach(y => {
-				const position = new Position(x, y);
-				const terrainTile = this.generateTile(config, position, tiledTerrain.cityPoints);
-				tiledTerrain.tilemap.set(position, terrainTile);
+				const position = new Position(x, y)
+				const terrainTile = this.generateTile(config, position, tiledTerrain.cityPoints)
+				tiledTerrain.tilemap.set(position, terrainTile)
 			})
-		});
+		})
 
-		this.log.debug(`tilemap generation complete in ${(new Date().getTime() - start.getTime())}ms`);
+		this.log.debug(`tilemap generation complete in ${(new Date().getTime() - start.getTime())}ms`)
 
-		return tiledTerrain;
+		return tiledTerrain
 	}
 
 	/**
@@ -80,19 +80,19 @@ export class TerrainGenerationService {
 	 * @param cityPoints
 	 */
 	private generateTile(config: TerrainGenerationConfig, position: Position, cityPoints: Position[]): TerrainTile {
-		let terrainTile = new TerrainTile();
+		let terrainTile = new TerrainTile()
 
-		terrainTile.surface = this.tileSurface(config, position);
-		terrainTile.biome = this.tileBiome(config, position);
+		terrainTile.surface = this.tileSurface(config, position)
+		terrainTile.biome = this.tileBiome(config, position)
 		if (terrainTile.surface.type !== 'water') {
-			terrainTile.isSnow = this.tileIsSnow(config, position);
+			terrainTile.isSnow = this.tileIsSnow(config, position)
 		}
 		if (terrainTile.surface.type === 'land') {
-			terrainTile.isPlant = this.tileIsPlant(config, position, terrainTile.biome);
-			terrainTile.isCity = this.tileIsCity(position, cityPoints);
+			terrainTile.isPlant = this.tileIsPlant(config, position, terrainTile.biome)
+			terrainTile.isCity = this.tileIsCity(position, cityPoints)
 		}
 
-		return terrainTile;
+		return terrainTile
 	}
 
 	/**
@@ -112,13 +112,13 @@ export class TerrainGenerationService {
 				config.altitudeMapConfig.noiseConfig,
 				config.mapSize
 			)
-		);
+		)
 
 		return this.matcherService.match<number, Surface>(pattern, new Map([
 			[0, new Surface('water')],
 			[1, new Surface('land')],
 			[2, new Surface('mountain')]
-		])).get();
+		])).get()
 	}
 
 	/**
@@ -138,27 +138,27 @@ export class TerrainGenerationService {
 				config.humidityMapConfig.noiseConfig,
 				config.mapSize
 			)
-		);
+		)
 
 		const seaLevelAltitude = this.fractionService.calculateRanges([
 			config.altitudeMapConfig.waterFraction,
 			config.altitudeMapConfig.landFraction,
 			config.altitudeMapConfig.mountainFraction
-		])[0].to;
+		])[0].to
 
 		const altitude = this.noiseService.generate(
 			position.add(Position.fromShape(config.mapSize)),
 			config.altitudeMapConfig.noiseConfig,
 			config.mapSize
-		);
+		)
 		if (altitude - seaLevelAltitude < config.beachHeight)
-			return new Biome('desert', config.biomesConfig.desertBiomeConfig);
+			return new Biome('desert', config.biomesConfig.desertBiomeConfig)
 
 		return this.matcherService.match<number, Biome>(pattern, new Map([
 			[0, new Biome('desert', config.biomesConfig.desertBiomeConfig)],
 			[1, new Biome('taiga', config.biomesConfig.taigaBiomeConfig)],
 			[2, new Biome('jungle', config.biomesConfig.jungleBiomeConfig)],
-		])).get();
+		])).get()
 	}
 
 	/**
@@ -177,9 +177,9 @@ export class TerrainGenerationService {
 				config.temperatureMapConfig.noiseConfig,
 				config.mapSize
 			)
-		);
+		)
 
-		return pattern === 1;
+		return pattern === 1
 	}
 
 	/**
@@ -193,11 +193,11 @@ export class TerrainGenerationService {
 			position.add(Position.fromShape(config.mapSize).map(c => c * 4)),
 			config.fertilityNoiseConfig,
 			config.mapSize
-		);
+		)
 		const isTreeByNoise: Boolean = this.randomService.withProbability(biome.config.plantK)
 			? probability >= 0.5
-			: false;
-		return isTreeByNoise || this.randomService.withProbability(config.randomTreeProbability * biome.config.plantK);
+			: false
+		return isTreeByNoise || this.randomService.withProbability(config.randomTreeProbability * biome.config.plantK)
 	}
 
 	/**
@@ -206,7 +206,7 @@ export class TerrainGenerationService {
 	 * @param cityPoints
 	 */
 	private tileIsCity(position: Position, cityPoints: Position[]): Boolean {
-		return !!cityPoints.find(p => p.x === position.x && p.y === position.y);
+		return !!cityPoints.find(p => p.x === position.x && p.y === position.y)
 	}
 
 }

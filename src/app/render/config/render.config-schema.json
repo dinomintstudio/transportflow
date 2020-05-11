@@ -3,60 +3,60 @@
   "description": "Render configuration schema",
   "additionalProperties": false,
   "required": [
-	"tileResolution",
-	"spriteResolution",
-	"minimapResolution",
-	"chunkSize",
-	"chunkLoadOverhead",
-	"zoomAnimationSpeed",
-	"debugOverlayKey",
-	"consoleKey"
+    "tileResolution",
+    "spriteResolution",
+    "minimapResolution",
+    "chunkSize",
+    "chunkLoadOverhead",
+    "zoomAnimationSpeed",
+    "debugOverlayKey",
+    "consoleKey"
   ],
   "properties": {
-	"$schema": {
-	  "type": "string",
-	  "description": "Path to config schema"
-	},
-	"tileResolution": {
-	  "type": "integer",
-	  "description": "Tile resolution in pixels per tile"
-	},
-	"spriteResolution": {
-	  "type": "integer",
-	  "description": "Sprite resolution in pixels per tile"
-	},
-	"minimapResolution": {
-	  "type": "integer",
-	  "description": "Minimap resolution in pixels per tile"
-	},
-	"chunkSize": {
-	  "type": "integer",
-	  "description": "Chunk size in tiles per chunk side"
-	},
-	"chunkLoadOverhead": {
-	  "type": "integer",
-	  "description": "The amount of chunks being loaded ahead off-view"
-	},
-	"maxFps": {
-	  "type": [
-		"integer",
-		"null"
-	  ],
-	  "description": "FPS limit"
-	},
-	"zoomAnimationSpeed": {
-	  "type": "number",
-	  "description": "Speed of zoom animation",
-	  "minimum": 0,
-	  "maximum": 1
-	},
-	"debugOverlayKey": {
-	  "type": "string",
-	  "description": "Key that triggers visibility of the debug overlay"
-	},
-	"consoleKey": {
-	  "type": "string",
-	  "description": "Key that triggers console visibility"
-	}
+    "$schema": {
+      "type": "string",
+      "description": "Path to config schema"
+    },
+    "tileResolution": {
+      "type": "integer",
+      "description": "Tile resolution in pixels per tile"
+    },
+    "spriteResolution": {
+      "type": "integer",
+      "description": "Sprite resolution in pixels per tile"
+    },
+    "minimapResolution": {
+      "type": "integer",
+      "description": "Minimap resolution in pixels per tile"
+    },
+    "chunkSize": {
+      "type": "integer",
+      "description": "Chunk size in tiles per chunk side"
+    },
+    "chunkLoadOverhead": {
+      "type": "integer",
+      "description": "The amount of chunks being loaded ahead off-view"
+    },
+    "maxFps": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "description": "FPS limit"
+    },
+    "zoomAnimationSpeed": {
+      "type": "number",
+      "description": "Speed of zoom animation",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "debugOverlayKey": {
+      "type": "string",
+      "description": "Key that triggers visibility of the debug overlay"
+    },
+    "consoleKey": {
+      "type": "string",
+      "description": "Key that triggers console visibility"
+    }
   }
 }

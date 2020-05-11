@@ -1,8 +1,8 @@
-import {Injectable} from '@angular/core';
-import {Observable} from "rxjs";
-import {ClockService} from "./clock.service";
-import {filter} from "rxjs/operators";
-import * as config from "../config/scheduling.config.json";
+import {Injectable} from '@angular/core'
+import {Observable} from 'rxjs'
+import {ClockService} from './clock.service'
+import {filter} from 'rxjs/operators'
+import * as config from '../config/scheduling.config.json'
 
 /**
  * Responsible for generation in game updates (ticks)
@@ -15,7 +15,7 @@ export class ShortTermSchedulingService {
 	/**
 	 * Observable of the last long term tick
 	 */
-	tick: Observable<number>;
+	tick: Observable<number>
 
 	/**
 	 * Construct service
@@ -26,7 +26,7 @@ export class ShortTermSchedulingService {
 		this.tick = this.clockService.tick.observable
 			.pipe(
 				filter(tick => tick % config.shortTermK === 0)
-			);
+			)
 	}
 
 }

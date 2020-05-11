@@ -3,26 +3,26 @@
   "description": "Scheduling config schema",
   "additionalProperties": false,
   "required": [
-	"ups",
-	"shortTermK",
-	"longTermK"
+    "ups",
+    "shortTermK",
+    "longTermK"
   ],
   "properties": {
-	"$schema": {
-	  "type": "string",
-	  "description": "Path to config schema"
-	},
-	"ups": {
-	  "type": "integer",
-	  "description": "Updates per second (ups) is the number of updates (ticks) clock will generate in second"
-	},
-	"shortTermK": {
-	  "type": "integer",
-	  "description": "Describes periodicity in which short term event emits"
-	},
-	"longTermK": {
-	  "type": "integer",
-	  "description": "Describes periodicity in which long term event emits"
-	}
+    "$schema": {
+      "type": "string",
+      "description": "Path to config schema"
+    },
+    "ups": {
+      "type": "integer",
+      "description": "Updates per second (ups) is the number of updates (ticks) clock will generate in second"
+    },
+    "shortTermK": {
+      "type": "integer",
+      "description": "Describes periodicity in which short term event emits"
+    },
+    "longTermK": {
+      "type": "integer",
+      "description": "Describes periodicity in which long term event emits"
+    }
   }
 }

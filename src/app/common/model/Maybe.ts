@@ -6,21 +6,21 @@ export class Maybe<T> {
 	/**
 	 * Nullable value
 	 */
-	private value: T;
+	private value: T
 
 	/**
 	 * Constructs new Maybe instance
 	 * @param value
 	 */
 	constructor(value: T = null) {
-		this.value = value;
+		this.value = value
 	}
 
 	/**
 	 * @return true if value is present and not null
 	 */
 	isPresent(): Boolean {
-		return this.value != null;
+		return this.value != null
 	}
 
 	/**
@@ -28,8 +28,8 @@ export class Maybe<T> {
 	 * @throws Error if value is not present
 	 */
 	get(): T {
-		if (this.value == null) throw new Error('no value present');
-		return this.value;
+		if (this.value == null) throw new Error('no value present')
+		return this.value
 	}
 
 	/**
@@ -48,19 +48,19 @@ export class Maybe<T> {
 	 * @param consumer consumer function
 	 */
 	ifPresent(consumer: (value: T) => void) {
-		if (!this.isPresent()) return;
-		consumer(this.value);
+		if (!this.isPresent()) return
+		consumer(this.value)
 	}
 
 	map<D>(func: (t: T) => D): Maybe<D> {
-		return this.isPresent() ? new Maybe<D>(func(this.get())) : Maybe.empty();
+		return this.isPresent() ? new Maybe<D>(func(this.get())) : Maybe.empty()
 	}
 
 	filter(predicate: (T) => Boolean): Maybe<T> {
 		if (this.isPresent()) {
-			return this;
+			return this
 		} else {
-			return predicate(this) ? this : Maybe.empty();
+			return predicate(this) ? this : Maybe.empty()
 		}
 	}
 
@@ -69,7 +69,7 @@ export class Maybe<T> {
 	 * @param elseValue returned value if current is not present
 	 */
 	orElse(elseValue: T): T {
-		return this.isPresent() ? this.value : elseValue;
+		return this.isPresent() ? this.value : elseValue
 	}
 
 	/**
@@ -80,9 +80,9 @@ export class Maybe<T> {
 	 */
 	orElseThrow(error: any): T {
 		try {
-			return this.get();
+			return this.get()
 		} catch (e) {
-			throw error;
+			throw error
 		}
 	}
 
@@ -90,7 +90,7 @@ export class Maybe<T> {
 	 * Initialize new Maybe instance with not present value
 	 */
 	static empty<T>(): Maybe<T> {
-		return new Maybe<T>();
+		return new Maybe<T>()
 	}
 
 }

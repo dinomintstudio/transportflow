@@ -1,21 +1,21 @@
-import {Road} from "./Road";
-import {Position} from "../../../common/model/Position";
+import {Road} from './Road'
+import {Position} from '../../../common/model/Position'
 
 export class TiledRoad {
 
 	/**
 	 * Road start point
 	 */
-	startPoint: Position;
+	startPoint: Position
 
 	/**
 	 * Road end point
 	 */
-	endPoint: Position;
+	endPoint: Position
 
 	constructor(startPoint: Position, endPoint: Position) {
-		this.startPoint = startPoint;
-		this.endPoint = endPoint;
+		this.startPoint = startPoint
+		this.endPoint = endPoint
 	}
 
 	static of(road: Road): TiledRoad {

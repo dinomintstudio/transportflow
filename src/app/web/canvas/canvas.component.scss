@@ -7,20 +7,20 @@
   overflow: hidden;
 
   canvas, app-debug-overlay, app-console {
-	position: absolute;
+    position: absolute;
   }
 
   app-debug-overlay, app-console {
-	top: 0;
-	left: 0;
+    top: 0;
+    left: 0;
   }
 
   app-debug-overlay {
-	pointer-events: none;
+    pointer-events: none;
   }
 
   app-console {
-	width: 100%;
-	height: 100%;
+    width: 100%;
+    height: 100%;
   }
 }

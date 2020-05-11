@@ -1,4 +1,4 @@
-import {NoiseConfig} from "../../../../util/config/NoiseConfig";
+import {NoiseConfig} from '../../../../util/config/NoiseConfig'
 
 /**
  * Options for altitude noise map generation
@@ -8,17 +8,17 @@ export class TemperatureMapConfig {
 	/**
 	 * Noise config
 	 */
-	noiseConfig: NoiseConfig;
+	noiseConfig: NoiseConfig
 
 	/**
 	 * Land fraction. How many parts of land will be in generated terrain
 	 */
-	landFraction: number;
+	landFraction: number
 
 	/**
 	 * Snow fraction. How many parts of snow will be in generated terrain
 	 */
-	snowFraction: number;
+	snowFraction: number
 
 	/**
 	 * Constructs config
@@ -27,9 +27,9 @@ export class TemperatureMapConfig {
 	 * @param snowFraction
 	 */
 	constructor(noiseConfig: NoiseConfig, landFraction: number, snowFraction: number) {
-		this.noiseConfig = noiseConfig;
-		this.landFraction = landFraction;
-		this.snowFraction = snowFraction;
+		this.noiseConfig = noiseConfig
+		this.landFraction = landFraction
+		this.snowFraction = snowFraction
 	}
 
 }

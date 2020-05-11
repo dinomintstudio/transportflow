@@ -1,11 +1,11 @@
-import {Injectable} from '@angular/core';
-import {ObservableData} from "../../common/model/ObservableData";
-import {Camera} from "../model/Camera";
-import {KeyService} from "../../input/service/key.service";
-import {Position} from "../../common/model/Position";
-import {filter, first, flatMap, map, pairwise, withLatestFrom} from "rxjs/operators";
-import {MouseService} from "../../input/service/mouse.service";
-import {concat, merge, Observable, of} from "rxjs";
+import {Injectable} from '@angular/core'
+import {ObservableData} from '../../common/model/ObservableData'
+import {Camera} from '../model/Camera'
+import {KeyService} from '../../input/service/key.service'
+import {Position} from '../../common/model/Position'
+import {filter, first, flatMap, map, pairwise, withLatestFrom} from 'rxjs/operators'
+import {MouseService} from '../../input/service/mouse.service'
+import {concat, merge, Observable, of} from 'rxjs'
 
 
 @Injectable({
@@ -13,9 +13,9 @@ import {concat, merge, Observable, of} from "rxjs";
 })
 export class CameraService {
 
-	camera: ObservableData<Camera> = new ObservableData();
+	camera: ObservableData<Camera> = new ObservableData()
 
-	zoom: Observable<number>;
+	zoom: Observable<number>
 
 	constructor(
 		private keyService: KeyService,
@@ -62,11 +62,10 @@ export class CameraService {
 							),
 							camera.zoom,
 							camera.config
-						));
-					});
+						))
+					})
 			})
 
-		;
 
 	}
 

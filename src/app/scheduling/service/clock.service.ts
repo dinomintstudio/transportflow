@@ -1,8 +1,8 @@
-import {Injectable} from '@angular/core';
-import {ObservableData} from "../../common/model/ObservableData";
-import {first} from 'rxjs/operators';
+import {Injectable} from '@angular/core'
+import {ObservableData} from '../../common/model/ObservableData'
+import {first} from 'rxjs/operators'
 import * as config from '../config/scheduling.config.json'
-import Timer = NodeJS.Timer;
+import Timer = NodeJS.Timer
 
 /**
  * Responsible for generation in game updates (ticks)
@@ -15,48 +15,48 @@ export class ClockService {
 	/**
 	 * Observable data of the last tick emitted
 	 */
-	tick: ObservableData<number>;
+	tick: ObservableData<number>
 
 	/**
 	 * Is clock now counting
 	 */
-	private counting: Boolean = false;
+	private counting: Boolean = false
 
 	/**
 	 * Id of `setInterval()` handler;
 	 */
-	private interval: Timer;
+	private interval: Timer
 
 	/**
 	 * Construct service
 	 */
 	constructor() {
-		this.tick = new ObservableData<number>();
-		this.interval = setInterval(() => this.loop(), 1000 / config.ups);
+		this.tick = new ObservableData<number>()
+		this.interval = setInterval(() => this.loop(), 1000 / config.ups)
 	}
 
 	/**
 	 * After call `tick` begin to emit from the last tick
 	 */
 	start() {
-		this.counting = true;
+		this.counting = true
 	}
 
 	/**
 	 * Stop tick emitting. Called when the game is in the 'pause' mode
 	 */
 	stop() {
-		this.counting = false;
+		this.counting = false
 	}
 
 	/**
 	 * Loop that used for tick emitting
 	 */
 	private loop() {
-		if (!this.counting) return;
+		if (!this.counting) return
 		this.tick.observable.pipe(first()).subscribe(tick => {
-			this.tick.set(tick + 1);
-		});
+			this.tick.set(tick + 1)
+		})
 	}
 
 }

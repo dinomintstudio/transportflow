@@ -6,12 +6,12 @@ export class Range {
 	/**
 	 * Lowest value in range
 	 */
-	from: number;
+	from: number
 
 	/**
 	 * Highest value in range
 	 */
-	to: number;
+	to: number
 
 	/**
 	 * Construct new Range instance
@@ -19,8 +19,8 @@ export class Range {
 	 * @param to to value
 	 */
 	constructor(from: number, to: number) {
-		this.from = from;
-		this.to = to;
+		this.from = from
+		this.to = to
 	}
 
 	/**
@@ -30,7 +30,7 @@ export class Range {
 		return new Range(
 			Math.min(this.from, this.to),
 			Math.max(this.from, this.to)
-		);
+		)
 	}
 
 	/**
@@ -38,14 +38,14 @@ export class Range {
 	 * @param value value
 	 */
 	in(value: number): Boolean {
-		return value >= this.from && value <= this.to;
+		return value >= this.from && value <= this.to
 	}
 
 	/**
 	 * Delta value (distance) of range
 	 */
 	delta(): number {
-		return this.to - this.from;
+		return this.to - this.from
 	}
 
 	/**
@@ -53,7 +53,7 @@ export class Range {
 	 * @param value value
 	 */
 	map(value: number): number {
-		return value * (this.to - this.from) + this.from;
+		return value * (this.to - this.from) + this.from
 	}
 
 	/**
@@ -61,11 +61,11 @@ export class Range {
 	 * @param value value
 	 */
 	clamp(value: number): number {
-		return Math.min(Math.max(value, this.from), this.to);
+		return Math.min(Math.max(value, this.from), this.to)
 	}
 
 	toString(): string {
-		return `[${this.from}, ${this.to}]`;
+		return `[${this.from}, ${this.to}]`
 	}
 
 	/**
@@ -75,6 +75,6 @@ export class Range {
 	 */
 	static areIntersect(r1: Range, r2: Range): Boolean {
 		return r2.in(r1.from) || r2.in(r1.to) ||
-			r1.in(r2.from) || r1.in(r2.to);
+			r1.in(r2.from) || r1.in(r2.to)
 	}
 }

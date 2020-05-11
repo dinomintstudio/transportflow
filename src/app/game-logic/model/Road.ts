@@ -1,9 +1,9 @@
 export class Road {
 
-	type: 'roadway' | 'railway';
+	type: 'roadway' | 'railway'
 
-	constructor(type: "roadway" | "railway") {
-		this.type = type;
+	constructor(type: 'roadway' | 'railway') {
+		this.type = type
 	}
 
 }

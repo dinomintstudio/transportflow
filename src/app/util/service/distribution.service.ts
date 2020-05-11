@@ -1,10 +1,10 @@
-import {Injectable} from '@angular/core';
-import {Shape} from "../../common/model/Shape";
-import {RandomService} from "./random.service";
+import {Injectable} from '@angular/core'
+import {Shape} from '../../common/model/Shape'
+import {RandomService} from './random.service'
 
 import * as _ from 'lodash'
-import {Position} from "../../common/model/Position";
-import {Range} from "../../common/model/Range";
+import {Position} from '../../common/model/Position'
+import {Range} from '../../common/model/Range'
 
 /**
  * Responsible for equal distribution of points within specified rectangle
@@ -29,10 +29,10 @@ export class DistributionService {
 	 * `rectangle.shape.width x rectangle.shape.height`)
 	 */
 	distribute(shape: Shape, density: number): Position[] {
-		const gridShape = this.gridShape(shape, density);
-		const sizeLength = shape.width / gridShape.width;
+		const gridShape = this.gridShape(shape, density)
+		const sizeLength = shape.width / gridShape.width
 
-		const points: Position[] = [];
+		const points: Position[] = []
 
 		_.range(gridShape.width).forEach(j => {
 			_.range(gridShape.height).forEach(i => {
@@ -44,10 +44,10 @@ export class DistributionService {
 							)
 						)
 				)
-			});
-		});
+			})
+		})
 
-		return points;
+		return points
 	}
 
 	/**
@@ -57,10 +57,10 @@ export class DistributionService {
 	 * @return `(m, n), m = n = round(sqrt(rectangle.area * density))`
 	 */
 	gridShape(shape: Shape, density: number): Shape {
-		const n = shape.area() * density;
+		const n = shape.area() * density
 
-		const squareGridSize = Math.round(Math.sqrt(n));
-		return Shape.square(squareGridSize);
+		const squareGridSize = Math.round(Math.sqrt(n))
+		return Shape.square(squareGridSize)
 	}
 
 }

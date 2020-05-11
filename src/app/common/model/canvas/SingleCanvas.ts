@@ -1,26 +1,26 @@
-import {Rectangle} from "../Rectangle";
-import {Shape} from "../Shape";
-import {Position} from "../Position";
-import {Canvas} from "./Canvas";
+import {Rectangle} from '../Rectangle'
+import {Shape} from '../Shape'
+import {Position} from '../Position'
+import {Canvas} from './Canvas'
 
 export class SingleCanvas implements Canvas {
 
-	canvas: HTMLCanvasElement;
-	resolution: Shape;
-	context: CanvasRenderingContext2D;
-	isDrawn: Boolean;
+	canvas: HTMLCanvasElement
+	resolution: Shape
+	context: CanvasRenderingContext2D
+	isDrawn: Boolean
 
 	constructor(canvas: HTMLCanvasElement, attributes?: CanvasRenderingContext2DSettings) {
-		this.canvas = canvas;
-		this.resolution = new Shape(canvas.width, canvas.height);
-		this.context = canvas.getContext('2d', attributes);
-		this.isDrawn = false;
+		this.canvas = canvas
+		this.resolution = new Shape(canvas.width, canvas.height)
+		this.context = canvas.getContext('2d', attributes)
+		this.isDrawn = false
 	}
 
 	setResolution(resolution: Shape) {
-		this.resolution = resolution;
-		this.canvas.width = resolution.width;
-		this.canvas.height = resolution.height;
+		this.resolution = resolution
+		this.canvas.width = resolution.width
+		this.canvas.height = resolution.height
 	}
 
 	drawImage(image: CanvasImageSource, destinationRect: Rectangle, sourceRect?: Rectangle): void {
@@ -28,9 +28,9 @@ export class SingleCanvas implements Canvas {
 			sourceRect = Rectangle.rectangleByOnePoint(
 				Position.ZERO,
 				new Shape(<number>image.width, <number>image.height)
-			);
+			)
 		}
-		this.context.imageSmoothingEnabled = false;
+		this.context.imageSmoothingEnabled = false
 		this.context.drawImage(
 			image,
 			sourceRect.topLeft.x,
@@ -41,19 +41,19 @@ export class SingleCanvas implements Canvas {
 			destinationRect.topLeft.y,
 			destinationRect.shape.width,
 			destinationRect.shape.height,
-		);
-		this.isDrawn = true;
+		)
+		this.isDrawn = true
 	}
 
 	fill(color: string): void {
-		this.context.fillStyle = color;
-		this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+		this.context.fillStyle = color
+		this.context.fillRect(0, 0, this.canvas.width, this.canvas.height)
 	}
 
 	drawBorder(strokeWidth: number, color: string): void {
-		this.context.lineWidth = strokeWidth;
-		this.context.strokeStyle = color;
-		this.context.strokeRect(0, 0, this.resolution.width, this.resolution.height);
+		this.context.lineWidth = strokeWidth
+		this.context.strokeStyle = color
+		this.context.strokeRect(0, 0, this.resolution.width, this.resolution.height)
 	}
 
 	compose(...canvases: SingleCanvas[]): void {
@@ -65,11 +65,11 @@ export class SingleCanvas implements Canvas {
 					this.resolution
 				)
 			)
-		});
+		})
 	}
 
 	clear() {
-		this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+		this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
 	}
 
 }

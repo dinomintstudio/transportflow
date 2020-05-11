@@ -1,5 +1,5 @@
-import {Injectable} from '@angular/core';
-import {Range} from "../../common/model/Range";
+import {Injectable} from '@angular/core'
+import {Range} from '../../common/model/Range'
 
 /**
  * Responsible for converting fractions to corresponding range values
@@ -21,18 +21,18 @@ export class FractionService {
 	 * @param fractions list of fractions
 	 */
 	calculateRanges(fractions: number[]): Range[] {
-		const cumulativeSum = [];
+		const cumulativeSum = []
 		fractions.reduce((a, b, i) => {
-			return cumulativeSum[i] = a + b;
-		}, 0);
+			return cumulativeSum[i] = a + b
+		}, 0)
 
-		const sum = cumulativeSum[cumulativeSum.length - 1];
+		const sum = cumulativeSum[cumulativeSum.length - 1]
 
 		return cumulativeSum.map((fr, i) => {
 			if (i === 0) {
-				return new Range(0, fr / sum);
+				return new Range(0, fr / sum)
 			} else {
-				return new Range(cumulativeSum[i - 1] / sum, fr / sum);
+				return new Range(cumulativeSum[i - 1] / sum, fr / sum)
 			}
 		})
 	}
@@ -44,7 +44,7 @@ export class FractionService {
 	 */
 	in(ranges: Range[], value: number): number {
 		for (let i = 0; i < ranges.length; i++) {
-			if (ranges[i].in(value)) return i;
+			if (ranges[i].in(value)) return i
 		}
 	}
 

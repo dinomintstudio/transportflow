@@ -1,5 +1,5 @@
-import {Rectangle} from "../Rectangle";
-import {Shape} from "../Shape";
+import {Rectangle} from '../Rectangle'
+import {Shape} from '../Shape'
 
 export interface Canvas {
 
@@ -8,10 +8,10 @@ export interface Canvas {
 }
 
 export const createCanvas = (resolution?: Shape): HTMLCanvasElement => {
-	const canvas: HTMLCanvasElement = document.createElement('canvas');
+	const canvas: HTMLCanvasElement = document.createElement('canvas')
 	if (resolution) {
-		canvas.width = resolution.width;
-		canvas.height = resolution.height;
+		canvas.width = resolution.width
+		canvas.height = resolution.height
 	}
-	return canvas;
-};
+	return canvas
+}

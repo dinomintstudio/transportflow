@@ -1,9 +1,9 @@
-import {CityPlan} from "./CityPlan";
-import {Matrix} from "../../common/model/Matrix";
+import {CityPlan} from './CityPlan'
+import {Matrix} from '../../common/model/Matrix'
 
 export class City {
 
-	cityPlan: CityPlan;
-	tileVisibility: Matrix<Boolean>;
+	cityPlan: CityPlan
+	tileVisibility: Matrix<Boolean>
 
 }

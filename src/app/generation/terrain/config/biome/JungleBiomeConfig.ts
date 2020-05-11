@@ -1,11 +1,11 @@
-import {BiomeConfig} from "./BiomeConfig";
+import {BiomeConfig} from './BiomeConfig'
 
 export class JungleBiomeConfig implements BiomeConfig {
 
-	plantK: number;
+	plantK: number
 
 	constructor(plantK: number = 1) {
-		this.plantK = plantK;
+		this.plantK = plantK
 	}
 
 }

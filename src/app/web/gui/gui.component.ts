@@ -1,5 +1,5 @@
-import {Component, HostListener, OnInit} from '@angular/core';
-import {KeyService} from "../../input/service/key.service";
+import {Component, HostListener, OnInit} from '@angular/core'
+import {KeyService} from '../../input/service/key.service'
 
 @Component({
 	selector: 'app-gui',
@@ -18,7 +18,7 @@ export class GuiComponent implements OnInit {
 
 	@HostListener('document:keydown', ['$event'])
 	onKeydown(e: KeyboardEvent) {
-		this.keyService.keypress.set(e);
+		this.keyService.keypress.set(e)
 	}
 
 }

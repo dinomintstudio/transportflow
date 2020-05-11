@@ -1,5 +1,5 @@
-import {Building} from "../../../game-logic/model/Building";
-import {Road} from "../../street/model/Road";
+import {Building} from '../../../game-logic/model/Building'
+import {Road} from '../../street/model/Road'
 
 /**
  * Output of the city generator. City in it does not applied to terrain underneath (There is no terrain where it will be
@@ -10,16 +10,16 @@ export class GeneratedCityTemplate {
 	/**
 	 * City roads
 	 */
-	roads: Road[];
+	roads: Road[]
 
 	/**
 	 * City buildings
 	 */
-	buildings: Building[];
+	buildings: Building[]
 
 	constructor(roads: Road[], buildings: Building[]) {
-		this.roads = roads;
-		this.buildings = buildings;
+		this.roads = roads
+		this.buildings = buildings
 	}
 
 }

@@ -1,6 +1,6 @@
-import {Shape} from "./Shape";
-import {Position} from "./Position";
-import {Rectangle} from "./Rectangle";
+import {Shape} from './Shape'
+import {Position} from './Position'
+import {Rectangle} from './Rectangle'
 
 import * as _ from 'lodash'
 
@@ -12,17 +12,17 @@ export class Matrix<T> {
 	/**
 	 * Matrix shape
 	 */
-	shape: Shape;
+	shape: Shape
 
 	/**
 	 * Internal value. Jagged 2d array itself
 	 */
-	value: T[][];
+	value: T[][]
 
 	/**
 	 * Total number of elements (shape area)
 	 */
-	length: number;
+	length: number
 
 	/**
 	 * Constructs new Matrix instance.
@@ -32,21 +32,21 @@ export class Matrix<T> {
 	 * @param fill default value for matrix initialization, if @param value was not set
 	 */
 	constructor(shape: Shape = null, value: T[][] = null, fill: () => T = () => null) {
-		this.shape = shape;
-		this.value = value;
+		this.shape = shape
+		this.value = value
 
-		if (!shape && !value) throw new TypeError('invalid parameters');
+		if (!shape && !value) throw new TypeError('invalid parameters')
 
 		if (!shape) {
 			this.shape = new Shape(value[0] ? value[0].length : 0, value.length)
 		}
 		if (!value || value.length !== this.shape.height) {
-			this.value = Array.from({length: this.shape.height}, () => new Array(this.shape.width));
+			this.value = Array.from({length: this.shape.height}, () => new Array(this.shape.width))
 			this.value.forEach((__, i) => {
-				this.value[i] = Array.from({length: this.shape.width}, () => fill());
-			});
+				this.value[i] = Array.from({length: this.shape.width}, () => fill())
+			})
 		}
-		this.length = this.shape.area();
+		this.length = this.shape.area()
 	}
 
 	/**
@@ -54,9 +54,9 @@ export class Matrix<T> {
 	 * @param position element's position
 	 */
 	at(position: Position): T {
-		if (!this.has(position)) throw new Error(`invalid position ${position}`);
+		if (!this.has(position)) throw new Error(`invalid position ${position}`)
 
-		return this.value[position.y][position.x];
+		return this.value[position.y][position.x]
 	}
 
 	/**
@@ -65,20 +65,20 @@ export class Matrix<T> {
 	 * @param value element value
 	 */
 	set(position: Position, value: T) {
-		if (!this.has(position)) throw new Error(`invalid position ${position}`);
+		if (!this.has(position)) throw new Error(`invalid position ${position}`)
 
-		this.value[position.y][position.x] = value;
+		this.value[position.y][position.x] = value
 	}
 
 	has(position: Position): Boolean {
 		return !(position.x < 0 || position.x >= this.shape.width ||
-			position.y < 0 || position.y >= this.shape.height);
+			position.y < 0 || position.y >= this.shape.height)
 	}
 
 	insert(position: Position, matrix: Matrix<T>) {
 		if (position.x < 0 || position.x + matrix.shape.width > this.shape.width ||
 			position.y < 0 || position.y + matrix.shape.height > this.shape.height)
-			throw new Error('insertion out of bounds');
+			throw new Error('insertion out of bounds')
 
 		_.range(position.y, position.y + matrix.shape.height).forEach(i => {
 			_.range(position.x, position.x + matrix.shape.width).forEach(j => {
@@ -86,8 +86,8 @@ export class Matrix<T> {
 					new Position(j, i),
 					matrix.at(
 						new Position(j - position.x, i - position.y)
-					));
-			});
+					))
+			})
 		})
 	}
 
@@ -97,19 +97,19 @@ export class Matrix<T> {
 	 * @param outFill if @param rectangle goes out of matrix's bound then such elements filled with it
 	 */
 	of(rectangle: Rectangle, outFill: T = null): Matrix<T> {
-		const result = new Matrix<T>(rectangle.shape);
+		const result = new Matrix<T>(rectangle.shape)
 
 		for (let i = rectangle.topLeft.y; i < rectangle.bottomRight.y; i++) {
 			for (let j = rectangle.topLeft.x; j < rectangle.bottomRight.x; j++) {
 				if (this.value[i] && this.value[i][j]) {
-					result.value[i - rectangle.topLeft.y][j - rectangle.topLeft.x] = this.value[i][j];
+					result.value[i - rectangle.topLeft.y][j - rectangle.topLeft.x] = this.value[i][j]
 				} else {
-					result.value[i - rectangle.topLeft.y][j - rectangle.topLeft.x] = outFill;
+					result.value[i - rectangle.topLeft.y][j - rectangle.topLeft.x] = outFill
 				}
 			}
 		}
 
-		return result;
+		return result
 	}
 
 	/**
@@ -124,39 +124,39 @@ export class Matrix<T> {
 				.map((row, i) =>
 					row.map((e, j) => func(e, new Position(j, i)))
 				)
-		);
+		)
 	}
 
 	forEach(func: (e: T, position: Position) => void): void {
 		_.range(this.shape.height).forEach(i => {
 			_.range(this.shape.width).forEach(j => {
-				func(this.value[i][j], new Position(j, i));
+				func(this.value[i][j], new Position(j, i))
 			})
-		});
+		})
 	}
 
 	flatMap(): T[] {
-		return this.value.flatMap(t => t);
+		return this.value.flatMap(t => t)
 	}
 
 	rotateClockwise(): Matrix<T> {
-		const result = new Matrix<T>(this.shape);
+		const result = new Matrix<T>(this.shape)
 
-		const n = this.value[0].length;
+		const n = this.value[0].length
 
-		const center = new Position(Math.floor(n / 2), Math.floor(n / 2));
-		result.set(center, this.at(center));
+		const center = new Position(Math.floor(n / 2), Math.floor(n / 2))
+		result.set(center, this.at(center))
 
 		_.range(n / 2).forEach(i => {
 			_.range(i, n - i - 1).forEach(j => {
-				result.value[i][j] = this.value[n - 1 - j][i];
-				result.value[n - 1 - j][i] = this.value[n - 1 - i][n - 1 - j];
-				result.value[n - 1 - i][n - 1 - j] = this.value[j][n - 1 - i];
-				result.value[j][n - 1 - i] = this.value[i][j];
+				result.value[i][j] = this.value[n - 1 - j][i]
+				result.value[n - 1 - j][i] = this.value[n - 1 - i][n - 1 - j]
+				result.value[n - 1 - i][n - 1 - j] = this.value[j][n - 1 - i]
+				result.value[j][n - 1 - i] = this.value[i][j]
 			})
-		});
+		})
 
-		return result;
+		return result
 	}
 
 }
