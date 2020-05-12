@@ -7,7 +7,6 @@ import {SpriteService} from './sprite.service'
 import {first, throttleTime} from 'rxjs/operators'
 import {World} from '../../game-logic/model/World'
 
-import * as config from '../config/render.config.json'
 import {Tile} from '../../game-logic/model/Tile'
 import {Rectangle} from '../../common/model/Rectangle'
 import {Shape} from '../../common/model/Shape'
@@ -23,6 +22,8 @@ import * as _ from 'lodash'
 import {InteractionService} from '../../input/service/interaction.service'
 import {SpriteRenderer} from '../model/SpriteRenderer'
 import {RenderProfileService} from './render-profile.service'
+import {ConfigService} from '../../common/service/config.service'
+import {untilNewFrom} from '../../common/operator/until-new-from.operator'
 
 @Injectable({
 	providedIn: 'root'
@@ -52,7 +53,8 @@ export class RenderService {
 		private worldService: WorldService,
 		private spriteService: SpriteService,
 		private interactionService: InteractionService,
-		private renderProfileService: RenderProfileService
+		private renderProfileService: RenderProfileService,
+		private configService: ConfigService
 	) {
 		this.initMap()
 		this.loadSprites()
@@ -85,25 +87,28 @@ export class RenderService {
 		this.worldService.world.observable
 			.pipe(first())
 			.subscribe((world: World) => {
-				this.map = new ChunkedCanvas(
-					world.tilemap.shape.map(s => s * config.tileResolution),
-					config.chunkSize * config.tileResolution
-				)
+				this.configService.renderConfig.observable
+					.pipe(first())
+					.subscribe(config => {
+						this.map = new ChunkedCanvas(
+							world.tilemap.shape.map(s => s * config.tileResolution),
+							config.chunkSize * config.tileResolution
+						)
 
-				this.minimap = new SingleCanvas(
-					createCanvas(world.tilemap.shape.map(s => s * config.minimapResolution)),
-					{alpha: false}
-				)
+						this.minimap = new SingleCanvas(
+							createCanvas(world.tilemap.shape.map(s => s * config.minimapResolution)),
+							{alpha: false}
+						)
 
-				this.cameraService.camera.set(new Camera(
-					Position.fromShape(world.tilemap.shape).map(c => c / 2),
-					config.tileResolution,
-					new CameraConfig(
-						new Range(1, 1000),
-						16
-					)
-				))
-
+						this.cameraService.camera.set(new Camera(
+							Position.fromShape(world.tilemap.shape).map(c => c / 2),
+							config.tileResolution,
+							new CameraConfig(
+								new Range(1, 1000),
+								16
+							)
+						))
+					})
 			})
 
 		this.spriteService.loadSprites()
@@ -115,10 +120,10 @@ export class RenderService {
 			this.worldService.world.observable.subscribe(world => {
 				this.cameraService.camera.observable
 					.pipe(first())
-					.subscribe(camera => {
+					.subscribe(() => {
 						this.log.debug('draw visible chunks')
 						const startDrawChunks = new Date()
-						this.drawChunks(world.tilemap, camera)
+						this.drawChunks(world.tilemap)
 						this.log.debug(`drawn visible chunks in ${(new Date().getTime() - startDrawChunks.getTime())}ms`)
 
 						this.log.debug('draw minimap')
@@ -184,60 +189,67 @@ export class RenderService {
 	 * Draw map or minimap on world canvas
 	 */
 	private drawWorld(): void {
-		this.worldService.world.observable
-			.pipe(first())
-			.subscribe(world => {
-				this.cameraService.camera.observable
-					.pipe(
-						throttleTime(1000 / (config.maxFps || Infinity))
-					)
-					.subscribe(camera => {
-						if (!this.worldLayer) return
-						this.renderProfileService.frame.set()
-
-						const cyclicCamera = new Camera(
-							camera.position.mapEach(
-								x => x % world.tilemap.shape.width,
-								y => y % world.tilemap.shape.height
-							),
-							camera.zoom,
-							camera.config
+		this.configService.renderConfig.observable.subscribe(config => {
+			this.worldService.world.observable
+				.pipe(first())
+				.subscribe(world => {
+					this.cameraService.camera.observable
+						.pipe(
+							untilNewFrom(this.configService.renderConfig.observable),
+							throttleTime(1000 / (config.maxFps || Infinity))
 						)
+						.subscribe(camera => {
+							if (!this.worldLayer) return
+							this.renderProfileService.frame.set()
 
-						const destinationRect = Rectangle.rectangleByOnePoint(
-							Position.ZERO,
-							this.worldLayer.resolution
-						)
-						this.worldLayer.context.imageSmoothingEnabled = false
-						this.worldLayer.clear()
-						if (cyclicCamera.zoom > cyclicCamera.config.minimapTriggerZoom) {
-							this.drawMapView(cyclicCamera, destinationRect)
-							this.interactionLayer.clear()
-						} else {
-							this.drawMinimapView(cyclicCamera, destinationRect)
-						}
-						this.composeView()
-					})
-			})
+							const cyclicCamera = new Camera(
+								camera.position.mapEach(
+									x => x % world.tilemap.shape.width,
+									y => y % world.tilemap.shape.height
+								),
+								camera.zoom,
+								camera.config
+							)
+
+							const destinationRect = Rectangle.rectangleByOnePoint(
+								Position.ZERO,
+								this.worldLayer.resolution
+							)
+							this.worldLayer.context.imageSmoothingEnabled = false
+							this.worldLayer.clear()
+							if (cyclicCamera.zoom > cyclicCamera.config.minimapTriggerZoom) {
+								this.drawMapView(cyclicCamera, destinationRect)
+								this.interactionLayer.clear()
+							} else {
+								this.drawMinimapView(cyclicCamera, destinationRect)
+							}
+							this.composeView()
+						})
+				})
+		})
 	}
 
 	private drawMinimapView(camera: Camera, destinationRect: Rectangle): void {
-		this.provideUnboundedCameras(camera, this.minimap.resolution, config.minimapResolution, unboundedCamera => {
-			this.worldLayer.drawImage(
-				this.minimap.canvas,
-				destinationRect,
-				this.getViewCameraRect(unboundedCamera, config.minimapResolution)
-			)
+		this.configService.renderConfig.observable.subscribe(config => {
+			this.provideUnboundedCameras(camera, this.minimap.resolution, config.minimapResolution, unboundedCamera => {
+				this.worldLayer.drawImage(
+					this.minimap.canvas,
+					destinationRect,
+					this.getViewCameraRect(unboundedCamera, config.minimapResolution)
+				)
+			})
 		})
 	}
 
 	private drawMapView(camera: Camera, destinationRect: Rectangle): void {
-		this.provideUnboundedCameras(camera, this.map.resolution, config.tileResolution, unboundedCamera => {
-			this.map.drawPartOn(
-				this.getViewCameraRect(unboundedCamera, config.tileResolution),
-				this.worldLayer,
-				destinationRect
-			)
+		this.configService.renderConfig.observable.subscribe(config => {
+			this.provideUnboundedCameras(camera, this.map.resolution, config.tileResolution, unboundedCamera => {
+				this.map.drawPartOn(
+					this.getViewCameraRect(unboundedCamera, config.tileResolution),
+					this.worldLayer,
+					destinationRect
+				)
+			})
 		})
 	}
 
@@ -276,7 +288,7 @@ export class RenderService {
 		)
 	}
 
-	private drawChunks(tilemap: Matrix<Tile>, camera: Camera): void {
+	private drawChunks(tilemap: Matrix<Tile>): void {
 		this.map.chunkMatrix.forEach((chunk, position) => {
 			if (chunk.isDrawn) return
 			this.drawChunk(position, tilemap)
@@ -284,59 +296,65 @@ export class RenderService {
 	}
 
 	private drawChunk(chunkPosition: Position, tilemap: Matrix<Tile>): void {
-		const chunkTileRect: Rectangle = Rectangle.rectangleByOnePoint(
-			chunkPosition.map(c => c * config.chunkSize),
-			Shape.square(config.chunkSize)
-		)
-		const chunkTilemap: Matrix<Tile> = tilemap.of(chunkTileRect)
-		this.spriteRenderers.forEach(spriteRenderer => {
-			chunkTilemap.forEach((tile: Tile, position: Position) => {
-				if (!tile) return
-				const tilePosition = position.add(chunkTileRect.topLeft)
+		this.configService.renderConfig.observable.subscribe(config => {
+			const chunkTileRect: Rectangle = Rectangle.rectangleByOnePoint(
+				chunkPosition.map(c => c * config.chunkSize),
+				Shape.square(config.chunkSize)
+			)
+			const chunkTilemap: Matrix<Tile> = tilemap.of(chunkTileRect)
+			this.spriteRenderers.forEach(spriteRenderer => {
+				chunkTilemap.forEach((tile: Tile, position: Position) => {
+					if (!tile) return
+					const tilePosition = position.add(chunkTileRect.topLeft)
 
-				spriteRenderer
-					.getSprite(
-						tile,
-						spriteRenderer.needAdjacentTiles
-							? this.worldService.getAdjacentTileMatrix(tilemap, tilePosition)
-							: null
-					)
-					.ifPresent(sprite => {
-						this.drawMapSprite(
-							sprite,
-							tilePosition.map(c => c * config.tileResolution)
+					spriteRenderer
+						.getSprite(
+							tile,
+							spriteRenderer.needAdjacentTiles
+								? this.worldService.getAdjacentTileMatrix(tilemap, tilePosition)
+								: null
 						)
-					})
+						.ifPresent(sprite => {
+							this.drawMapSprite(
+								sprite,
+								tilePosition.map(c => c * config.tileResolution)
+							)
+						})
+				})
 			})
 		})
 	}
 
 	private drawMinimap(): void {
-		this.map.chunkMatrix.forEach((chunk, position) => {
-			this.minimap.drawImage(
-				chunk.canvas,
-				Rectangle
-					.rectangleByOnePoint(
-						position.map(c => c * config.chunkSize),
-						Shape.square(config.chunkSize)
-					)
-					.multiply(config.minimapResolution)
-			)
+		this.configService.renderConfig.observable.subscribe(config => {
+			this.map.chunkMatrix.forEach((chunk, position) => {
+				this.minimap.drawImage(
+					chunk.canvas,
+					Rectangle
+						.rectangleByOnePoint(
+							position.map(c => c * config.chunkSize),
+							Shape.square(config.chunkSize)
+						)
+						.multiply(config.minimapResolution)
+				)
+			})
+			this.minimap.drawBorder(1, 'rgba(0, 0, 0, 0.3)')
 		})
-		this.minimap.drawBorder(1, 'rgba(0, 0, 0, 0.3)')
 	}
 
 	private drawMapSprite(sprite: HTMLImageElement, position: Position): void {
-		const spriteRect = Rectangle.rectangleByOnePoint(
-			position,
-			new Shape(sprite.width, sprite.height).map(s =>
-				(s / config.spriteResolution) * config.tileResolution
+		this.configService.renderConfig.observable.subscribe(config => {
+			const spriteRect = Rectangle.rectangleByOnePoint(
+				position,
+				new Shape(sprite.width, sprite.height).map(s =>
+					(s / config.spriteResolution) * config.tileResolution
+				)
 			)
-		)
-		this.map.drawImage(
-			sprite,
-			spriteRect
-		)
+			this.map.drawImage(
+				sprite,
+				spriteRect
+			)
+		})
 	}
 
 	private getSurfaceSprite(tile: Tile): Maybe<HTMLImageElement> {

@@ -5,6 +5,7 @@ import {LongTermSchedulingService} from '../../scheduling/service/long-term-sche
 import {ShortTermSchedulingService} from '../../scheduling/service/short-term-scheduling.service'
 import {KeyService} from '../../input/service/key.service'
 import {MouseService} from '../../input/service/mouse.service'
+import {ConfigService} from './config.service'
 
 @Injectable({
 	providedIn: 'root'
@@ -16,7 +17,8 @@ export class InitService {
 		private longTermSchedulingService: LongTermSchedulingService,
 		private shortTermSchedulingService: ShortTermSchedulingService,
 		private keyService: KeyService,
-		private mouseService: MouseService
+		private mouseService: MouseService,
+		private configService: ConfigService
 	) {
 	}
 }

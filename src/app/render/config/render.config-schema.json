@@ -17,13 +17,13 @@
       "type": "string",
       "description": "Path to config schema"
     },
-    "tileResolution": {
-      "type": "integer",
-      "description": "Tile resolution in pixels per tile"
-    },
     "spriteResolution": {
       "type": "integer",
       "description": "Sprite resolution in pixels per tile"
+    },
+    "tileResolution": {
+      "type": "integer",
+      "description": "Tile resolution in pixels per tile"
     },
     "minimapResolution": {
       "type": "integer",

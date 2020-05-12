@@ -3,7 +3,6 @@ import {InitService} from './common/service/init.service'
 import {TerrainGenerationService} from './generation/terrain/service/terrain-generation.service'
 import {TerrainGenerationConfig} from './generation/terrain/config/TerrainGenerationConfig'
 import {Shape} from './common/model/Shape'
-import {AltitudeMapConfig} from './generation/terrain/config/noisemap/AltitudeMapConfig'
 import {NoiseConfig} from './util/config/NoiseConfig'
 import {TemperatureMapConfig} from './generation/terrain/config/noisemap/TemperatureMapConfig'
 import {HumidityMapConfig} from './generation/terrain/config/noisemap/HumidityMapConfig'
@@ -20,7 +19,7 @@ import {WorldGenerationConfig} from './generation/world/config/WorldGenerationCo
 import {DesertBiomeConfig} from './generation/terrain/config/biome/DesertBiomeConfig'
 import {TaigaBiomeConfig} from './generation/terrain/config/biome/TaigaBiomeConfig'
 import {JungleBiomeConfig} from './generation/terrain/config/biome/JungleBiomeConfig'
-import {Log} from './common/model/Log'
+import {AltitudeMapConfig} from './generation/terrain/config/noisemap/AltitudeMapConfig'
 
 @Component({
 	selector: 'app-root',
@@ -28,8 +27,6 @@ import {Log} from './common/model/Log'
 	styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-
-	log: Log = new Log(this)
 
 	constructor(
 		private initService: InitService,

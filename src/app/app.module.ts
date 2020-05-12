@@ -9,6 +9,7 @@ import {DebugOverlayComponent} from './web/debug-overlay/debug-overlay.component
 import {ConsoleComponent} from './web/console/console.component'
 import {EventSourceDirective} from './web/directive/event-source.directive'
 import {FormsModule} from '@angular/forms'
+import {AutofocusDirective} from './web/directive/autofocus.directive'
 
 @NgModule({
 	declarations: [
@@ -18,7 +19,8 @@ import {FormsModule} from '@angular/forms'
 		CanvasComponent,
 		DebugOverlayComponent,
 		ConsoleComponent,
-		EventSourceDirective
+		EventSourceDirective,
+		AutofocusDirective
 	],
 	imports: [
 		BrowserModule,

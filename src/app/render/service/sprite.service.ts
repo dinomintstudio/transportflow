@@ -1,34 +1,37 @@
 import {Injectable} from '@angular/core'
-import * as spritesConfig from '../config/sprites.config.json'
+import {ConfigService} from '../../common/service/config.service'
 
 @Injectable({
 	providedIn: 'root'
 })
 export class SpriteService {
 
-	// @ts-ignore
-	private spriteUrlMap = new Map<string, string>(spritesConfig.sprites)
+	private spriteUrlMap
 	private spriteMap = new Map<string, HTMLImageElement>()
 
-	constructor() {
+	constructor(
+		private configService: ConfigService
+	) {
+		this.configService.spritesConfig.observable.subscribe(config =>
+			this.spriteUrlMap = new Map<string, string>(<[]>config.sprites)
+		)
 	}
 
-	loadSprites(onload: () => void = () => {
-	}): void {
-		let spritesLoaded = 0
-		const spritesCount = spritesConfig.sprites.length
+	loadSprites(onload: () => void = () => {}): void {
+		this.configService.spritesConfig.observable.subscribe(spritesConfig => {
+			let spritesLoaded = 0
 
-		if (this.spriteMap.size === spritesCount) onload()
+			const spritesCount = spritesConfig.sprites.length
+			if (this.spriteMap.size === spritesCount) onload()
 
-		this.spriteUrlMap.forEach((v, k) => {
-				return this.loadImage(v, (image => {
-						this.spriteMap.set(k, image)
-						spritesLoaded++
-						if (spritesLoaded === spritesCount) onload()
-					}
-				))
-			}
-		)
+			this.spriteUrlMap.forEach((path, name) =>
+				this.loadImage(path, sprite => {
+					this.spriteMap.set(name, sprite)
+					spritesLoaded++
+					if (spritesLoaded === spritesCount) onload()
+				})
+			)
+		})
 	}
 
 	fetch(spriteName: string): HTMLImageElement {

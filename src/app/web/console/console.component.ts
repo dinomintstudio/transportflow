@@ -11,7 +11,8 @@ import {
 import {Log} from '../../common/model/Log'
 import {KeyService} from '../../input/service/key.service'
 import {filter} from 'rxjs/operators'
-import * as renderConfig from '../../render/config/render.config.json'
+import {ConfigService} from '../../common/service/config.service'
+import {untilNewFrom} from '../../common/operator/until-new-from.operator'
 
 @Component({
 	selector: 'app-console',
@@ -34,6 +35,7 @@ export class ConsoleComponent implements OnInit, AfterViewChecked {
 
 	constructor(
 		private keyService: KeyService,
+		private configService: ConfigService
 	) {
 		this.onClose = new EventEmitter<void>()
 		this.logs = []
@@ -46,13 +48,16 @@ export class ConsoleComponent implements OnInit, AfterViewChecked {
 			this.logs.push(log)
 		})
 
-		this.keyService.keypress.observable
-			.pipe(
-				filter(e => ['Escape', renderConfig.consoleKey].includes(e.key))
-			)
-			.subscribe(() => {
-				this.onClose.emit()
-			})
+		this.configService.renderConfig.observable.subscribe(renderConfig => {
+			this.keyService.keypress.observable
+				.pipe(
+					untilNewFrom(this.configService.renderConfig.observable),
+					filter(e => ['Escape', renderConfig.consoleKey].includes(e.key))
+				)
+				.subscribe(() => {
+					this.onClose.emit()
+				})
+		})
 	}
 
 	ngOnInit(): void {
