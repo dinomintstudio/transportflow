@@ -1,7 +1,7 @@
 import {GraphNode} from './GraphNode'
 
 /**
- * Graph edge
+ * Graph value
  */
 export class GraphEdge<N_KEY, N, E_KEY, E> {
 
@@ -14,10 +14,10 @@ export class GraphEdge<N_KEY, N, E_KEY, E> {
 	 * Edge value.
 	 * Can be void
 	 */
-	edge: E
+	value: E
 
 	/**
-	 * Nodes edge connects.
+	 * Nodes value connects.
 	 * List of size 2.
 	 * Loop nodes not allowed
 	 */
@@ -27,7 +27,7 @@ export class GraphEdge<N_KEY, N, E_KEY, E> {
 	private node2: GraphNode<N_KEY, N, E_KEY, E>
 
 	/**
-	 * Initialize edge
+	 * Initialize value
 	 *
 	 * @param node1
 	 * @param node2
@@ -36,7 +36,7 @@ export class GraphEdge<N_KEY, N, E_KEY, E> {
 	 */
 	constructor(node1: GraphNode<N_KEY, N, E_KEY, E>, node2: GraphNode<N_KEY, N, E_KEY, E>, key: E_KEY, edge: E) {
 		this.key = key
-		this.edge = edge
+		this.value = edge
 		this.nodes = [node1, node2]
 		this.node1 = node1
 		this.node2 = node2

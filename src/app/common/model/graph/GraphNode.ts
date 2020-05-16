@@ -1,14 +1,15 @@
 import {GraphEdge} from './GraphEdge'
+import {Maybe} from '../Maybe'
 
 /**
  * Graph node
  */
-export class GraphNode<N_KEY, N, E_KEY, E> {
+export class GraphNode<NK, N, EK, E> {
 
 	/**
 	 * Node key
 	 */
-	key: N_KEY
+	key: NK
 
 	/**
 	 * Node value.
@@ -19,14 +20,14 @@ export class GraphNode<N_KEY, N, E_KEY, E> {
 	/**
 	 * List of edges, connected to current node
 	 */
-	edges: GraphEdge<N_KEY, N, E_KEY, E>[]
+	edges: GraphEdge<NK, N, EK, E>[]
 
 	/**
 	 * Initialize node
 	 * @param key
 	 * @param value
 	 */
-	constructor(key: N_KEY, value: N) {
+	constructor(key: NK, value: N) {
 		this.key = key
 		this.value = value
 		this.edges = []
@@ -35,11 +36,19 @@ export class GraphNode<N_KEY, N, E_KEY, E> {
 	/**
 	 * Get adjacent nodes - nodes that have common edges with current node
 	 */
-	adjacentNodes(): GraphNode<N_KEY, N, E_KEY, E>[] {
+	adjacentNodes(): GraphNode<NK, N, EK, E>[] {
 		return this.edges
 			.map(e => e.nodes
 				.find(n => n.key != this.key)
 			)
+	}
+
+	/**
+	 * Return edge between neighbor and current node
+	 * @param neighborKey
+	 */
+	edgeWith(neighborKey: NK): Maybe<GraphEdge<NK, N, EK, E>> {
+		return new Maybe(this.edges.find(e => !!e.nodes.find(n => n.key === neighborKey)))
 	}
 
 }

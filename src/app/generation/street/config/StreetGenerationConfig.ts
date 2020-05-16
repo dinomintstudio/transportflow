@@ -42,7 +42,7 @@ export class StreetGenerationConfig {
 	mainRoadCenterPosition: Position
 
 	/**
-	 * Value between 0 and 0.5 specifying how close branch road end should be to 'stick' with edge
+	 * Value between 0 and 0.5 specifying how close branch road end should be to 'stick' with value
 	 */
 	roadEdgeStickiness: number
 

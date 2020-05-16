@@ -6,8 +6,8 @@ import {GraphEdge} from './GraphEdge'
  *
  * @param NK node key type
  * @param N node type
- * @param EK edge key type
- * @param E edge type
+ * @param EK value key type
+ * @param E value type
  */
 export class Graph<NK, N, EK, E> {
 
@@ -67,7 +67,7 @@ export class Graph<NK, N, EK, E> {
 	}
 
 	/**
-	 * Connect two nodes and create edge between them.
+	 * Connect two nodes and create value between them.
 	 * Loop nodes not allowed
 	 *
 	 * @param key1
@@ -86,7 +86,7 @@ export class Graph<NK, N, EK, E> {
 	}
 
 	/**
-	 * Disconnect two nodes and remove edge between them
+	 * Disconnect two nodes and remove value between them
 	 *
 	 * @param key1
 	 * @param key2
@@ -157,7 +157,98 @@ export class Graph<NK, N, EK, E> {
 			startNodeKey = this.nodes.keys().next().value
 		}
 
-		return [...new Set(this.dfsUtil(this.getNode(startNodeKey), endNodeKey, []))]
+		return this.dfsUtil(this.getNode(startNodeKey), endNodeKey, [])
+	}
+
+	/**
+	 * Pseudocode: https://en.wikipedia.org/wiki/A*_search_algorithm#Pseudocode
+	// TODO: docs
+	 *
+	 * @param startKey
+	 * @param goalKey
+	 * @param h
+	 * @param d
+	 */
+	aStar(startKey: NK, goalKey: NK, h: (node: N, goal: N) => number, d: (edge: E) => number): NK[] {
+		const start = this.getNode(startKey)
+		const goal = this.getNode(goalKey)
+
+		let openSet: NK[] = [startKey]
+
+		const cameFrom = new Map<NK, NK>()
+
+		const gScore = new Map<NK, number>()
+		gScore.set(start.key, 0)
+
+		const fScore = new Map<NK, number>()
+		fScore.set(start.key, h(start.value, goal.value))
+
+		while (openSet.length !== 0) {
+			let current = openSet.sort(
+				(a, b) => this.getDefault(fScore, a, Infinity) - this.getDefault(fScore, b, Infinity)
+			)[0]
+
+			if (current === goalKey) {
+				return this.reconstruct_path(cameFrom, current)
+			}
+
+			openSet = openSet.filter(n => n != current)
+			this.getNode(current).adjacentNodes().forEach(neighbor => {
+				const tentativeGScore = this.getDefault(gScore, current, Infinity) + d(this.getNode(current).edgeWith(neighbor.key).get().value)
+				if (tentativeGScore < this.getDefault(gScore, neighbor.key, Infinity)) {
+					cameFrom.set(neighbor.key, current)
+					gScore.set(neighbor.key, tentativeGScore)
+					fScore.set(neighbor.key, this.getDefault(gScore, neighbor.key, Infinity) + h(neighbor.value, goal.value))
+					if (!openSet.find(n => n === neighbor.key)) {
+						openSet.push(neighbor.key)
+					}
+				}
+			})
+		}
+
+		throw Error('no route found')
+	}
+
+	// TODO: docs
+	dijkstra(source: NK, target: NK, d: (edge: E) => number): any[] {
+		let q: NK[] = [...this.nodes.keys()]
+		const dist = new Map()
+		const prev = new Map()
+
+		dist.set(source, 0)
+
+		while (q.length !== 0) {
+			let u = q.sort((a, b) => this.getDefault(dist, a, Infinity) - this.getDefault(dist, b, Infinity))[0]
+
+			q = q.filter(n => n !== u)
+
+			if (u === target) {
+				const s = []
+				u = target
+				if (prev.get(u) !== undefined || u === source) {
+					while (u) {
+						s.unshift(u)
+						u = prev.get(u)
+					}
+				}
+				if (s.length === 0) throw Error('no route found')
+				return s
+			}
+
+			this.getNode(u).adjacentNodes().forEach(v => {
+				if (!q.includes(v.key)) return
+				const alt: number = this.getDefault(dist, u, Infinity) + d(v.edgeWith(u).get().value)
+				if (alt < this.getDefault(dist, v, Infinity)) {
+					dist.set(v.key, alt)
+					prev.set(v.key, u)
+				}
+			})
+		}
+	}
+
+	private getDefault<K, V>(map: Map<K, V>, key: K, def: V): V {
+		const v = map.get(key)
+		return v === undefined ? def : v
 	}
 
 	private bfsUtil(node: GraphNode<NK, N, EK, E>, endNodeKey: NK, visitedNodes: GraphNode<NK, N, EK, E>[]): GraphNode<NK, N, EK, E>[] {
@@ -191,6 +282,15 @@ export class Graph<NK, N, EK, E> {
 			this.dfsUtil(n, endNodeKey, visitedNodes)
 		})
 		return visitedNodes
+	}
+
+	private reconstruct_path(cameFrom: Map<NK, NK>, current: NK): NK[] {
+		const totalPath = [current]
+		while (cameFrom.get(current)) {
+			current = cameFrom.get(current)
+			totalPath.unshift(current)
+		}
+		return totalPath
 	}
 
 }

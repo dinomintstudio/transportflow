@@ -1,10 +1,12 @@
 import {Graph} from './Graph'
 import {Log} from '../Log'
+import {Position} from '../Position'
 
 describe('Graph', () => {
 
 	const log: Log = new Log()
 	let testGraph: Graph<number, void, string, void>
+	let testGraph2: Graph<number, Position, string, number>
 
 	beforeEach(() => {
 		testGraph = new Graph<number, void, string, void>()
@@ -21,6 +23,20 @@ describe('Graph', () => {
 		testGraph.connect(3, 6, '36')
 		testGraph.connect(5, 6, '56')
 		testGraph.connect(6, 2, '62')
+
+		testGraph2 = new Graph<number, Position, string, number>()
+		testGraph2.addNode(1, new Position(0, 0))
+		testGraph2.addNode(2, new Position(2, 0))
+		testGraph2.addNode(3, new Position(4, 2))
+		testGraph2.addNode(4, new Position(3, 4))
+		testGraph2.addNode(5, new Position(2, 4))
+		testGraph2.addNode(6, new Position(1, 2))
+		testGraph2.connect(1, 3, '13', 2)
+		testGraph2.connect(2, 5, '25', 4)
+		testGraph2.connect(3, 4, '34', 1)
+		testGraph2.connect(3, 6, '36', 3)
+		testGraph2.connect(5, 6, '56', 4)
+		testGraph2.connect(6, 2, '62', 10)
 	})
 
 	it('should create empty graph', () => {
@@ -86,7 +102,7 @@ describe('Graph', () => {
 		log.info(graph.adjacencyList())
 	})
 
-	it('should disconnect edge', () => {
+	it('should disconnect value', () => {
 		const graph = new Graph<number, void, number, void>()
 		graph.addNode(1)
 		graph.addNode(2)
@@ -146,6 +162,16 @@ describe('Graph', () => {
 		graph.removeNode(5)
 
 		expect(graph.getComponents().length).toBe(2)
+	})
+
+	it('should find route with dijkstra', () => {
+		const route = testGraph2.dijkstra(1, 4, e => e)
+		expect(route).toEqual([1, 3, 4])
+	})
+
+	it('should find route with A*', () => {
+		const route = testGraph2.aStar(1, 4, Position.distance, e => e)
+		expect(route).toEqual([1, 3, 4])
 	})
 
 })
