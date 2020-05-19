@@ -66,6 +66,8 @@ export class TerrainGenerationConfig {
 	 * @param humidityMapConfig
 	 * @param biomesConfig
 	 * @param fertilityNoiseConfig
+	 * @param randomTreeProbability
+	 * @param beachHeight
 	 */
 	constructor(mapSize: Shape, cityPerTile: number, altitudeMapConfig: AltitudeMapConfig, temperatureMapConfig: TemperatureMapConfig, humidityMapConfig: HumidityMapConfig, biomesConfig: BiomesConfig, fertilityNoiseConfig: NoiseConfig, randomTreeProbability: number, beachHeight: number) {
 		this.mapSize = mapSize
