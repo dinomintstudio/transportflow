@@ -7,7 +7,7 @@
     "prod": "ng serve --prod",
     "build": "ng build",
     "test": "ng test",
-    "coverage": "codecov",
+    "coverage": "./node_modules/.bin/codecov",
     "lint": "ng lint",
     "e2e": "ng e2e"
   },
