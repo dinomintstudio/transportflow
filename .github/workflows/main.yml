@@ -28,6 +28,6 @@ jobs:
         run: npm test -- --no-watch --no-progress --codeCoverage=true
 
       - name: coverage
-        run: npm coverage
+        run: npm run coverage
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
