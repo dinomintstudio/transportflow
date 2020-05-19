@@ -148,26 +148,27 @@ export class Graph<NK, N, EK, E> {
 	/**
 	 * Depth first search graph traversal
 	 *
-	 * @param startNodeKey
-	 * @param endNodeKey
+	 * @param startKey
+	 * @param goalKey
 	 */
-	dfs(startNodeKey?: NK, endNodeKey?: NK): GraphNode<NK, N, EK, E>[] {
+	dfs(startKey?: NK, goalKey?: NK): GraphNode<NK, N, EK, E>[] {
 		if (this.nodes.size === 0) return []
-		if (!startNodeKey) {
-			startNodeKey = this.nodes.keys().next().value
+		if (!startKey) {
+			startKey = this.nodes.keys().next().value
 		}
 
-		return this.dfsUtil(this.getNode(startNodeKey), endNodeKey, [])
+		return this.dfsUtil(this.getNode(startKey), goalKey, [])
 	}
 
 	/**
-	 * Pseudocode: https://en.wikipedia.org/wiki/A*_search_algorithm#Pseudocode
-	// TODO: docs
+	 * A* algorithm implementation.
+	 * Pseudocode: https://en.wikipedia.org/wiki/A*_search_algorithm#Pseudocode.
+	 * Finds the shortest route from start node to goal node
 	 *
 	 * @param startKey
 	 * @param goalKey
-	 * @param h
-	 * @param d
+	 * @param h calculate the distance from one node to another
+	 * @param d get edge distance (weight)
 	 */
 	aStar(startKey: NK, goalKey: NK, h: (node: N, goal: N) => number, d: (edge: E) => number): NK[] {
 		const start = this.getNode(startKey)
@@ -189,7 +190,7 @@ export class Graph<NK, N, EK, E> {
 			)[0]
 
 			if (current === goalKey) {
-				return this.reconstruct_path(cameFrom, current)
+				return this.backtrack(cameFrom, current)
 			}
 
 			openSet = openSet.filter(n => n != current)
@@ -209,23 +210,31 @@ export class Graph<NK, N, EK, E> {
 		throw Error('no route found')
 	}
 
-	// TODO: docs
-	dijkstra(source: NK, target: NK, d: (edge: E) => number): any[] {
+	/**
+	 * Dijkstra algorithm implementation.
+	 * Pseudocode: https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm#Pseudocode.
+	 * Finds the shortest route from start node to goal node
+	 *
+	 * @param startKey
+	 * @param goalKey
+	 * @param d get edge distance (weight)
+	 */
+	dijkstra(startKey: NK, goalKey: NK, d: (edge: E) => number): any[] {
 		let q: NK[] = [...this.nodes.keys()]
 		const dist = new Map()
 		const prev = new Map()
 
-		dist.set(source, 0)
+		dist.set(startKey, 0)
 
 		while (q.length !== 0) {
 			let u = q.sort((a, b) => this.getDefault(dist, a, Infinity) - this.getDefault(dist, b, Infinity))[0]
 
 			q = q.filter(n => n !== u)
 
-			if (u === target) {
+			if (u === goalKey) {
 				const s = []
-				u = target
-				if (prev.get(u) !== undefined || u === source) {
+				u = goalKey
+				if (prev.get(u) !== undefined || u === startKey) {
 					while (u) {
 						s.unshift(u)
 						u = prev.get(u)
@@ -246,6 +255,13 @@ export class Graph<NK, N, EK, E> {
 		}
 	}
 
+	/**
+	 * Get default element if map does not contain element with the specified key
+	 *
+	 * @param map
+	 * @param key
+	 * @param def
+	 */
 	private getDefault<K, V>(map: Map<K, V>, key: K, def: V): V {
 		const v = map.get(key)
 		return v === undefined ? def : v
@@ -284,7 +300,7 @@ export class Graph<NK, N, EK, E> {
 		return visitedNodes
 	}
 
-	private reconstruct_path(cameFrom: Map<NK, NK>, current: NK): NK[] {
+	private backtrack(cameFrom: Map<NK, NK>, current: NK): NK[] {
 		const totalPath = [current]
 		while (cameFrom.get(current)) {
 			current = cameFrom.get(current)
