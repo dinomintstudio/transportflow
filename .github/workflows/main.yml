@@ -26,3 +26,6 @@ jobs:
 
       - name: test
         run: npm test -- --no-watch --no-progress --codeCoverage=true
+
+      - name: coverage
+        run: codecov
