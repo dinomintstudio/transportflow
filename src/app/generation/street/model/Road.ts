@@ -1,7 +1,7 @@
 import {StreetGenerationConfig} from '../config/StreetGenerationConfig'
 import {Position} from '../../../common/model/Position'
 import {Range} from '../../../common/model/Range'
-import {RandomService} from '../../../util/service/random.service'
+import {RandomService} from '../../../common/service/random.service'
 
 import * as _ from 'lodash'
 

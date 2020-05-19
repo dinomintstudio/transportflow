@@ -3,7 +3,7 @@ import {StreetGenerationConfig} from '../config/StreetGenerationConfig'
 import {Range} from '../../../common/model/Range'
 import {StreetGenerationService} from './street-generation.service'
 import {Road} from '../model/Road'
-import {RandomService} from '../../../util/service/random.service'
+import {RandomService} from '../../../common/service/random.service'
 import {Position} from '../../../common/model/Position'
 
 describe('StreetGenerationService', () => {

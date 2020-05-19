@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core'
-import {Range} from '../../common/model/Range'
+import {Range} from '../model/Range'
 
 /**
  * Responsible for converting fractions to corresponding range values

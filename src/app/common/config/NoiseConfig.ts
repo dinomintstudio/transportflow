@@ -1,4 +1,4 @@
-import {Range} from '../../common/model/Range'
+import {Range} from '../model/Range'
 
 /**
  * Instructions for noise generator

@@ -1,10 +1,10 @@
 import {Injectable} from '@angular/core'
 import {RandomService} from './random.service'
 import {NoiseConfig} from '../config/NoiseConfig'
-import {Position} from '../../common/model/Position'
+import {Position} from '../model/Position'
 import * as SimplexNoise from 'simplex-noise'
-import {Range} from '../../common/model/Range'
-import {Shape} from '../../common/model/Shape'
+import {Range} from '../model/Range'
+import {Shape} from '../model/Shape'
 
 /**
  * Responsible for generating simplex noise

@@ -1,10 +1,10 @@
 import {Injectable} from '@angular/core'
-import {Shape} from '../../common/model/Shape'
+import {Shape} from '../model/Shape'
 import {RandomService} from './random.service'
 
 import * as _ from 'lodash'
-import {Position} from '../../common/model/Position'
-import {Range} from '../../common/model/Range'
+import {Position} from '../model/Position'
+import {Range} from '../model/Range'
 
 /**
  * Responsible for equal distribution of points within specified rectangle

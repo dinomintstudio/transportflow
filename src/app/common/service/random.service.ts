@@ -1,10 +1,10 @@
 import {Injectable} from '@angular/core'
 import seedrandom from 'seedrandom'
-import {Range} from '../../common/model/Range'
-import {ObservableData} from '../../common/model/ObservableData'
+import {Range} from '../model/Range'
+import {ObservableData} from '../model/ObservableData'
 
 import uuidv4 from 'uuid/v4'
-import {Log} from '../../common/model/Log'
+import {Log} from '../model/Log'
 
 /**
  * Service that responsible for PRNG (Pseudorandom number generation) within the application. It uses `seedrandom`
