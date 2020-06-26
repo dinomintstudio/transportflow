@@ -234,7 +234,7 @@ export class RenderService {
 				this.worldLayer.drawImage(
 					this.minimap.canvas,
 					destinationRect,
-					this.getViewCameraRect(unboundedCamera, config.minimapResolution)
+					unboundedCamera.getViewCameraRect(this.worldLayer.resolution, config.minimapResolution)
 				)
 			})
 		})
@@ -244,7 +244,7 @@ export class RenderService {
 		this.configService.renderConfig.observable.subscribe(config => {
 			this.provideUnboundedCameras(camera, this.map.resolution, config.tileResolution, unboundedCamera => {
 				this.map.drawPartOn(
-					this.getViewCameraRect(unboundedCamera, config.tileResolution),
+					unboundedCamera.getViewCameraRect(this.worldLayer.resolution, config.tileResolution),
 					this.worldLayer,
 					destinationRect
 				)
@@ -274,17 +274,6 @@ export class RenderService {
 				)
 			})
 		})
-	}
-
-	private getViewCameraRect(camera, tileResolution: number): Rectangle {
-		const viewShape = this.worldLayer.resolution.map(s => (s * tileResolution) / camera.zoom)
-		return Rectangle.rectangleByOnePoint(
-			camera.position.mapEach(
-				x => (x * tileResolution) - (viewShape.width / 2),
-				y => (y * tileResolution) - (viewShape.height / 2)
-			),
-			viewShape
-		)
 	}
 
 	private drawChunks(tilemap: Matrix<Tile>): void {
