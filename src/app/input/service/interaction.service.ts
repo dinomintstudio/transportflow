@@ -16,7 +16,6 @@ import {untilNewFrom} from '../../common/operator/until-new-from.operator'
 export class InteractionService {
 
 	tileHover: Observable<Position>
-
 	tileClick: Observable<Position>
 
 	constructor(
@@ -62,7 +61,7 @@ export class InteractionService {
 					untilNewFrom(this.configService.renderConfig.observable),
 					withLatestFrom(this.cameraService.zoom, (_, z) => z),
 					scan((current, next) => lerp(current, next, renderConfig.zoomAnimationSpeed)),
-					map(z => Math.round(z * 100) / 100),
+					map(z => Math.round(z * 10) / 10),
 					distinctUntilChanged(),
 				)
 				.subscribe(zoom => {

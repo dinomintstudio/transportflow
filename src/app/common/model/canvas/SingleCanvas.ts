@@ -10,10 +10,10 @@ export class SingleCanvas implements Canvas {
 	context: CanvasRenderingContext2D
 	isDrawn: Boolean
 
-	constructor(canvas: HTMLCanvasElement, attributes?: CanvasRenderingContext2DSettings) {
+	constructor(canvas: HTMLCanvasElement, alpha: boolean = false) {
 		this.canvas = canvas
 		this.resolution = new Shape(canvas.width, canvas.height)
-		this.context = canvas.getContext('2d', attributes)
+		this.context = canvas.getContext('2d', {alpha: alpha})
 		this.isDrawn = false
 	}
 

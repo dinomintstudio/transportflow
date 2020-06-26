@@ -10,12 +10,10 @@ export class ChunkedCanvas implements Canvas {
 	resolution: Shape
 	chunkMatrix: Matrix<SingleCanvas>
 	chunkSize: number
-	private readonly attributes: CanvasRenderingContext2DSettings
 
-	constructor(resolution: Shape, chunkSize: number, attributes?: CanvasRenderingContext2DSettings) {
+	constructor(resolution: Shape, chunkSize: number) {
 		this.resolution = resolution
 		this.chunkSize = chunkSize
-		this.attributes = attributes
 		this.generateChunkMatrix()
 	}
 
@@ -49,7 +47,7 @@ export class ChunkedCanvas implements Canvas {
 		this.chunkMatrix = new Matrix<SingleCanvas>(
 			this.resolution.map(c => Math.floor((c - 1) / this.chunkSize) + 1),
 			null,
-			() => new SingleCanvas(createCanvas(Shape.square(this.chunkSize)), this.attributes)
+			() => new SingleCanvas(createCanvas(Shape.square(this.chunkSize)), true)
 		)
 	}
 

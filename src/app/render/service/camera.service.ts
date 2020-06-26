@@ -13,14 +13,15 @@ import {concat, merge, Observable, of} from 'rxjs'
 })
 export class CameraService {
 
-	camera: ObservableData<Camera> = new ObservableData()
-
+	camera: ObservableData<Camera>
 	zoom: Observable<number>
 
 	constructor(
 		private keyService: KeyService,
 		private mouseService: MouseService
 	) {
+		this.camera = new ObservableData()
+
 		this.zoom = this.camera.observable
 			.pipe(
 				first(),

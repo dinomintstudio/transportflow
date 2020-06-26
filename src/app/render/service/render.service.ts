@@ -58,10 +58,10 @@ export class RenderService {
 
 	initView(canvas: HTMLCanvasElement, canvasContainer: HTMLElement): void {
 		this.log.debug('initialize render view')
-		this.viewCanvas = new SingleCanvas(canvas, {alpha: false})
+		this.viewCanvas = new SingleCanvas(canvas)
 
-		this.worldLayer = new SingleCanvas(createCanvas(this.viewCanvas.resolution), {alpha: false})
-		this.interactionLayer = new SingleCanvas(createCanvas(this.viewCanvas.resolution))
+		this.worldLayer = new SingleCanvas(createCanvas(this.viewCanvas.resolution), true)
+		this.interactionLayer = new SingleCanvas(createCanvas(this.viewCanvas.resolution), true)
 
 		window.addEventListener('resize', () =>
 			this.resizeCanvas(new Shape(canvasContainer.offsetWidth, canvasContainer.offsetHeight))
@@ -95,8 +95,7 @@ export class RenderService {
 
 						this.log.debug('initialize minimap')
 						this.minimap = new SingleCanvas(
-							createCanvas(world.tilemap.shape.map(s => s * config.minimapResolution)),
-							{alpha: false}
+							createCanvas(world.tilemap.shape.map(s => s * config.minimapResolution))
 						)
 
 						this.log.debug('set initial camera')
@@ -166,8 +165,6 @@ export class RenderService {
 								this.worldLayer.resolution
 							)
 
-							this.worldLayer.context.imageSmoothingEnabled = false
-							this.worldLayer.clear()
 							if (cyclicCamera.zoom > cyclicCamera.config.minimapTriggerZoom) {
 								this.drawMapView(cyclicCamera, destinationRect)
 								this.interactionLayer.clear()
@@ -182,10 +179,7 @@ export class RenderService {
 	}
 
 	private resizeCanvas(shape: Shape): void {
-		this.viewCanvas.setResolution(shape)
-		this.worldLayer.setResolution(shape)
-		this.interactionLayer.setResolution(shape)
-
+		[this.viewCanvas, this.worldLayer, this.interactionLayer].forEach(c => c.setResolution(shape))
 		this.cameraService.camera.update()
 	}
 
@@ -254,15 +248,15 @@ export class RenderService {
 	}
 
 	private provideUnboundedCameras(camera: Camera, mapResolution: Shape, tileResolution: number, cameraSupplier: (camera: Camera) => void): void {
-		const tilesPerView = this.worldLayer.resolution
+		const visibleWorldsShape = this.worldLayer.resolution
 			.mapEach(
 				w => w / (mapResolution.width * camera.zoom / tileResolution),
 				h => h / (mapResolution.height * camera.zoom / tileResolution)
 			)
 			.map(s => Math.floor(s / 2) + 1)
 
-		_.range(-tilesPerView.width, tilesPerView.width + 2).forEach(x => {
-			_.range(-tilesPerView.height, tilesPerView.height + 2).forEach(y => {
+		_.range(-visibleWorldsShape.width, visibleWorldsShape.width + 2).forEach(x => {
+			_.range(-visibleWorldsShape.height, visibleWorldsShape.height + 2).forEach(y => {
 				cameraSupplier(
 					new Camera(
 						camera.position.mapEach(
