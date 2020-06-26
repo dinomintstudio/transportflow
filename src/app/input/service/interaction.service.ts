@@ -66,13 +66,12 @@ export class InteractionService {
 					throttleTime(1000 / renderConfig.animationUps)
 				)
 				.subscribe(zoom => {
-					console.log(renderConfig.animationUps)
 					this.cameraService.camera.observable
 						.pipe(first())
 						.subscribe(camera => {
 							this.cameraService.camera.set(new Camera(
 								camera.position,
-								camera.config.zoomLimit.clamp(zoom),
+								zoom,
 								camera.config
 							))
 						})

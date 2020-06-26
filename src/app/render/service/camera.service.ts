@@ -56,12 +56,20 @@ export class CameraService {
 				this.mouseService.zoomIn.observable.subscribe(() => {
 					this.zoom.observable
 						.pipe(first())
-						.subscribe(zoom => this.zoom.set(zoom * camera.config.zoomFactor))
+						.subscribe(zoom => this.zoom.set(
+							camera.config.zoomLimit.clamp(
+								zoom * camera.config.zoomFactor
+							)
+						))
 				})
 				this.mouseService.zoomOut.observable.subscribe(() => {
 					this.zoom.observable
 						.pipe(first())
-						.subscribe(zoom => this.zoom.set(zoom / camera.config.zoomFactor))
+						.subscribe(zoom => this.zoom.set(
+							camera.config.zoomLimit.clamp(
+								zoom / camera.config.zoomFactor
+							)
+						))
 				})
 			})
 	}
