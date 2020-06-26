@@ -56,11 +56,12 @@ export class RenderService {
 		private renderProfileService: RenderProfileService,
 		private configService: ConfigService
 	) {
-		this.initMap()
 		this.loadSprites()
-
-		this.drawWorld()
-		this.interactionService.tileHover.subscribe(() => this.drawInteraction())
+		this.initMap(() => {
+			this.updateChunks()
+			this.updateView()
+			this.interactionService.tileHover.subscribe(() => this.drawInteraction())
+		})
 	}
 
 	initView(canvas: HTMLCanvasElement, canvasContainer: HTMLElement): void {
@@ -76,30 +77,37 @@ export class RenderService {
 		window.dispatchEvent(new Event('resize'))
 	}
 
+	private loadSprites() {
+		this.log.debug('load sprites')
+		const startLoadSprites = new Date()
+		this.spriteService.loadSprites()
+		this.log.debug(`loaded sprites in ${(new Date().getTime() - startLoadSprites.getTime())}ms`)
+	}
+
 	/**
-	 * Responsible for manipulating with map canvas.
-	 * Including:
-	 *  - loading and offloading sprites
-	 *  - rendering and offloading chunks
+	 * Initialization of map, minimap and initial camera set
 	 */
-	private initMap(): void {
-		this.log.debug('initialize render map')
+	private initMap(complete?: () => void): void {
+		this.log.debug('initialize render maps')
 		this.worldService.world.observable
 			.pipe(first())
 			.subscribe((world: World) => {
 				this.configService.renderConfig.observable
 					.pipe(first())
 					.subscribe(config => {
+						this.log.debug('initialize map')
 						this.map = new ChunkedCanvas(
 							world.tilemap.shape.map(s => s * config.tileResolution),
 							config.chunkSize * config.tileResolution
 						)
 
+						this.log.debug('initialize minimap')
 						this.minimap = new SingleCanvas(
 							createCanvas(world.tilemap.shape.map(s => s * config.minimapResolution)),
 							{alpha: false}
 						)
 
+						this.log.debug('set initial camera')
 						this.cameraService.camera.set(new Camera(
 							Position.fromShape(world.tilemap.shape).map(c => c / 2),
 							config.tileResolution,
@@ -108,32 +116,74 @@ export class RenderService {
 								16
 							)
 						))
+
+						complete && complete()
 					})
 			})
-
-		this.spriteService.loadSprites()
 	}
 
-	private loadSprites(): void {
+	// TODO: refactor
+	// TODO: optimize; draw only visible chunks with specified overhead
+	private updateChunks(complete?: () => void): void {
 		this.spriteService.loadSprites(() => {
-			this.log.debug('load sprites')
 			this.worldService.world.observable.subscribe(world => {
-				this.cameraService.camera.observable
-					.pipe(first())
-					.subscribe(() => {
-						this.log.debug('draw visible chunks')
-						const startDrawChunks = new Date()
-						this.drawChunks(world.tilemap)
-						this.log.debug(`drawn visible chunks in ${(new Date().getTime() - startDrawChunks.getTime())}ms`)
+				this.log.debug('draw visible chunks')
+				const startDrawChunks = new Date()
+				this.drawChunks(world.tilemap)
+				this.log.debug(`drawn visible chunks in ${(new Date().getTime() - startDrawChunks.getTime())}ms`)
 
-						this.log.debug('draw minimap')
-						const startDrawMinimap = new Date()
-						this.drawMinimap()
-						this.log.debug(`drawn minimap in ${(new Date().getTime() - startDrawMinimap.getTime())}ms`)
+				this.log.debug('draw minimap')
+				const startDrawMinimap = new Date()
+				this.drawMinimap()
+				this.log.debug(`drawn minimap in ${(new Date().getTime() - startDrawMinimap.getTime())}ms`)
 
-						this.cameraService.camera.update()
-					})
+				complete && complete()
 			})
+		})
+	}
+
+	/**
+	 * Update map view or minimap view based on zoom for each new world update
+	 */
+	private updateView(): void {
+		this.configService.renderConfig.observable.subscribe(config => {
+			this.worldService.world.observable
+				.pipe(first())
+				.subscribe(world => {
+					this.cameraService.camera.observable
+						.pipe(
+							untilNewFrom(this.configService.renderConfig.observable),
+							throttleTime(1000 / (config.maxFps || Infinity))
+						)
+						.subscribe(camera => {
+							if (!this.worldLayer) return
+							this.renderProfileService.frame.set()
+
+							const cyclicCamera = new Camera(
+								camera.position.mapEach(
+									x => x % world.tilemap.shape.width,
+									y => y % world.tilemap.shape.height
+								),
+								camera.zoom,
+								camera.config
+							)
+
+							const destinationRect = Rectangle.rectangleByOnePoint(
+								Position.ZERO,
+								this.worldLayer.resolution
+							)
+
+							this.worldLayer.context.imageSmoothingEnabled = false
+							this.worldLayer.clear()
+							if (cyclicCamera.zoom > cyclicCamera.config.minimapTriggerZoom) {
+								this.drawMapView(cyclicCamera, destinationRect)
+								this.interactionLayer.clear()
+							} else {
+								this.drawMinimapView(cyclicCamera, destinationRect)
+							}
+							this.composeView()
+						})
+				})
 		})
 	}
 
@@ -183,50 +233,6 @@ export class RenderService {
 					this.interactionLayer.clear()
 				}
 			})
-	}
-
-	/**
-	 * Draw map or minimap on world canvas
-	 */
-	private drawWorld(): void {
-		this.configService.renderConfig.observable.subscribe(config => {
-			this.worldService.world.observable
-				.pipe(first())
-				.subscribe(world => {
-					this.cameraService.camera.observable
-						.pipe(
-							untilNewFrom(this.configService.renderConfig.observable),
-							throttleTime(1000 / (config.maxFps || Infinity))
-						)
-						.subscribe(camera => {
-							if (!this.worldLayer) return
-							this.renderProfileService.frame.set()
-
-							const cyclicCamera = new Camera(
-								camera.position.mapEach(
-									x => x % world.tilemap.shape.width,
-									y => y % world.tilemap.shape.height
-								),
-								camera.zoom,
-								camera.config
-							)
-
-							const destinationRect = Rectangle.rectangleByOnePoint(
-								Position.ZERO,
-								this.worldLayer.resolution
-							)
-							this.worldLayer.context.imageSmoothingEnabled = false
-							this.worldLayer.clear()
-							if (cyclicCamera.zoom > cyclicCamera.config.minimapTriggerZoom) {
-								this.drawMapView(cyclicCamera, destinationRect)
-								this.interactionLayer.clear()
-							} else {
-								this.drawMinimapView(cyclicCamera, destinationRect)
-							}
-							this.composeView()
-						})
-				})
-		})
 	}
 
 	private drawMinimapView(camera: Camera, destinationRect: Rectangle): void {
