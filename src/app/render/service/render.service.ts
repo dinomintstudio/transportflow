@@ -52,7 +52,6 @@ export class RenderService {
 			this.updateChunks(() => setTimeout(() => this.cameraService.camera.update(), 0))
 			this.updateView()
 			this.interactionService.tileHover.subscribe(() => this.drawInteraction())
-			// setTimeout(() => this.cameraService.camera.update(), 0)
 		})
 	}
 
