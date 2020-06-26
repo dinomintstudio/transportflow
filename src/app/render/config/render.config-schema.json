@@ -9,6 +9,7 @@
     "chunkSize",
     "chunkLoadOverhead",
     "zoomAnimationSpeed",
+    "animationUps",
     "debugOverlayKey",
     "consoleKey"
   ],
@@ -49,6 +50,11 @@
       "description": "Speed of zoom animation",
       "minimum": 0,
       "maximum": 1
+    },
+    "animationUps": {
+      "type": "number",
+      "description": "Max rate of animation update",
+      "minimum": 0
     },
     "debugOverlayKey": {
       "type": "string",

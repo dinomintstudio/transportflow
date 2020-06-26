@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core'
 import {interval, Observable} from 'rxjs'
-import {distinctUntilChanged, first, map, scan, withLatestFrom} from 'rxjs/operators'
+import {distinctUntilChanged, first, map, scan, throttleTime, withLatestFrom} from 'rxjs/operators'
 import {lerp} from '../../common/model/Lerp'
 import {Camera} from '../../render/model/Camera'
 import {CameraService} from '../../render/service/camera.service'
@@ -24,7 +24,7 @@ export class InteractionService {
 		private mouseService: MouseService,
 		private configService: ConfigService
 	) {
-		this.handleZoom()
+		this.handleSmoothZoom()
 
 		this.tileHover = this.mouseService.mouseMove.observable
 			.pipe(
@@ -54,17 +54,19 @@ export class InteractionService {
 			)
 	}
 
-	private handleZoom() {
+	private handleSmoothZoom() {
 		this.configService.renderConfig.observable.subscribe(renderConfig => {
 			interval()
 				.pipe(
 					untilNewFrom(this.configService.renderConfig.observable),
-					withLatestFrom(this.cameraService.zoom, (_, z) => z),
+					withLatestFrom(this.cameraService.zoom.observable, (_, z) => z),
 					scan((current, next) => lerp(current, next, renderConfig.zoomAnimationSpeed)),
 					map(z => Math.round(z * 10) / 10),
 					distinctUntilChanged(),
+					throttleTime(1000 / renderConfig.animationUps)
 				)
 				.subscribe(zoom => {
+					console.log(renderConfig.animationUps)
 					this.cameraService.camera.observable
 						.pipe(first())
 						.subscribe(camera => {
@@ -77,4 +79,5 @@ export class InteractionService {
 				})
 		})
 	}
+
 }

@@ -6,7 +6,8 @@
   "chunkSize": 64,
   "chunkLoadOverhead": 3,
   "maxFps": null,
-  "zoomAnimationSpeed": 0.2,
+  "zoomAnimationSpeed": 0.1,
+  "animationUps": 60,
   "debugOverlayKey": "F2",
   "consoleKey": "F4"
 }

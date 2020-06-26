@@ -3,9 +3,8 @@ import {ObservableData} from '../../common/model/ObservableData'
 import {Camera} from '../model/Camera'
 import {KeyService} from '../../input/service/key.service'
 import {Position} from '../../common/model/Position'
-import {filter, first, flatMap, map, pairwise, withLatestFrom} from 'rxjs/operators'
+import {filter, first, map, pairwise} from 'rxjs/operators'
 import {MouseService} from '../../input/service/mouse.service'
-import {concat, merge, Observable, of} from 'rxjs'
 
 
 @Injectable({
@@ -14,34 +13,15 @@ import {concat, merge, Observable, of} from 'rxjs'
 export class CameraService {
 
 	camera: ObservableData<Camera>
-	zoom: Observable<number>
+	zoom: ObservableData<number>
 
 	constructor(
 		private keyService: KeyService,
 		private mouseService: MouseService
 	) {
 		this.camera = new ObservableData()
-
-		this.zoom = this.camera.observable
-			.pipe(
-				first(),
-				flatMap(camera =>
-					concat(
-						of(camera.zoom),
-						merge(
-							this.mouseService.zoomIn.observable
-								.pipe(
-									withLatestFrom(this.camera.observable, (_, c) => c),
-									map(c => c.zoom * c.config.zoomFactor)
-								),
-							this.mouseService.zoomOut.observable
-								.pipe(
-									withLatestFrom(this.camera.observable, (_, c) => c),
-									map(c => c.zoom / c.config.zoomFactor)
-								),
-						)
-					))
-			)
+		this.zoom = new ObservableData()
+		this.handleZoom()
 
 		this.mouseService.mouseDrag.observable
 			.pipe(
@@ -66,8 +46,23 @@ export class CameraService {
 						))
 					})
 			})
-
-
 	}
 
+	private handleZoom() {
+		this.camera.observable
+			.pipe(first())
+			.subscribe(camera => {
+				this.zoom.set(camera.zoom)
+				this.mouseService.zoomIn.observable.subscribe(() => {
+					this.zoom.observable
+						.pipe(first())
+						.subscribe(zoom => this.zoom.set(zoom * camera.config.zoomFactor))
+				})
+				this.mouseService.zoomOut.observable.subscribe(() => {
+					this.zoom.observable
+						.pipe(first())
+						.subscribe(zoom => this.zoom.set(zoom / camera.config.zoomFactor))
+				})
+			})
+	}
 }

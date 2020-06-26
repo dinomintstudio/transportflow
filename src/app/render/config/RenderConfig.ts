@@ -7,6 +7,7 @@ export class RenderConfig {
 	chunkOverhead: number
 	maxFps: number
 	zoomAnimationSpeed: number
+	animationUps: number
 	debugOverlayKey: string
 	consoleKey: string
 
@@ -18,6 +19,7 @@ export class RenderConfig {
 		chunkOverhead: number,
 		maxFps: number,
 		zoomAnimationSpeed: number,
+		animationUps: number,
 		debugOverlayKey: string,
 		consoleKey: string,
 	) {
@@ -28,6 +30,7 @@ export class RenderConfig {
 		this.chunkOverhead = chunkOverhead
 		this.maxFps = maxFps
 		this.zoomAnimationSpeed = zoomAnimationSpeed
+		this.animationUps = animationUps
 		this.debugOverlayKey = debugOverlayKey
 		this.consoleKey = consoleKey
 	}
@@ -41,6 +44,7 @@ export class RenderConfig {
 			json.chunkOverhead,
 			json.maxFps,
 			json.zoomAnimationSpeed,
+			json.animationUps,
 			json.debugOverlayKey,
 			json.consoleKey
 		)
