@@ -39,7 +39,6 @@ export class RenderService {
 	viewCanvas: SingleCanvas
 	interactionLayer: SingleCanvas
 
-
 	private spriteRenderers: SpriteRenderer[] = [
 		new SpriteRenderer((t) => this.getSurfaceSprite(t)),
 		new SpriteRenderer((t) => this.getBuildingSprite(t)),
@@ -117,13 +116,14 @@ export class RenderService {
 							)
 						))
 
-						complete && complete()
+						complete?.()
 					})
 			})
 	}
 
 	// TODO: refactor
 	// TODO: optimize; draw only visible chunks with specified overhead
+	// TODO: optimize; redraw only changed chunks
 	private updateChunks(complete?: () => void): void {
 		this.spriteService.loadSprites(() => {
 			this.worldService.world.observable.subscribe(world => {
@@ -137,7 +137,7 @@ export class RenderService {
 				this.drawMinimap()
 				this.log.debug(`drawn minimap in ${(new Date().getTime() - startDrawMinimap.getTime())}ms`)
 
-				complete && complete()
+				complete?.()
 			})
 		})
 	}
@@ -145,7 +145,7 @@ export class RenderService {
 	/**
 	 * Update map view or minimap view based on zoom for each new world update
 	 */
-	private updateView(): void {
+	private updateView(complete?: () => void): void {
 		this.configService.renderConfig.observable.subscribe(config => {
 			this.worldService.world.observable
 				.pipe(first())
@@ -182,6 +182,7 @@ export class RenderService {
 								this.drawMinimapView(cyclicCamera, destinationRect)
 							}
 							this.composeView()
+							complete?.()
 						})
 				})
 		})
