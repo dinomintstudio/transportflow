@@ -44,7 +44,8 @@ export class CanvasComponent implements OnInit {
 
 	ngOnInit() {
 		this.renderService.initView(
-			<HTMLCanvasElement>document.getElementById('viewCanvas'),
+			<HTMLCanvasElement>document.getElementById('worldCanvas'),
+			<HTMLCanvasElement>document.getElementById('interactionCanvas'),
 			this.container.nativeElement
 		)
 	}

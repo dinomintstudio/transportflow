@@ -1,6 +1,7 @@
 import {Injectable} from '@angular/core'
 import {interval, Observable} from 'rxjs'
-import {distinctUntilChanged, first, map, scan, withLatestFrom} from 'rxjs/operators'
+import * as _ from 'lodash'
+import {distinctUntilChanged, first, map, scan, throttleTime, withLatestFrom} from 'rxjs/operators'
 import {lerp} from '../../common/model/Lerp'
 import {Camera} from '../../render/model/Camera'
 import {CameraService} from '../../render/service/camera.service'
@@ -16,7 +17,6 @@ import {untilNewFrom} from '../../common/operator/until-new-from.operator'
 export class InteractionService {
 
 	tileHover: Observable<Position>
-
 	tileClick: Observable<Position>
 
 	constructor(
@@ -25,7 +25,7 @@ export class InteractionService {
 		private mouseService: MouseService,
 		private configService: ConfigService
 	) {
-		this.handleZoom()
+		this.handleSmoothZoom()
 
 		this.tileHover = this.mouseService.mouseMove.observable
 			.pipe(
@@ -46,8 +46,11 @@ export class InteractionService {
 					(pos, camera) => pos
 						.map(c => c / camera.zoom)
 						.add(camera.position)
-				)
+				),
+				map(position => position.floor()),
+				distinctUntilChanged(_.isEqual)
 			)
+
 
 		this.tileClick = this.mouseService.mouseClick.observable
 			.pipe(
@@ -55,15 +58,16 @@ export class InteractionService {
 			)
 	}
 
-	private handleZoom() {
+	private handleSmoothZoom() {
 		this.configService.renderConfig.observable.subscribe(renderConfig => {
 			interval()
 				.pipe(
 					untilNewFrom(this.configService.renderConfig.observable),
-					withLatestFrom(this.cameraService.zoom, (_, z) => z),
+					withLatestFrom(this.cameraService.zoom.observable, (_, z) => z),
 					scan((current, next) => lerp(current, next, renderConfig.zoomAnimationSpeed)),
-					map(z => Math.round(z * 100) / 100),
+					map(z => Math.round(z * 10) / 10),
 					distinctUntilChanged(),
+					throttleTime(1000 / (renderConfig.animationUps || Infinity))
 				)
 				.subscribe(zoom => {
 					this.cameraService.camera.observable
@@ -71,11 +75,12 @@ export class InteractionService {
 						.subscribe(camera => {
 							this.cameraService.camera.set(new Camera(
 								camera.position,
-								camera.config.zoomLimit.clamp(zoom),
+								zoom,
 								camera.config
 							))
 						})
 				})
 		})
 	}
+
 }

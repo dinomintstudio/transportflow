@@ -1,5 +1,6 @@
 <div #canvasContainer class="canvas-container">
-	<canvas id="viewCanvas" event-source></canvas>
+	<canvas id="interactionCanvas" event-source></canvas>
+	<canvas id="worldCanvas"></canvas>
 	<app-debug-overlay *ngIf='overlayVisible'></app-debug-overlay>
 	<app-console *ngIf='consoleOpen' (onClose)="consoleOpen = false"></app-console>
 </div>

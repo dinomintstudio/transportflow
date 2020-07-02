@@ -6,18 +6,25 @@ import {ConfigService} from '../../common/service/config.service'
 })
 export class SpriteService {
 
-	private spriteUrlMap
-	private spriteMap = new Map<string, HTMLImageElement>()
+	private spriteUrlMap: Map<string, string>
+	private spriteMap: Map<string, HTMLImageElement>
+	private spritesLoaded: boolean
 
 	constructor(
 		private configService: ConfigService
 	) {
+		this.spriteMap = new Map<string, HTMLImageElement>()
 		this.configService.spritesConfig.observable.subscribe(config =>
 			this.spriteUrlMap = new Map<string, string>(<[]>config.sprites)
 		)
+		this.spritesLoaded = false
 	}
 
 	loadSprites(onload: () => void = () => {}): void {
+		if (this.spritesLoaded) {
+			onload()
+			return
+		}
 		this.configService.spritesConfig.observable.subscribe(spritesConfig => {
 			let spritesLoaded = 0
 
@@ -28,7 +35,10 @@ export class SpriteService {
 				this.loadImage(path, sprite => {
 					this.spriteMap.set(name, sprite)
 					spritesLoaded++
-					if (spritesLoaded === spritesCount) onload()
+					if (spritesLoaded === spritesCount) {
+						onload()
+						this.spritesLoaded = true
+					}
 				})
 			)
 		})

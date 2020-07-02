@@ -12,7 +12,7 @@ export class RenderProfileService {
 	ups: Observable<number>
 
 	constructor() {
-		this.ups = interval()
+		this.ups = interval(1000)
 			.pipe(
 				flatMap(() =>
 					this.frame.observable.pipe(

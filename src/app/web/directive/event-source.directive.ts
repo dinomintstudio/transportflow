@@ -31,6 +31,17 @@ export class EventSourceDirective {
 		this.mouseService.mouseMove.set(e)
 	}
 
+	@HostListener('mouseover', ['$event'])
+	onMouseIn(e: MouseEvent) {
+		this.mouseService.mouseIn.set(e)
+	}
+
+	@HostListener('mouseout', ['$event'])
+	onMouseOut(e: MouseEvent) {
+		this.mouseService.mouseOut.set(e)
+	}
+
+
 	@HostListener('wheel', ['$event'])
 	onWheel(e: WheelEvent) {
 		this.mouseService.mouseWheel.set(e)

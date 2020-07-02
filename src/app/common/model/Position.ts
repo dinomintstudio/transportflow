@@ -52,7 +52,7 @@ export class Position {
 	}
 
 	floor(): Position {
-		return new Position(Math.floor(this.x), Math.floor(this.y))
+		return this.map(Math.floor)
 	}
 
 	equals(position: Position): Boolean {

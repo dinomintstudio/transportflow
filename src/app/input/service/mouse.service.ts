@@ -9,6 +9,9 @@ export class MouseService {
 	mouseClick: ObservableData<MouseEvent>
 	mouseMove: ObservableData<MouseEvent>
 
+	mouseIn: ObservableData<MouseEvent>
+	mouseOut: ObservableData<MouseEvent>
+
 	mouseDown: ObservableData<MouseEvent>
 	mouseUp: ObservableData<MouseEvent>
 
@@ -23,20 +26,32 @@ export class MouseService {
 	constructor() {
 		this.mouseClick = new ObservableData<MouseEvent>()
 		this.mouseMove = new ObservableData<MouseEvent>()
+		this.mouseIn = new ObservableData<MouseEvent>()
+		this.mouseOut = new ObservableData<MouseEvent>()
 
 		this.mouseDown = new ObservableData<MouseEvent>()
 		this.mouseUp = new ObservableData<MouseEvent>()
 		this.mouseDrag = new ObservableData<MouseEvent>()
-		this.mouseDown.observable.subscribe(e => {
+		this.mouseDown.observable.subscribe(() => {
 			this.isDown = true
 		})
-		this.mouseUp.observable.subscribe(e => {
+		this.mouseUp.observable.subscribe(() => {
 			this.isDown = false
 		})
 		this.mouseMove.observable.subscribe(e => {
 			if (this.isDown) {
 				this.mouseDrag.set(e)
 			}
+		})
+
+		this.mouseIn.observable.subscribe(e => {
+			// if the left mouse button is held, continue dragging
+			if (e.buttons === 1) {
+				this.isDown = true
+			}
+		})
+		this.mouseOut.observable.subscribe(e => {
+			this.isDown = false
 		})
 
 		this.mouseWheel = new ObservableData<WheelEvent>()
