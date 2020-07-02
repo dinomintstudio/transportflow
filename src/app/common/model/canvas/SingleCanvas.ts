@@ -9,9 +9,11 @@ export class SingleCanvas implements Canvas {
 	resolution: Shape
 	context: CanvasRenderingContext2D
 	isDrawn: Boolean
+	alpha: boolean
 
 	constructor(canvas: HTMLCanvasElement, alpha: boolean = false) {
 		this.canvas = canvas
+		this.alpha = alpha
 		this.resolution = new Shape(canvas.width, canvas.height)
 		this.context = canvas.getContext('2d', {alpha: alpha})
 		this.isDrawn = false
@@ -69,7 +71,12 @@ export class SingleCanvas implements Canvas {
 	}
 
 	clear() {
-		this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
+		if (this.alpha) {
+			this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
+		} else {
+			this.context.fillStyle = 'black'
+			this.context.fillRect(0, 0, this.canvas.width, this.canvas.height)
+		}
 	}
 
 }
