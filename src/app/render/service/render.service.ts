@@ -4,7 +4,7 @@ import {Camera} from '../model/Camera'
 import {Position} from '../../common/model/Position'
 import {WorldService} from '../../game-logic/service/world.service'
 import {SpriteService} from './sprite.service'
-import {first, throttleTime} from 'rxjs/operators'
+import {distinctUntilChanged, first, map, throttleTime} from 'rxjs/operators'
 import {World} from '../../game-logic/model/World'
 
 import {Tile} from '../../game-logic/model/Tile'
@@ -34,8 +34,8 @@ export class RenderService {
 	map: ChunkedCanvas
 	minimap: SingleCanvas
 
-	worldLayer: SingleCanvas
 	viewCanvas: SingleCanvas
+	worldLayer: SingleCanvas
 	interactionLayer: SingleCanvas
 
 	constructor(
@@ -50,8 +50,8 @@ export class RenderService {
 		this.loadSprites()
 		this.initMap(() => {
 			this.updateChunks(() => setTimeout(() => this.cameraService.camera.update(), 0))
-			this.updateView()
-			this.interactionService.tileHover.subscribe(() => this.drawInteraction())
+			this.updateWorldLayer()
+			this.updateInteractionLayer()
 		})
 	}
 
@@ -136,7 +136,7 @@ export class RenderService {
 	/**
 	 * Update map view or minimap view based on zoom for each new world update
 	 */
-	private updateView(complete?: () => void): void {
+	private updateWorldLayer(complete?: () => void): void {
 		this.configService.renderConfig.observable.subscribe(config => {
 			this.worldService.world.observable
 				.pipe(first())
@@ -166,7 +166,7 @@ export class RenderService {
 
 							if (cyclicCamera.zoom > cyclicCamera.config.minimapTriggerZoom) {
 								this.drawMapView(cyclicCamera, destinationRect)
-								this.interactionLayer.clear()
+								this.updateInteractionLayer()
 							} else {
 								this.drawMinimapView(cyclicCamera, destinationRect)
 							}
@@ -175,6 +175,44 @@ export class RenderService {
 						})
 				})
 		})
+	}
+
+	private updateInteractionLayer(): void {
+		this.interactionService.tileHover
+			.pipe(
+				map(position => position.floor()),
+				distinctUntilChanged(_.isEqual),
+			)
+			.subscribe(() => {
+				this.cameraService.camera.observable
+					.pipe(first())
+					.subscribe(camera => {
+						this.interactionService.tileHover
+							.pipe(first())
+							.subscribe(hoverPos => {
+								if (camera.zoom > camera.config.minimapTriggerZoom) {
+									this.spriteService.loadSprites(() => {
+										this.interactionLayer.clear()
+										this.interactionLayer.drawImage(
+											this.spriteService.fetch('hover'),
+											Rectangle.rectangleByOnePoint(
+												hoverPos
+													.map(c => Math.floor(c))
+													.sub(camera.position)
+													.map(c => c * camera.zoom)
+													.add(Position.fromShape(this.worldLayer.resolution.map(c => c / 2))),
+												Shape.square(camera.zoom)
+											)
+										)
+										this.composeView()
+									})
+								} else {
+									this.interactionLayer.clear()
+								}
+							})
+					})
+
+			})
 	}
 
 	private resizeCanvas(shape: Shape): void {
@@ -190,36 +228,6 @@ export class RenderService {
 			this.worldLayer,
 			this.interactionLayer
 		)
-	}
-
-	private drawInteraction(): void {
-		this.cameraService.camera.observable
-			.pipe(first())
-			.subscribe(camera => {
-				if (camera.zoom > camera.config.minimapTriggerZoom) {
-					this.interactionService.tileHover
-						.pipe(first())
-						.subscribe(hoverPos => {
-							this.spriteService.loadSprites(() => {
-								this.interactionLayer.clear()
-								this.interactionLayer.drawImage(
-									this.spriteService.fetch('hover'),
-									Rectangle.rectangleByOnePoint(
-										hoverPos
-											.map(c => Math.floor(c))
-											.sub(camera.position)
-											.map(c => c * camera.zoom)
-											.add(Position.fromShape(this.worldLayer.resolution.map(c => c / 2))),
-										Shape.square(camera.zoom)
-									)
-								)
-								this.composeView()
-							})
-						})
-				} else {
-					this.interactionLayer.clear()
-				}
-			})
 	}
 
 	private drawMinimapView(camera: Camera, destinationRect: Rectangle): void {
