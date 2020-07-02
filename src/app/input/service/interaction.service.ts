@@ -1,5 +1,6 @@
 import {Injectable} from '@angular/core'
 import {interval, Observable} from 'rxjs'
+import * as _ from 'lodash'
 import {distinctUntilChanged, first, map, scan, throttleTime, withLatestFrom} from 'rxjs/operators'
 import {lerp} from '../../common/model/Lerp'
 import {Camera} from '../../render/model/Camera'
@@ -45,8 +46,11 @@ export class InteractionService {
 					(pos, camera) => pos
 						.map(c => c / camera.zoom)
 						.add(camera.position)
-				)
+				),
+				map(position => position.floor()),
+				distinctUntilChanged(_.isEqual)
 			)
+
 
 		this.tileClick = this.mouseService.mouseClick.observable
 			.pipe(

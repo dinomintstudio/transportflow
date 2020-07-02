@@ -4,7 +4,7 @@ import {Camera} from '../model/Camera'
 import {Position} from '../../common/model/Position'
 import {WorldService} from '../../game-logic/service/world.service'
 import {SpriteService} from './sprite.service'
-import {distinctUntilChanged, first, map, throttleTime} from 'rxjs/operators'
+import {first, throttleTime} from 'rxjs/operators'
 import {World} from '../../game-logic/model/World'
 
 import {Tile} from '../../game-logic/model/Tile'
@@ -34,9 +34,8 @@ export class RenderService {
 	map: ChunkedCanvas
 	minimap: SingleCanvas
 
-	viewCanvas: SingleCanvas
-	worldLayer: SingleCanvas
-	interactionLayer: SingleCanvas
+	worldCanvas: SingleCanvas
+	interactionCanvas: SingleCanvas
 
 	constructor(
 		private cameraService: CameraService,
@@ -55,12 +54,10 @@ export class RenderService {
 		})
 	}
 
-	initView(canvas: HTMLCanvasElement, canvasContainer: HTMLElement): void {
+	initView(worldCanvas: HTMLCanvasElement, interactionCanvas: HTMLCanvasElement, canvasContainer: HTMLElement): void {
 		this.log.debug('initialize render view')
-		this.viewCanvas = new SingleCanvas(canvas)
-
-		this.worldLayer = new SingleCanvas(createCanvas(this.viewCanvas.resolution), true)
-		this.interactionLayer = new SingleCanvas(createCanvas(this.viewCanvas.resolution), true)
+		this.worldCanvas = new SingleCanvas(worldCanvas)
+		this.interactionCanvas = new SingleCanvas(interactionCanvas, true)
 
 		window.addEventListener('resize', () =>
 			this.resizeCanvas(new Shape(canvasContainer.offsetWidth, canvasContainer.offsetHeight))
@@ -147,7 +144,7 @@ export class RenderService {
 							throttleTime(1000 / (config.maxFps || Infinity))
 						)
 						.subscribe(camera => {
-							if (!this.worldLayer) return
+							if (!this.worldCanvas) return
 							this.renderProfileService.frame.set()
 
 							const cyclicCamera = new Camera(
@@ -161,16 +158,19 @@ export class RenderService {
 
 							const destinationRect = Rectangle.rectangleByOnePoint(
 								Position.ZERO,
-								this.worldLayer.resolution
+								this.worldCanvas.resolution
 							)
 
 							if (cyclicCamera.zoom > cyclicCamera.config.minimapTriggerZoom) {
 								this.drawMapView(cyclicCamera, destinationRect)
-								this.updateInteractionLayer()
+								this.interactionService.tileHover
+									.pipe(first())
+									.subscribe(hoverPos =>
+										this.drawHoverTile(camera, hoverPos)
+									)
 							} else {
 								this.drawMinimapView(cyclicCamera, destinationRect)
 							}
-							this.composeView()
 							complete?.()
 						})
 				})
@@ -179,64 +179,48 @@ export class RenderService {
 
 	private updateInteractionLayer(): void {
 		this.interactionService.tileHover
-			.pipe(
-				map(position => position.floor()),
-				distinctUntilChanged(_.isEqual),
-			)
-			.subscribe(() => {
+			.subscribe(hoverPos => {
 				this.cameraService.camera.observable
 					.pipe(first())
 					.subscribe(camera => {
-						this.interactionService.tileHover
-							.pipe(first())
-							.subscribe(hoverPos => {
-								if (camera.zoom > camera.config.minimapTriggerZoom) {
-									this.spriteService.loadSprites(() => {
-										this.interactionLayer.clear()
-										this.interactionLayer.drawImage(
-											this.spriteService.fetch('hover'),
-											Rectangle.rectangleByOnePoint(
-												hoverPos
-													.map(c => Math.floor(c))
-													.sub(camera.position)
-													.map(c => c * camera.zoom)
-													.add(Position.fromShape(this.worldLayer.resolution.map(c => c / 2))),
-												Shape.square(camera.zoom)
-											)
-										)
-										this.composeView()
-									})
-								} else {
-									this.interactionLayer.clear()
-								}
-							})
+						this.spriteService.loadSprites(() => {
+							this.drawHoverTile(camera, hoverPos)
+						})
 					})
-
 			})
 	}
 
-	private resizeCanvas(shape: Shape): void {
-		[this.viewCanvas, this.worldLayer, this.interactionLayer].forEach(c => c.setResolution(shape))
-		this.cameraService.camera.update()
+	private drawHoverTile(camera: Camera, hoverPos: Position) {
+		if (camera.zoom > camera.config.minimapTriggerZoom) {
+			this.interactionCanvas.clear()
+			this.interactionCanvas.drawImage(
+				this.spriteService.fetch('hover'),
+				Rectangle.rectangleByOnePoint(
+					hoverPos
+						.map(c => Math.floor(c))
+						.sub(camera.position)
+						.map(c => c * camera.zoom)
+						.add(Position.fromShape(this.worldCanvas.resolution.map(c => c / 2))),
+					Shape.square(camera.zoom)
+				)
+			)
+		} else {
+			this.interactionCanvas.clear()
+		}
 	}
 
-	/**
-	 * Compose all visible layers into main viewCanvas
-	 */
-	private composeView() {
-		this.viewCanvas.compose(
-			this.worldLayer,
-			this.interactionLayer
-		)
+	private resizeCanvas(shape: Shape): void {
+		[this.worldCanvas, this.interactionCanvas].forEach(c => c.setResolution(shape))
+		this.cameraService.camera.update()
 	}
 
 	private drawMinimapView(camera: Camera, destinationRect: Rectangle): void {
 		this.configService.renderConfig.observable.subscribe(config => {
 			this.provideUnboundedCameras(camera, this.minimap.resolution, config.minimapResolution, unboundedCamera => {
-				this.worldLayer.drawImage(
+				this.worldCanvas.drawImage(
 					this.minimap.canvas,
 					destinationRect,
-					unboundedCamera.getViewCameraRect(this.worldLayer.resolution, config.minimapResolution)
+					unboundedCamera.getViewCameraRect(this.worldCanvas.resolution, config.minimapResolution)
 				)
 			})
 		})
@@ -246,8 +230,8 @@ export class RenderService {
 		this.configService.renderConfig.observable.subscribe(config => {
 			this.provideUnboundedCameras(camera, this.map.resolution, config.tileResolution, unboundedCamera => {
 				this.map.drawPartOn(
-					unboundedCamera.getViewCameraRect(this.worldLayer.resolution, config.tileResolution),
-					this.worldLayer,
+					unboundedCamera.getViewCameraRect(this.worldCanvas.resolution, config.tileResolution),
+					this.worldCanvas,
 					destinationRect
 				)
 			})
@@ -255,7 +239,7 @@ export class RenderService {
 	}
 
 	private provideUnboundedCameras(camera: Camera, mapResolution: Shape, tileResolution: number, cameraSupplier: (camera: Camera) => void): void {
-		const visibleWorldsShape = this.worldLayer.resolution
+		const visibleWorldsShape = this.worldCanvas.resolution
 			.mapEach(
 				w => w / (mapResolution.width * camera.zoom / tileResolution),
 				h => h / (mapResolution.height * camera.zoom / tileResolution)

@@ -95,15 +95,13 @@ export class DebugOverlayComponent implements OnInit {
 
 			this.interactionService.tileHover
 				.pipe(
-					untilNewFrom(this.configService.renderConfig.observable),
-					map(pos => pos.map(Math.floor))
+					untilNewFrom(this.configService.renderConfig.observable)
 				)
 				.subscribe(mousePos => this.mousePosition = mousePos)
 
 			this.interactionService.tileHover
 				.pipe(
 					untilNewFrom(this.configService.renderConfig.observable),
-					map(pos => pos.map(Math.floor)),
 					this.worldService.boundPosition()
 				)
 				.subscribe(mousePos => this.boundedMousePosition = mousePos)

@@ -6,13 +6,14 @@ import {ConfigService} from '../../common/service/config.service'
 })
 export class SpriteService {
 
-	private spriteUrlMap
-	private spriteMap = new Map<string, HTMLImageElement>()
-	private spritesLoaded
+	private spriteUrlMap: Map<string, string>
+	private spriteMap: Map<string, HTMLImageElement>
+	private spritesLoaded: boolean
 
 	constructor(
 		private configService: ConfigService
 	) {
+		this.spriteMap = new Map<string, HTMLImageElement>()
 		this.configService.spritesConfig.observable.subscribe(config =>
 			this.spriteUrlMap = new Map<string, string>(<[]>config.sprites)
 		)
