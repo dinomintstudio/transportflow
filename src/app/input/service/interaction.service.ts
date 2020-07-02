@@ -63,7 +63,7 @@ export class InteractionService {
 					scan((current, next) => lerp(current, next, renderConfig.zoomAnimationSpeed)),
 					map(z => Math.round(z * 10) / 10),
 					distinctUntilChanged(),
-					throttleTime(1000 / renderConfig.animationUps)
+					throttleTime(1000 / (renderConfig.animationUps || Infinity))
 				)
 				.subscribe(zoom => {
 					this.cameraService.camera.observable

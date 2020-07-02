@@ -9,7 +9,6 @@
     "chunkSize",
     "chunkLoadOverhead",
     "zoomAnimationSpeed",
-    "animationUps",
     "debugOverlayKey",
     "consoleKey"
   ],
