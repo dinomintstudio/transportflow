@@ -1,0 +1,39 @@
+.console
+  display: flex
+  flex-direction: column
+  justify-content: flex-end
+  background: rgba(0, 0, 0, 0.7)
+  height: 100vh
+
+  padding: 10px
+
+  .logs
+    display: flex
+    flex-direction: column
+
+    color: white
+    font-family: monospace
+
+    overflow-x: hidden
+    overflow-y: auto
+
+  .input
+    display: flex
+    align-items: center
+
+    & > *
+      font-family: monospace
+      color: white
+      size: 24px
+
+    span
+      margin-right: 0.5em
+
+    input
+      width: 100%
+      background: transparent
+
+      color: white
+
+      border: none
+      outline: none

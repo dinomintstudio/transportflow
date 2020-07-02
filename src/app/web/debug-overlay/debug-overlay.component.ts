@@ -15,7 +15,7 @@ import {untilNewFrom} from '../../common/operator/until-new-from.operator'
 @Component({
 	selector: 'app-debug-overlay',
 	templateUrl: './debug-overlay.component.html',
-	styleUrls: ['./debug-overlay.component.scss']
+	styleUrls: ['./debug-overlay.component.sass']
 })
 export class DebugOverlayComponent implements OnInit {
 

@@ -8,7 +8,7 @@ import {untilNewFrom} from '../../common/operator/until-new-from.operator'
 @Component({
 	selector: 'app-canvas',
 	templateUrl: './canvas.component.html',
-	styleUrls: ['./canvas.component.scss']
+	styleUrls: ['./canvas.component.sass']
 })
 export class CanvasComponent implements OnInit {
 

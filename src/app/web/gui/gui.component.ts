@@ -4,7 +4,7 @@ import {KeyService} from '../../input/service/key.service'
 @Component({
 	selector: 'app-gui',
 	templateUrl: './gui.component.html',
-	styleUrls: ['./gui.component.scss']
+	styleUrls: ['./gui.component.sass']
 })
 export class GuiComponent implements OnInit {
 

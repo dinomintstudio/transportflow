@@ -17,7 +17,7 @@ import {untilNewFrom} from '../../common/operator/until-new-from.operator'
 @Component({
 	selector: 'app-console',
 	templateUrl: './console.component.html',
-	styleUrls: ['./console.component.scss']
+	styleUrls: ['./console.component.sass']
 })
 export class ConsoleComponent implements OnInit, AfterViewChecked {
 
