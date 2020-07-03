@@ -10,7 +10,7 @@ import {
 } from '@angular/core'
 import {Log} from '../../common/model/Log'
 import {KeyService} from '../../input/service/key.service'
-import {filter} from 'rxjs/operators'
+import {filter, first} from 'rxjs/operators'
 import {ConfigService} from '../../common/service/config.service'
 import {untilNewFrom} from '../../common/operator/until-new-from.operator'
 
@@ -48,16 +48,18 @@ export class ConsoleComponent implements OnInit, AfterViewChecked {
 			this.logs.push(log)
 		})
 
-		this.configService.renderConfig.observable.subscribe(renderConfig => {
-			this.keyService.keypress.observable
-				.pipe(
-					untilNewFrom(this.configService.renderConfig.observable),
-					filter(e => ['Escape', renderConfig.consoleKey].includes(e.key))
-				)
-				.subscribe(() => {
-					this.onClose.emit()
-				})
-		})
+		this.configService.renderConfig.observable
+			.pipe(first())
+			.subscribe(renderConfig => {
+				this.keyService.keypress.observable
+					.pipe(
+						untilNewFrom(this.configService.renderConfig.observable),
+						filter(e => ['Escape', renderConfig.consoleKey].includes(e.key))
+					)
+					.subscribe(() => {
+						this.onClose.emit()
+					})
+			})
 	}
 
 	ngOnInit(): void {

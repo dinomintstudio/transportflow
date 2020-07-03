@@ -8,7 +8,7 @@ import {Position} from '../../common/model/Position'
 import {SpriteService} from './sprite.service'
 
 /**
- * Service responsible for providing `spriteRenderers`
+ * Service responsible for providing sprite renderers - functions that responsible for rendering of a specific sprite
  */
 @Injectable({
 	providedIn: 'root'
