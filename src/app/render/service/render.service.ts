@@ -223,31 +223,6 @@ export class RenderService {
 	}
 
 	/**
-	 * Draw hovered tile highlight
-	 * TODO: move to separate service when more of such draws appear
-	 * @param camera
-	 * @param hoverPos
-	 */
-	private drawHoverTile(camera: Camera, hoverPos: Position) {
-		if (camera.zoom > camera.config.minimapTriggerZoom) {
-			this.interactionCanvas.clear()
-			this.interactionCanvas.drawImage(
-				this.spriteService.fetch('hover'),
-				Rectangle.rectangleByOnePoint(
-					hoverPos
-						.map(c => Math.floor(c))
-						.sub(camera.position)
-						.map(c => c * camera.zoom)
-						.add(Position.fromShape(this.worldCanvas.resolution.map(c => c / 2))),
-					Shape.square(camera.zoom)
-				)
-			)
-		} else {
-			this.interactionCanvas.clear()
-		}
-	}
-
-	/**
 	 * Resize canvases and update camera
 	 * @param shape
 	 */
@@ -416,6 +391,31 @@ export class RenderService {
 					spriteRect
 				)
 			})
+	}
+
+	/**
+	 * Draw hovered tile highlight
+	 * TODO: move to separate service when more of such draws appear
+	 * @param camera
+	 * @param hoverPos
+	 */
+	private drawHoverTile(camera: Camera, hoverPos: Position) {
+		if (camera.zoom > camera.config.minimapTriggerZoom) {
+			this.interactionCanvas.clear()
+			this.interactionCanvas.drawImage(
+				this.spriteService.fetch('hover'),
+				Rectangle.rectangleByOnePoint(
+					hoverPos
+						.map(c => Math.floor(c))
+						.sub(camera.position)
+						.map(c => c * camera.zoom)
+						.add(Position.fromShape(this.worldCanvas.resolution.map(c => c / 2))),
+					Shape.square(camera.zoom)
+				)
+			)
+		} else {
+			this.interactionCanvas.clear()
+		}
 	}
 
 }
