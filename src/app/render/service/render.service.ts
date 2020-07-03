@@ -46,11 +46,12 @@ export class RenderService {
 		private renderProfileService: RenderProfileService,
 		private configService: ConfigService
 	) {
-		this.loadSprites()
-		this.initMap(() => {
-			this.updateChunks(() => setTimeout(() => this.cameraService.camera.update(), 0))
-			this.updateWorldLayer()
-			this.updateInteractionLayer()
+		this.loadSprites(() => {
+			this.initMap(() => {
+				this.updateChunks(() => setTimeout(() => this.cameraService.camera.update(), 0))
+				this.updateWorldLayer()
+				this.updateInteractionLayer()
+			})
 		})
 	}
 
@@ -65,10 +66,10 @@ export class RenderService {
 		window.dispatchEvent(new Event('resize'))
 	}
 
-	private loadSprites() {
+	private loadSprites(loaded?: () => void) {
 		this.log.debug('load sprites')
 		const startLoadSprites = new Date()
-		this.spriteService.loadSprites()
+		this.spriteService.loadSprites(() => loaded?.())
 		this.log.debug(`loaded sprites in ${(new Date().getTime() - startLoadSprites.getTime())}ms`)
 	}
 
@@ -113,20 +114,18 @@ export class RenderService {
 	// TODO: optimize; draw only visible chunks with specified overhead
 	// TODO: optimize; redraw only changed chunks
 	private updateChunks(complete?: () => void): void {
-		this.spriteService.loadSprites(() => {
-			this.worldService.world.observable.subscribe(world => {
-				this.log.debug('draw visible chunks')
-				const startDrawChunks = new Date()
-				this.drawChunks(world.tilemap)
-				this.log.debug(`drawn visible chunks in ${(new Date().getTime() - startDrawChunks.getTime())}ms`)
+		this.worldService.world.observable.subscribe(world => {
+			this.log.debug('draw visible chunks')
+			const startDrawChunks = new Date()
+			this.drawChunks(world.tilemap)
+			this.log.debug(`drawn visible chunks in ${(new Date().getTime() - startDrawChunks.getTime())}ms`)
 
-				this.log.debug('draw minimap')
-				const startDrawMinimap = new Date()
-				this.drawMinimap()
-				this.log.debug(`drawn minimap in ${(new Date().getTime() - startDrawMinimap.getTime())}ms`)
+			this.log.debug('draw minimap')
+			const startDrawMinimap = new Date()
+			this.drawMinimap()
+			this.log.debug(`drawn minimap in ${(new Date().getTime() - startDrawMinimap.getTime())}ms`)
 
-				complete?.()
-			})
+			complete?.()
 		})
 	}
 
@@ -183,9 +182,7 @@ export class RenderService {
 				this.cameraService.camera.observable
 					.pipe(first())
 					.subscribe(camera => {
-						this.spriteService.loadSprites(() => {
-							this.drawHoverTile(camera, hoverPos)
-						})
+						this.drawHoverTile(camera, hoverPos)
 					})
 			})
 	}
