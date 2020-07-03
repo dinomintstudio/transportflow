@@ -85,12 +85,12 @@ export class CityGenerationService {
 	}
 
 	private placeBuildingBlocks(tilemap: Matrix<Maybe<CityTile>>, config: CityGenerationConfig): void {
-		tilemap.forEach((e, p) => {
-			if (e
+		tilemap.forEach((tile, tilePosition) => {
+			if (tile
 				.filter(t => t.type === 'road')
 				.isPresent()) return
 
-			const neighboursSubmatrix = this.neighbourSubmatrix(tilemap, p, config.closestRoadDistance)
+			const neighboursSubmatrix = this.neighbourSubmatrix(tilemap, tilePosition, config.closestRoadDistance)
 
 			let hasNeighbourRoad = neighboursSubmatrix
 				.flatMap()
@@ -100,7 +100,7 @@ export class CityGenerationService {
 				.filter(e => e.type === 'road').length > 0
 
 			if (hasNeighbourRoad && this.randomService.withProbability(config.buildingBlockAppearanceProbability)) {
-				tilemap.set(p, new Maybe(new CityTile('building')))
+				tilemap.set(tilePosition, new Maybe(new CityTile('building')))
 			}
 		})
 	}
