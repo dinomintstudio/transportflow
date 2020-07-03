@@ -18,6 +18,9 @@ import * as _ from 'lodash'
 import {BuildingImpl} from '../model/BuildingImpl'
 import {GeneratedBuilding} from '../model/GeneratedBuilding'
 
+/**
+ * Responsible for city generation
+ */
 @Injectable({
 	providedIn: 'root'
 })
@@ -29,11 +32,15 @@ export class CityGenerationService {
 	) {
 	}
 
+	/**
+	 * Generate city
+	 * @param config
+	 */
 	generate(config: CityGenerationConfig): TiledCity {
 		const roads: Road[] = this.streetGenerationService.generate(config.streetGenerationConfig)
-		const tilemap: Matrix<Boolean> = this.streetGenerationService.toTilemap(roads)
-		const extendedTilemap = this.extendRoadTilemap(tilemap, config.closestRoadDistance)
-		const cityTilemap: Matrix<Maybe<CityTile>> = this.roadTilemapToCityTilemap(extendedTilemap)
+		const tilemap: Matrix<Boolean> = this.streetGenerationService.roadsToRoadMask(roads)
+		const extendedTilemap = this.expandRoadMask(tilemap, config.closestRoadDistance)
+		const cityTilemap: Matrix<Maybe<CityTile>> = this.roadMaskToCityTilemap(extendedTilemap)
 
 		this.placeBuildingBlocks(cityTilemap, config)
 
@@ -47,12 +54,14 @@ export class CityGenerationService {
 		)
 	}
 
-	private extendRoadTilemap(tilemap: Matrix<Boolean>, closestRoadDistance: number): Matrix<Boolean> {
+	/**
+	 * Expand road mask to fit buildings close to the city border
+	 * @param roadMask
+	 * @param closestRoadDistance
+	 */
+	private expandRoadMask(roadMask: Matrix<Boolean>, closestRoadDistance: number): Matrix<Boolean> {
 		const extendedTilemap = new Matrix<Boolean>(
-			new Shape(
-				tilemap.shape.width + 2 * closestRoadDistance,
-				tilemap.shape.height + 2 * closestRoadDistance
-			),
+			roadMask.shape.map(s => s + 2 * closestRoadDistance),
 			[],
 			() => false
 		)
@@ -61,36 +70,32 @@ export class CityGenerationService {
 				closestRoadDistance,
 				closestRoadDistance
 			),
-			tilemap
+			roadMask
 		)
 
 		return extendedTilemap
 	}
 
-	private roadTilemapToCityTilemap(tilemap: Matrix<Boolean>): Matrix<Maybe<CityTile>> {
-		return tilemap.map(t => t ? new Maybe(new CityTile('road')) : Maybe.empty())
+	/**
+	 * Convert road mask to city tilemap
+	 * @param roadMask
+	 */
+	private roadMaskToCityTilemap(roadMask: Matrix<Boolean>): Matrix<Maybe<CityTile>> {
+		return roadMask.map(t => t ? new Maybe(new CityTile('road')) : Maybe.empty())
 	}
 
-	private neighbourSubmatrix<T>(matrix: Matrix<T>, position: Position, radius: number): Matrix<T> {
-		return matrix.of(
-			Rectangle.rectangleByOnePoint(
-				new Position(
-					position.x - radius,
-					position.y - radius
-				),
-				Shape.square(2 * radius + 1)
-			),
-			null
-		)
-	}
-
+	/**
+	 * Modify city tilemap, placing building blocks onto it
+	 * @param tilemap
+	 * @param config
+	 */
 	private placeBuildingBlocks(tilemap: Matrix<Maybe<CityTile>>, config: CityGenerationConfig): void {
 		tilemap.forEach((tile, tilePosition) => {
 			if (tile
 				.filter(t => t.type === 'road')
 				.isPresent()) return
 
-			const neighboursSubmatrix = this.neighbourSubmatrix(tilemap, tilePosition, config.closestRoadDistance)
+			const neighboursSubmatrix = tilemap.neighbourSubmatrix(tilePosition, config.closestRoadDistance)
 
 			let hasNeighbourRoad = neighboursSubmatrix
 				.flatMap()
@@ -105,6 +110,10 @@ export class CityGenerationService {
 		})
 	}
 
+	/**
+	 * Merge building blocks and produce array of city buildings
+	 * @param tilemap
+	 */
 	private mergeBuildingBlocks(tilemap: Matrix<Maybe<CityTile>>): Building[] {
 		const resultBuildings: Building[] = []
 
@@ -118,7 +127,7 @@ export class CityGenerationService {
 			if (!indexedTile.tile.isPresent() || indexedTile.tile.get().type !== 'building') return
 			if (usedBuildingBlocks.at(indexedTile.position)) return
 
-			let neighboursMatrix = this.neighbourSubmatrix(indexedTilemap, indexedTile.position, 1)
+			let neighboursMatrix = indexedTilemap.neighbourSubmatrix(indexedTile.position, 1)
 
 			const buildingAreas: Matrix<IndexedCityTile>[] = []
 			_.range(4).forEach(() => {
@@ -146,7 +155,12 @@ export class CityGenerationService {
 		return resultBuildings
 	}
 
-	// TODO: refactor
+	/**
+	 * Convert building area to building by investigating of available tiles
+	 * TODO: refactor
+	 * @param area
+	 * @param usedBuildingBlock
+	 */
 	private buildingByBuildingArea(area: Matrix<IndexedCityTile>, usedBuildingBlock: Matrix<Boolean>): GeneratedBuilding {
 		const topLeft: IndexedCityTile = area.at(new Position(0, 0))
 		const topRight: IndexedCityTile = area.at(new Position(1, 0))
@@ -187,6 +201,10 @@ export class CityGenerationService {
 		)
 	}
 
+	/**
+	 * Construct building from merged tiles
+	 * @param tiles array of merged tiles
+	 */
 	private mergedTilesToBuilding(tiles: IndexedCityTile[]): Building {
 		const topLeft: IndexedCityTile = tiles
 			.sort((t1, t2) => t1.position.x - t2.position.x || t1.position.y - t2.position.y)[0]

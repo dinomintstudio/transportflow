@@ -30,6 +30,9 @@ export class NoiseService {
 		this.reset()
 	}
 
+	/**
+	 * Reinitialize instance
+	 */
 	reset(): void {
 		this.randomService.seed.observable.subscribe(seed => {
 			this.simplexNoise = new SimplexNoise(seed)

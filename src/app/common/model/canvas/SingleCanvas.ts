@@ -3,14 +3,43 @@ import {Shape} from '../Shape'
 import {Position} from '../Position'
 import {Canvas} from './Canvas'
 
+/**
+ * Basic canvas implementation.
+ * Wrapper around `HTMLCanvasElement`
+ */
 export class SingleCanvas implements Canvas {
 
+	/**
+	 * Wrapped canvas element
+	 */
 	canvas: HTMLCanvasElement
+
+	/**
+	 * Canvas resolution
+	 */
 	resolution: Shape
+
+	/**
+	 * Canvas 2D context
+	 */
 	context: CanvasRenderingContext2D
+
+	/**
+	 * Whether the canvas was already used by calling `drawImage`
+	 */
 	isDrawn: Boolean
+
+	/**
+	 * Transparency flag.
+	 * True is use alpha layer
+	 */
 	alpha: boolean
 
+	/**
+	 * Initialize canvas
+	 * @param canvas
+	 * @param alpha
+	 */
 	constructor(canvas: HTMLCanvasElement, alpha: boolean = false) {
 		this.canvas = canvas
 		this.alpha = alpha
@@ -19,6 +48,10 @@ export class SingleCanvas implements Canvas {
 		this.isDrawn = false
 	}
 
+	/**
+	 * Change canvas resolution
+	 * @param resolution
+	 */
 	setResolution(resolution: Shape) {
 		this.resolution = resolution
 		this.canvas.width = resolution.width
@@ -47,29 +80,30 @@ export class SingleCanvas implements Canvas {
 		this.isDrawn = true
 	}
 
+	/**
+	 * Fill canvas with a solid color
+	 * @param color
+	 */
 	fill(color: string): void {
 		this.context.fillStyle = color
 		this.context.fillRect(0, 0, this.canvas.width, this.canvas.height)
 	}
 
+	/**
+	 * Draw border around canvas
+	 * @param strokeWidth
+	 * @param color
+	 */
 	drawBorder(strokeWidth: number, color: string): void {
 		this.context.lineWidth = strokeWidth
 		this.context.strokeStyle = color
 		this.context.strokeRect(0, 0, this.resolution.width, this.resolution.height)
 	}
 
-	compose(...canvases: SingleCanvas[]): void {
-		canvases.forEach(canvas => {
-			this.drawImage(
-				canvas.canvas,
-				Rectangle.rectangleByOnePoint(
-					Position.ZERO,
-					this.resolution
-				)
-			)
-		})
-	}
-
+	/**
+	 * Remove canvas contents.
+	 * Canvas with alpha layer will become transparent, canvas without alpha layer will become black
+	 */
 	clear() {
 		if (this.alpha) {
 			this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)

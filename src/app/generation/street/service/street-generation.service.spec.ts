@@ -51,7 +51,7 @@ describe('StreetGenerationService', () => {
 			new Road(randomService, new Position(1, 1), 0.5, 0, 3, config)
 		]
 
-		const booleanMatrix = service.toTilemap(roads)
+		const booleanMatrix = service.roadsToRoadMask(roads)
 
 		expect(booleanMatrix.at(new Position(0, 0))).toBe(true)
 		expect(booleanMatrix.at(new Position(0, 1))).toBe(false)

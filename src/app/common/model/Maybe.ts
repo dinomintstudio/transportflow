@@ -62,10 +62,10 @@ export class Maybe<T> {
 	}
 
 	/**
-	 *
+	 * If the element is present and match predicate - return maybe with element, otherwise return empty
 	 * @param predicate
 	 */
-	filter(predicate: (T: T) => Boolean): Maybe<T> {
+	filter(predicate: (t: T) => Boolean): Maybe<T> {
 		return this.isPresent() && predicate(this.get()) ? this : Maybe.empty()
 	}
 

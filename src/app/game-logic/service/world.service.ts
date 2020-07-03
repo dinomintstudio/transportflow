@@ -19,6 +19,10 @@ import {Log} from '../../common/model/Log'
 import {MonoTypeOperatorFunction} from 'rxjs'
 import {withLatestFrom} from 'rxjs/operators'
 
+/**
+ * Responsible for world initialization, generation, including terrain, natural structures, city and building placing
+ * TODO: split into world and world generation services
+ */
 @Injectable({
 	providedIn: 'root'
 })
@@ -33,6 +37,11 @@ export class WorldService {
 	) {
 	}
 
+	/**
+	 * Generate terrain and natural structures
+	 * @param tiledTerrain
+	 * @param config
+	 */
 	generate(tiledTerrain: TiledTerrain, config: WorldGenerationConfig): World {
 		this.log.debug('generate world')
 		const tilemap: Matrix<Tile> = this.mapTerrainMatrixToTileMatrix(tiledTerrain.tilemap)
@@ -58,6 +67,12 @@ export class WorldService {
 		)
 	}
 
+	/**
+	 * Find adjacent tiles to the tile in specified position.
+	 * Return 3x3 matrix
+	 * @param tilemap
+	 * @param position
+	 */
 	getAdjacentTileMatrix(tilemap: Matrix<Tile>, position: Position): Matrix<Maybe<Tile>> {
 		return tilemap
 			.of(Rectangle.rectangleByOnePoint(

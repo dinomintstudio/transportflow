@@ -64,6 +64,9 @@ export class Range {
 		return Math.min(Math.max(value, this.from), this.to)
 	}
 
+	/**
+	 * String representation
+	 */
 	toString(): string {
 		return `[${this.from}, ${this.to}]`
 	}
