@@ -77,7 +77,9 @@ export class Log {
 	error(message: string, error?: Error): void {
 		const formatMessage = this.formatMessage(Level.ERROR, message)
 		console.error(formatMessage, error)
-		Log.content.next(formatMessage)
+		const formatStack = `\t${error.stack.replaceAll('\n', '\n\t')}`
+		const formatMessageWithStack = `${formatMessage}: ${error.toString()}\n${formatStack}`
+		Log.content.next(formatMessageWithStack)
 	}
 
 	private formatMessage(level: Level, message: string): string {
