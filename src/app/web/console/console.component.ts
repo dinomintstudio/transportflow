@@ -13,6 +13,7 @@ import {KeyService} from '../../input/service/key.service'
 import {filter, first} from 'rxjs/operators'
 import {ConfigService} from '../../common/service/config.service'
 import {untilNewFrom} from '../../common/operator/until-new-from.operator'
+import {CommandService} from '../../cli/service/command.service'
 
 @Component({
 	selector: 'app-console',
@@ -35,7 +36,8 @@ export class ConsoleComponent implements OnInit, AfterViewChecked {
 
 	constructor(
 		private keyService: KeyService,
-		private configService: ConfigService
+		private configService: ConfigService,
+		private commandService: CommandService
 	) {
 		this.onClose = new EventEmitter<void>()
 		this.logs = []
@@ -83,7 +85,13 @@ export class ConsoleComponent implements OnInit, AfterViewChecked {
 	}
 
 	command() {
-		this.log.raw(this.prefix + this.input)
+		this.log.raw(this.input)
+		try {
+			const result = this.commandService.execute(this.input)
+			this.log.raw(result)
+		} catch (e) {
+			this.log.error(`error executing command`, e)
+		}
 		this.input = ''
 	}
 }
