@@ -21,11 +21,15 @@ export class ServiceProviderService {
 	}
 
 	getServiceNameServicePair(service: any): [string, any] {
-		return [service.constructor.name.toLowerCase(), service]
+		return [service.constructor.name, service]
 	}
 
 	get(serviceName: string): Maybe<any> {
-		return new Maybe(this.serviceMap.get(serviceName.toLowerCase()))
+		return new Maybe(
+			[...this.serviceMap.entries()]
+				.filter(e => e[0].toLowerCase() === serviceName.toLowerCase())
+				.map(e => e[1])[0]
+		)
 	}
 
 }
