@@ -41,7 +41,7 @@ export class ConsoleComponent implements OnInit, AfterViewChecked {
 	) {
 		this.onClose = new EventEmitter<void>()
 		this.logs = []
-		this.logs.push('Welcome to console.')
+		this.log.raw('Welcome to console.')
 		this.input = ''
 		this.scrollBottom = true
 		this.prefix = '> '
