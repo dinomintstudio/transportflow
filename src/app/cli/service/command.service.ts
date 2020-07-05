@@ -15,6 +15,10 @@ export class CommandService {
 	) {}
 
 	parse(commandString: string): Command {
+		const validCommandRe: RegExp = new RegExp('^\\w+\\.\\w+\\(.*\\)$')
+		console.log(validCommandRe.test(commandString))
+		if (!validCommandRe.test(commandString)) throw new Error(`unable to parse command '${commandString}'`)
+
 		const serviceNameRe: RegExp = new RegExp('^.*(?=\\.)')
 		const methodNameRe: RegExp = new RegExp('(?<=\\.).*(?=\\()')
 		const argsRe: RegExp = new RegExp('(?<=\\().*(?=\\))')
@@ -37,10 +41,10 @@ export class CommandService {
 
 		const service = this.serviceProviderService
 			.get(command.serviceName)
-			.orElseThrow(new Error(`no service found for name ${command.serviceName}`))
+			.orElseThrow(new Error(`no service found for name '${command.serviceName}'`))
 		const method = service[command.methodName]
 
-		if (!method) throw new Error(`service ${command.serviceName} has no method ${command.methodName}`)
+		if (!method) throw new Error(`service '${command.serviceName}' has no method '${command.methodName}'`)
 
 		return method.call(command.args)
 	}
