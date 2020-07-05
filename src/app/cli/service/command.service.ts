@@ -16,22 +16,23 @@ export class CommandService {
 
 	parse(commandString: string): Command {
 		const validCommandRe: RegExp = new RegExp('^\\w+\\.\\w+\\(.*\\)$')
-		console.log(validCommandRe.test(commandString))
 		if (!validCommandRe.test(commandString)) throw new Error(`unable to parse command '${commandString}'`)
 
 		const serviceNameRe: RegExp = new RegExp('^.*(?=\\.)')
 		const methodNameRe: RegExp = new RegExp('(?<=\\.).*(?=\\()')
 		const argsRe: RegExp = new RegExp('(?<=\\().*(?=\\))')
 
-		//TODO: parse error handling
 		const serviceName: string = serviceNameRe.exec(commandString)[0]
 		const methodName: string = methodNameRe.exec(commandString)[0]
-		// TODO: cast args to type
-		const args: string[] = argsRe.exec(commandString)[0].split(',').map(s => s.trim())
+		const args: string[] = argsRe
+			.exec(commandString)[0]
+			.split(',')
+			.map(s => s.trim())
+			.map(s => s.replaceAll('\'', '"'))
+			.map(s => JSON.parse(s))
 
 		const command = new Command(serviceName, methodName, args)
-
-		this.log.debug(`parse command '${commandString}' as ${command.toString()}`)
+		this.log.debug(`parse command '${commandString}' as '${command.toString()}'`)
 
 		return command
 	}
@@ -46,7 +47,7 @@ export class CommandService {
 
 		if (!method) throw new Error(`service '${command.serviceName}' has no method '${command.methodName}'`)
 
-		return method.call(command.args)
+		return method.bind(service)(...command.args)
 	}
 
 }

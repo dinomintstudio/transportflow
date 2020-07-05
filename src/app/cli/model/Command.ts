@@ -4,7 +4,7 @@ export class Command {
 	methodName: string
 	args: any[]
 
-	constructor(serviceName: string, methodName: string, ...args: any[]) {
+	constructor(serviceName: string, methodName: string, args: any[]) {
 		this.serviceName = serviceName
 		this.methodName = methodName
 		this.args = args
