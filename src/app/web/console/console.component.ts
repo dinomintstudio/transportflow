@@ -35,8 +35,8 @@ export class ConsoleComponent implements OnInit, AfterViewChecked {
 	scrollBottom: boolean
 	prefix: string
 
+	// TODO: store history in localstorage
 	history: string[]
-	lastInput: string
 	commandOffset: number
 
 	constructor(

@@ -24,13 +24,9 @@ export class CommandService {
 
 		const serviceName: string = serviceNameRe.exec(commandString)[0]
 		const methodName: string = methodNameRe.exec(commandString)[0]
-		const args: string[] = argsRe
-			.exec(commandString)[0]
-			.split(',')
-			.filter(s => s)
-			.map(s => s.trim())
-			.map(s => s.replaceAll('\'', '"'))
-			.map(s => JSON.parse(s))
+		const args: string[] = JSON.parse(
+			`[${argsRe.exec(commandString)[0]}]`
+		)
 
 		const command = new Command(serviceName, methodName, args)
 		this.log.debug(`parse command '${commandString}' as '${command.toString()}'`)
