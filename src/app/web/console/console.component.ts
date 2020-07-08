@@ -25,7 +25,8 @@ export class ConsoleComponent implements OnInit, AfterViewChecked {
 	@ViewChild('scroll', {static: true})
 	scroll: ElementRef
 
-	@Output() onClose: EventEmitter<void>
+	@Output()
+	onClose: EventEmitter<void>
 
 	log: Log = new Log(this)
 
@@ -33,6 +34,10 @@ export class ConsoleComponent implements OnInit, AfterViewChecked {
 	input: string
 	scrollBottom: boolean
 	prefix: string
+
+	history: string[]
+	lastInput: string
+	commandOffset: number
 
 	constructor(
 		private keyService: KeyService,
@@ -45,6 +50,8 @@ export class ConsoleComponent implements OnInit, AfterViewChecked {
 		this.input = ''
 		this.scrollBottom = true
 		this.prefix = '> '
+		this.history = []
+		this.commandOffset = 0
 
 		Log.content.asObservable().subscribe(log => {
 			this.logs.push(log)
@@ -63,7 +70,8 @@ export class ConsoleComponent implements OnInit, AfterViewChecked {
 					})
 			})
 
-		this.autocomplete()
+		this.handleAutocomplete()
+		this.handleHistoryNavigation()
 	}
 
 	ngOnInit(): void {}
@@ -85,7 +93,9 @@ export class ConsoleComponent implements OnInit, AfterViewChecked {
 		}
 	}
 
-	command() {
+	execute() {
+		this.history.push(this.input)
+		this.commandOffset = 0
 		this.log.raw(this.input)
 		try {
 			const result = this.commandService.execute(this.input)
@@ -96,7 +106,7 @@ export class ConsoleComponent implements OnInit, AfterViewChecked {
 		this.input = ''
 	}
 
-	autocomplete(): void {
+	handleAutocomplete(): void {
 		this.keyService.keypress.observable
 			.pipe(filter(e => e.key === 'Tab'))
 			.subscribe(e => {
@@ -108,4 +118,22 @@ export class ConsoleComponent implements OnInit, AfterViewChecked {
 			})
 	}
 
+	private handleHistoryNavigation(): void {
+		this.keyService.keypress.observable
+			.pipe(filter(e => e.key === 'ArrowUp'))
+			.subscribe(e => {
+				e.preventDefault()
+				this.commandOffset = Math.min(this.commandOffset + 1, this.history.length)
+				this.input = [...this.history, this.input].reverse()[this.commandOffset]
+			})
+
+		this.keyService.keypress.observable
+			.pipe(filter(e => e.key === 'ArrowDown'))
+			.subscribe(e => {
+				e.preventDefault()
+				this.commandOffset = Math.max(this.commandOffset - 1, 0)
+				console.log(this.commandOffset)
+				this.input = [...this.history, ''].reverse()[this.commandOffset]
+			})
+	}
 }
