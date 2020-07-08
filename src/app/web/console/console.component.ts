@@ -62,6 +62,8 @@ export class ConsoleComponent implements OnInit, AfterViewChecked {
 						this.onClose.emit()
 					})
 			})
+
+		this.autocomplete()
 	}
 
 	ngOnInit(): void {}
@@ -93,4 +95,17 @@ export class ConsoleComponent implements OnInit, AfterViewChecked {
 		}
 		this.input = ''
 	}
+
+	autocomplete(): void {
+		this.keyService.keypress.observable
+			.pipe(filter(e => e.key === 'Tab'))
+			.subscribe(e => {
+				e.preventDefault()
+				if (this.input.includes('.')) return
+
+				const suggestions = this.commandService.completeServiceName(this.input)
+				this.input = suggestions[0]
+			})
+	}
+
 }

@@ -32,4 +32,10 @@ export class ServiceProviderService {
 		)
 	}
 
+	completeServiceName(partialServiceName: string): string[] {
+		return [...this.serviceMap.entries()]
+			.map(e => e[0])
+			.filter(name => name.toLowerCase().startsWith(partialServiceName.toLowerCase()))
+	}
+
 }

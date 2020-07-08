@@ -96,7 +96,7 @@ export class AppComponent {
 
 		const cityGenerationConfig = new CityGenerationConfig(
 			2,
-			0.6,
+			0.8,
 			config
 		)
 

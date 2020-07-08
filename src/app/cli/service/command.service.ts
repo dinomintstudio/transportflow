@@ -27,6 +27,7 @@ export class CommandService {
 		const args: string[] = argsRe
 			.exec(commandString)[0]
 			.split(',')
+			.filter(s => s)
 			.map(s => s.trim())
 			.map(s => s.replaceAll('\'', '"'))
 			.map(s => JSON.parse(s))
@@ -48,6 +49,10 @@ export class CommandService {
 		if (!method) throw new Error(`service '${command.serviceName}' has no method '${command.methodName}'`)
 
 		return method.bind(service)(...command.args)
+	}
+
+	completeServiceName(partialServiceName: string): string[] {
+		return this.serviceProviderService.completeServiceName(partialServiceName)
 	}
 
 }
