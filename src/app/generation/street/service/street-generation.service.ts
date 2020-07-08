@@ -21,8 +21,7 @@ export class StreetGenerationService {
 	 */
 	constructor(
 		private randomService: RandomService,
-	) {
-	}
+	) {}
 
 	/**
 	 * Generate one city's streets

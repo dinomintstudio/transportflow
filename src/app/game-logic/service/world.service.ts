@@ -34,8 +34,7 @@ export class WorldService {
 
 	constructor(
 		private cityGenerationService: CityGenerationService
-	) {
-	}
+	) {}
 
 	/**
 	 * Generate terrain and natural structures

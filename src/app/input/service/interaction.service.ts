@@ -61,7 +61,6 @@ export class InteractionService {
 				distinctUntilChanged(_.isEqual)
 			)
 
-
 		this.tileClick = this.mouseService.mouseClick.observable
 			.pipe(
 				withLatestFrom(this.tileHover, (_, pos) => pos)

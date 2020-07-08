@@ -8,8 +8,7 @@ export class EventSourceDirective {
 
 	constructor(
 		private mouseService: MouseService
-	) {
-	}
+	) {}
 
 	@HostListener('click', ['$event'])
 	onClick(e: MouseEvent) {
@@ -40,7 +39,6 @@ export class EventSourceDirective {
 	onMouseOut(e: MouseEvent) {
 		this.mouseService.mouseOut.set(e)
 	}
-
 
 	@HostListener('wheel', ['$event'])
 	onWheel(e: WheelEvent) {

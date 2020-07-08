@@ -10,11 +10,9 @@ export class GuiComponent implements OnInit {
 
 	constructor(
 		private keyService: KeyService
-	) {
-	}
+	) {}
 
-	ngOnInit() {
-	}
+	ngOnInit() {}
 
 	@HostListener('document:keydown', ['$event'])
 	onKeydown(e: KeyboardEvent) {

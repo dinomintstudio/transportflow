@@ -43,8 +43,7 @@ export class DebugOverlayComponent implements OnInit {
 		private cameraService: CameraService,
 		private interactionService: InteractionService,
 		private configService: ConfigService
-	) {
-	}
+	) {}
 
 	ngOnInit(): void {
 		this.configService.renderConfig.observable

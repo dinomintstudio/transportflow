@@ -9,8 +9,7 @@ import {Maybe} from '../model/Maybe'
 })
 export class MatcherService {
 
-	constructor() {
-	}
+	constructor() {}
 
 	/**
 	 * Find element in map of cases by key.

@@ -29,8 +29,7 @@ export class CityGenerationService {
 	constructor(
 		private streetGenerationService: StreetGenerationService,
 		private randomService: RandomService
-	) {
-	}
+	) {}
 
 	/**
 	 * Generate city

@@ -6,7 +6,6 @@ import {Position} from '../../common/model/Position'
 import {filter, first, map, pairwise} from 'rxjs/operators'
 import {MouseService} from '../../input/service/mouse.service'
 
-
 /**
  * Provides camera related observables
  */

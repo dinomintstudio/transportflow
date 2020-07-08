@@ -64,8 +64,7 @@ export class ConsoleComponent implements OnInit, AfterViewChecked {
 			})
 	}
 
-	ngOnInit(): void {
-	}
+	ngOnInit(): void {}
 
 	@HostListener('document:wheel', ['$event'])
 	onClick(e: WheelEvent) {

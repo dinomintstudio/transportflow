@@ -22,6 +22,5 @@ export class InitService {
 		private keyService: KeyService,
 		private mouseService: MouseService,
 		private configService: ConfigService
-	) {
-	}
+	) {}
 }
