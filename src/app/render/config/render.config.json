@@ -2,7 +2,6 @@
   "$schema": "render.config-schema.json",
   "spriteResolution": 32,
   "tileResolution": 32,
-  "minimapResolution": 4,
   "chunkSize": 64,
   "chunkLoadOverhead": 3,
   "maxFps": null,

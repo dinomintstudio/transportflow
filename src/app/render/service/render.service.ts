@@ -119,7 +119,7 @@ export class RenderService {
 
 						this.log.debug('initialize minimap')
 						this.minimap = new SingleCanvas(
-							createCanvas(world.tilemap.shape.map(s => s * config.minimapResolution))
+							createCanvas(world.tilemap.shape)
 						)
 
 						this.log.debug('set initial camera')
@@ -256,17 +256,13 @@ export class RenderService {
 	 * @param destinationRect
 	 */
 	private drawMinimapOnWorldLayer(camera: Camera, destinationRect: Rectangle): void {
-		this.configService.renderConfig.observable
-			.pipe(first())
-			.subscribe(config => {
-				this.provideUnboundedCameras(camera, this.minimap.resolution, config.minimapResolution, unboundedCamera => {
-					this.worldCanvas.drawImage(
-						this.minimap.canvas,
-						destinationRect,
-						unboundedCamera.getViewCameraRect(this.worldCanvas.resolution, config.minimapResolution)
-					)
-				})
-			})
+		this.provideUnboundedCameras(camera, this.minimap.resolution, 1, unboundedCamera => {
+			this.worldCanvas.drawImage(
+				this.minimap.canvas,
+				destinationRect,
+				unboundedCamera.getViewCameraRect(this.worldCanvas.resolution, 1)
+			)
+		})
 	}
 
 	/**
@@ -364,7 +360,6 @@ export class RenderService {
 								position.map(c => c * config.chunkSize),
 								Shape.square(config.chunkSize)
 							)
-							.multiply(config.minimapResolution)
 					)
 				})
 				this.minimap.drawBorder(1, 'rgba(0, 0, 0, 0.3)')
