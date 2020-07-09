@@ -190,4 +190,17 @@ export class Matrix<T> {
 		)
 	}
 
+	/**
+	 * String representation
+	 */
+	toString(): string {
+		let result = ''
+
+		for (const col of this.value) {
+			result += `[${col.join(', ')}]\n`
+		}
+
+		return result
+	}
+
 }

@@ -98,7 +98,7 @@ export class ConsoleComponent implements OnInit, AfterViewChecked {
 		this.log.raw(this.input)
 		try {
 			const result = this.commandService.execute(this.input)
-			result != null && this.log.raw(result)
+			this.log.raw(result || 'undefined')
 		} catch (e) {
 			this.log.error(`error executing command`, e)
 		}
