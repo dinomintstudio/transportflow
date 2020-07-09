@@ -20,14 +20,14 @@ describe('CommandService', () => {
 	})
 
 	it('should execute `this` expression', () => {
-		const result: any = service.execute('new $Shape()')
-		expect(result).toBe('[100x100]')
+		const result: any = service.execute('new $Shape(100, 100)')
+		expect(result.toString()).toBe('[100x100]')
 	})
 
 	it('should support initialization', () => {
 		service.execute('$a = 1')
 		const result: any = service.execute('$a')
-		expect(result).toBe('1')
+		expect(result).toBe(1)
 	})
 
 })

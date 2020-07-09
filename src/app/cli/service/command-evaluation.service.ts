@@ -106,7 +106,7 @@ export class CommandEvaluationService {
 	 * @param command
 	 */
 	eval(command: string): any {
-		return eval(`${command.replaceAll('$', 'this.')}`)
+		return eval(command.replace(new RegExp('\\$'), 'this.'))
 	}
 
 }
