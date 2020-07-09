@@ -1,6 +1,6 @@
-import {Rectangle} from '../Rectangle'
-import {Shape} from '../Shape'
-import {Position} from '../Position'
+import {Rectangle} from '../../../common/model/Rectangle'
+import {Shape} from '../../../common/model/Shape'
+import {Position} from '../../../common/model/Position'
 import {Canvas} from './Canvas'
 
 /**

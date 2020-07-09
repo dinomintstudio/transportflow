@@ -11,9 +11,9 @@ import {Tile} from '../../game-logic/model/Tile'
 import {Rectangle} from '../../common/model/Rectangle'
 import {Shape} from '../../common/model/Shape'
 import {Matrix} from '../../common/model/Matrix'
-import {SingleCanvas} from '../../common/model/canvas/SingleCanvas'
-import {ChunkedCanvas} from '../../common/model/canvas/ChunkedCanvas'
-import {createCanvas} from '../../common/model/canvas/Canvas'
+import {SingleCanvas} from '../model/canvas/SingleCanvas'
+import {ChunkedCanvas} from '../model/canvas/ChunkedCanvas'
+import {createCanvas} from '../model/canvas/Canvas'
 import {CameraConfig} from '../config/CameraConfig'
 import {Range} from '../../common/model/Range'
 import {Log} from '../../common/model/Log'
@@ -128,7 +128,7 @@ export class RenderService {
 							config.tileResolution,
 							new CameraConfig(
 								new Range(1, 1000),
-								16
+								8
 							)
 						))
 

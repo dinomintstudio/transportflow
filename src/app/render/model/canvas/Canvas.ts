@@ -1,5 +1,5 @@
-import {Rectangle} from '../Rectangle'
-import {Shape} from '../Shape'
+import {Rectangle} from '../../../common/model/Rectangle'
+import {Shape} from '../../../common/model/Shape'
 
 /**
  * Interface for custom canvas for drawing using domain entities such as `Rectangle`
