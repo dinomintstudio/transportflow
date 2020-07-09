@@ -70,7 +70,6 @@ export class ConsoleComponent implements OnInit, AfterViewChecked {
 					})
 			})
 
-		this.handleAutocomplete()
 		this.handleHistoryNavigation()
 	}
 
@@ -99,23 +98,11 @@ export class ConsoleComponent implements OnInit, AfterViewChecked {
 		this.log.raw(this.input)
 		try {
 			const result = this.commandService.execute(this.input)
-			this.log.raw(result)
+			result != null && this.log.raw(result)
 		} catch (e) {
 			this.log.error(`error executing command`, e)
 		}
 		this.input = ''
-	}
-
-	handleAutocomplete(): void {
-		this.keyService.keypress.observable
-			.pipe(filter(e => e.key === 'Tab'))
-			.subscribe(e => {
-				e.preventDefault()
-				if (this.input.includes('.')) return
-
-				const suggestions = this.commandService.completeServiceName(this.input)
-				this.input = suggestions[0]
-			})
 	}
 
 	private handleHistoryNavigation(): void {
