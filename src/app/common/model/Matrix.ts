@@ -127,6 +127,11 @@ export class Matrix<T> {
 		)
 	}
 
+	/**
+	 * Run function on every matrix element.
+	 * Traversing is from first column to last column, from first row to last row
+	 * @param func
+	 */
 	forEach(func: (e: T, position: Position) => void): void {
 		_.range(this.shape.height).forEach(i => {
 			_.range(this.shape.width).forEach(j => {
@@ -135,10 +140,21 @@ export class Matrix<T> {
 		})
 	}
 
+	/**
+	 * Convert matrix into flatted array by columns
+	 */
 	flatMap(): T[] {
 		return this.value.flatMap(t => t)
 	}
 
+	/**
+	 * Rotate matrix clockwise
+	 * Example:
+	 * <pre>
+	 * [0 1] -> [2 0]
+	 * [2 3]    [3 1]
+	 * </pre>
+	 */
 	rotateClockwise(): Matrix<T> {
 		const result = new Matrix<T>(this.shape)
 
@@ -155,6 +171,34 @@ export class Matrix<T> {
 				result.value[j][n - 1 - i] = this.value[i][j]
 			})
 		})
+
+		return result
+	}
+
+	/**
+	 * Get matrix of neighbours of size `[2*radius, 2*radius]`
+	 * @param position
+	 * @param radius
+	 */
+	neighbourSubmatrix(position: Position, radius: number): Matrix<T> {
+		return this.of(
+			Rectangle.rectangleByOnePoint(
+				position.map(c => c - radius),
+				Shape.square(2 * radius + 1)
+			),
+			null
+		)
+	}
+
+	/**
+	 * String representation
+	 */
+	toString(): string {
+		let result = ''
+
+		for (const col of this.value) {
+			result += `[${col.join(', ')}]\n`
+		}
 
 		return result
 	}

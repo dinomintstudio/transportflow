@@ -24,7 +24,7 @@ import {AltitudeMapConfig} from './generation/terrain/config/noisemap/AltitudeMa
 @Component({
 	selector: 'app-root',
 	templateUrl: './app.component.html',
-	styleUrls: ['./app.component.scss']
+	styleUrls: ['./app.component.sass']
 })
 export class AppComponent {
 
@@ -37,6 +37,7 @@ export class AppComponent {
 		private renderService: RenderService,
 		private worldService: WorldService
 	) {
+		this.randomService.seed.set('seed')
 		const terrainGenerationConfig = new TerrainGenerationConfig(
 			new Shape(128, 128),
 			0.002,
@@ -95,7 +96,7 @@ export class AppComponent {
 
 		const cityGenerationConfig = new CityGenerationConfig(
 			2,
-			0.6,
+			0.8,
 			config
 		)
 

@@ -52,16 +52,21 @@ export class Maybe<T> {
 		consumer(this.value)
 	}
 
+	/**
+	 * Get object property by mapping function.
+	 * If maybe is empty, map result is empty
+	 * @param func
+	 */
 	map<D>(func: (t: T) => D): Maybe<D> {
 		return this.isPresent() ? new Maybe<D>(func(this.get())) : Maybe.empty()
 	}
 
-	filter(predicate: (T) => Boolean): Maybe<T> {
-		if (this.isPresent()) {
-			return this
-		} else {
-			return predicate(this) ? this : Maybe.empty()
-		}
+	/**
+	 * If the element is present and match predicate - return maybe with element, otherwise return empty
+	 * @param predicate
+	 */
+	filter(predicate: (t: T) => Boolean): Maybe<T> {
+		return this.isPresent() && predicate(this.get()) ? this : Maybe.empty()
 	}
 
 	/**

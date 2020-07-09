@@ -5,18 +5,47 @@ import {Position} from '../Position'
 import {Canvas, createCanvas} from './Canvas'
 import {SingleCanvas} from './SingleCanvas'
 
+/**
+ * Canvas implementation that combine a matrix `SingleCanvas` to act like a single large canvas.
+ * Each single canvas is called a "chunk".
+ * Used to bypass canvas size limitation, optimize rendering by drawing/updating only needed chunks
+ */
 export class ChunkedCanvas implements Canvas {
 
+	/**
+	 * Resolution of chunk matrix
+	 */
 	resolution: Shape
+
+	/**
+	 * Chunk matrix
+	 */
 	chunkMatrix: Matrix<SingleCanvas>
+
+	/**
+	 * Chunk size in tiles per side.
+	 * Always squared (has resolution of `n` by `n`)
+	 */
 	chunkSize: number
 
+	/**
+	 * Initialize canvas and generate chunk matrix
+	 * @param resolution
+	 * @param chunkSize
+	 */
 	constructor(resolution: Shape, chunkSize: number) {
 		this.resolution = resolution
 		this.chunkSize = chunkSize
 		this.generateChunkMatrix()
 	}
 
+	/**
+	 * Draw an image on canvas.
+	 * Abstracts drawing on multiple canvases like it is a single one
+	 * @param image
+	 * @param destinationRect
+	 * @param sourceRect
+	 */
 	drawImage(image: CanvasImageSource, destinationRect: Rectangle, sourceRect?: Rectangle): void {
 		if (!sourceRect) {
 			sourceRect = Rectangle.rectangleByOnePoint(
@@ -43,6 +72,9 @@ export class ChunkedCanvas implements Canvas {
 		)
 	}
 
+	/**
+	 * Initialize matrix with canvases
+	 */
 	private generateChunkMatrix() {
 		this.chunkMatrix = new Matrix<SingleCanvas>(
 			this.resolution.map(c => Math.floor((c - 1) / this.chunkSize) + 1),
@@ -51,6 +83,11 @@ export class ChunkedCanvas implements Canvas {
 		)
 	}
 
+	/**
+	 * Get part of canvas.
+	 * Abstracts getting part from multiple canvases like it is a single one
+	 * @param rectangle
+	 */
 	of(rectangle: Rectangle): HTMLCanvasElement {
 		const result: HTMLCanvasElement = createCanvas()
 		result.width = rectangle.shape.width
@@ -86,6 +123,13 @@ export class ChunkedCanvas implements Canvas {
 		return result
 	}
 
+	/**
+	 * Draw part of canvas on some part of another one.
+	 * Abstracts getting part from multiple canvases like it is a single one
+	 * @param rectangle
+	 * @param destCanvas
+	 * @param destinationRect
+	 */
 	drawPartOn(rectangle: Rectangle, destCanvas: SingleCanvas, destinationRect: Rectangle): void {
 		const visibleChunksRect = Rectangle.rectangleByTwoPoints(
 			rectangle.topLeft.map(c => Math.floor(c / this.chunkSize)),

@@ -36,10 +36,18 @@ export class Rectangle {
 		this.bottomRight = new Position(this.topLeft.x + this.shape.width, this.topLeft.y + this.shape.height)
 	}
 
+	/**
+	 * Add position
+	 * @param position
+	 */
 	translate(position: Position): Rectangle {
 		return new Rectangle(this.topLeft.add(position), this.shape)
 	}
 
+	/**
+	 * Multiply position and shape by a factor
+	 * @param factor
+	 */
 	multiply(factor: number): Rectangle {
 		return Rectangle.rectangleByOnePoint(
 			new Position(this.topLeft.x * factor, this.topLeft.y * factor),
@@ -62,6 +70,9 @@ export class Rectangle {
 		})
 	}
 
+	/**
+	 * String representation
+	 */
 	toString(): string {
 		return `${this.topLeft}-${this.bottomRight} ${this.shape.toString()}`
 	}

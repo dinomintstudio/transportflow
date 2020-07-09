@@ -11,8 +11,7 @@ import {Range} from '../model/Range'
 })
 export class FractionService {
 
-	constructor() {
-	}
+	constructor() {}
 
 	/**
 	 * Converts fractions to corresponding range values

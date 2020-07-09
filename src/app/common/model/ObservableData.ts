@@ -38,6 +38,9 @@ export class ObservableData<T> {
 		this.subject.next(value)
 	}
 
+	/**
+	 * Resend last emitted value
+	 */
 	update(): void {
 		this.observable
 			.pipe(first())

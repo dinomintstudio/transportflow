@@ -6,12 +6,14 @@ import {Range} from '../model/Range'
 export class NoiseConfig {
 
 	/**
-	 * Scale of the noise map. The bigger value is - the more 'smooth' map generates. Default scale is 1
+	 * Scale of the noise map.
+	 * The bigger value is - the more 'smooth' map generates. Default scale is 1
 	 */
 	scale: number
 
 	/**
-	 * Range of values map will be mapped to. Default range is [0, 1]
+	 * Range of values map will be mapped to.
+	 * Default range is [0, 1]
 	 */
 	range: Range
 

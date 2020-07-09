@@ -7,7 +7,6 @@ import {Matrix} from '../../../common/model/Matrix'
 import {Position} from '../../../common/model/Position'
 import {Rectangle} from '../../../common/model/Rectangle'
 import {TiledRoad} from '../model/TiledRoad'
-import {Shape} from '../../../common/model/Shape'
 
 /**
  * Responsible for city street generation
@@ -22,8 +21,7 @@ export class StreetGenerationService {
 	 */
 	constructor(
 		private randomService: RandomService,
-	) {
-	}
+	) {}
 
 	/**
 	 * Generate one city's streets
@@ -53,17 +51,18 @@ export class StreetGenerationService {
 		this.generate(config)
 	}
 
-	toTilemap(roads: Road[]): Matrix<Boolean> {
+	/**
+	 * Convert array of roads into road mask
+	 * @param roads
+	 */
+	roadsToRoadMask(roads: Road[]): Matrix<Boolean> {
 		const roadRectangles: Rectangle[] = roads
 			.map(r => this.roadToRectangle(TiledRoad.of(r)))
 
 		let tilemapRectangle = this.calculateTilemapRectangle(roadRectangles)
 
 		const tilemap = new Matrix<Boolean>(
-			new Shape(
-				tilemapRectangle.shape.width + 1,
-				tilemapRectangle.shape.height + 1
-			),
+			tilemapRectangle.shape.map(s => s + 1),
 			null,
 			() => false
 		)
@@ -76,10 +75,7 @@ export class StreetGenerationService {
 						-tilemapRectangle.topLeft.y
 					)),
 					new Matrix<Boolean>(
-						new Shape(
-							rect.shape.width + 1,
-							rect.shape.height + 1
-						),
+						rect.shape.map(s => s + 1),
 						[],
 						() => true
 					)
@@ -89,6 +85,10 @@ export class StreetGenerationService {
 		return tilemap
 	}
 
+	/**
+	 * Represent road as rectangle of width/height of 1
+	 * @param road
+	 */
 	private roadToRectangle(road: TiledRoad): Rectangle {
 		return Rectangle.rectangleByTwoPoints(
 			road.startPoint,
@@ -96,6 +96,10 @@ export class StreetGenerationService {
 		)
 	}
 
+	/**
+	 * Calculate the size of rectangle in order to fit all the roads
+	 * @param roads
+	 */
 	private calculateTilemapRectangle(roads: Rectangle[]): Rectangle {
 		const left = Math.min(...roads.map(r => r.topLeft.x))
 		const top = Math.min(...roads.map(r => r.topLeft.y))

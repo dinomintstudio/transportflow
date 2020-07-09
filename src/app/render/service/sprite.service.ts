@@ -1,13 +1,27 @@
 import {Injectable} from '@angular/core'
 import {ConfigService} from '../../common/service/config.service'
 
+/**
+ * Responsible for loading and caching sprites
+ */
 @Injectable({
 	providedIn: 'root'
 })
 export class SpriteService {
 
+	/**
+	 * Map <sprite name> -> <sprite url>
+	 */
 	private spriteUrlMap: Map<string, string>
+
+	/**
+	 * Map <sprite name> -> <sprite element>
+	 */
 	private spriteMap: Map<string, HTMLImageElement>
+
+	/**
+	 * Indicates that sprites are already loaded or not
+	 */
 	private spritesLoaded: boolean
 
 	constructor(
@@ -20,6 +34,10 @@ export class SpriteService {
 		this.spritesLoaded = false
 	}
 
+	/**
+	 * Load all sprites form sprites config
+	 * @param onload on successful load
+	 */
 	loadSprites(onload: () => void = () => {}): void {
 		if (this.spritesLoaded) {
 			onload()
@@ -44,6 +62,10 @@ export class SpriteService {
 		})
 	}
 
+	/**
+	 * Get cached sprite by name
+	 * @param spriteName
+	 */
 	fetch(spriteName: string): HTMLImageElement {
 		return this.spriteMap.get(spriteName)
 	}

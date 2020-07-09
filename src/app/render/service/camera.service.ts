@@ -6,7 +6,9 @@ import {Position} from '../../common/model/Position'
 import {filter, first, map, pairwise} from 'rxjs/operators'
 import {MouseService} from '../../input/service/mouse.service'
 
-
+/**
+ * Provides camera related observables
+ */
 @Injectable({
 	providedIn: 'root'
 })
@@ -21,8 +23,14 @@ export class CameraService {
 	) {
 		this.camera = new ObservableData()
 		this.zoom = new ObservableData()
+		this.updateCameraPosition()
 		this.handleZoom()
+	}
 
+	/**
+	 * Move camera position on mouse drag
+	 */
+	private updateCameraPosition() {
 		this.mouseService.mouseDrag.observable
 			.pipe(
 				pairwise(),
@@ -48,6 +56,9 @@ export class CameraService {
 			})
 	}
 
+	/**
+	 * Change camera zoom according to zoom events
+	 */
 	private handleZoom() {
 		this.camera.observable
 			.pipe(first())

@@ -11,12 +11,22 @@ import {Position} from '../../common/model/Position'
 import {ConfigService} from '../../common/service/config.service'
 import {untilNewFrom} from '../../common/operator/until-new-from.operator'
 
+/**
+ * Provides observables for interaction events, such as tile manipulation and camera animation
+ */
 @Injectable({
 	providedIn: 'root'
 })
 export class InteractionService {
 
+	/**
+	 * Observable of mouse hovering over tiles
+	 */
 	tileHover: Observable<Position>
+
+	/**
+	 * Observable of mouse clicking on tiles
+	 */
 	tileClick: Observable<Position>
 
 	constructor(
@@ -51,7 +61,6 @@ export class InteractionService {
 				distinctUntilChanged(_.isEqual)
 			)
 
-
 		this.tileClick = this.mouseService.mouseClick.observable
 			.pipe(
 				withLatestFrom(this.tileHover, (_, pos) => pos)
@@ -59,28 +68,30 @@ export class InteractionService {
 	}
 
 	private handleSmoothZoom() {
-		this.configService.renderConfig.observable.subscribe(renderConfig => {
-			interval()
-				.pipe(
-					untilNewFrom(this.configService.renderConfig.observable),
-					withLatestFrom(this.cameraService.zoom.observable, (_, z) => z),
-					scan((current, next) => lerp(current, next, renderConfig.zoomAnimationSpeed)),
-					map(z => Math.round(z * 10) / 10),
-					distinctUntilChanged(),
-					throttleTime(1000 / (renderConfig.animationUps || Infinity))
-				)
-				.subscribe(zoom => {
-					this.cameraService.camera.observable
-						.pipe(first())
-						.subscribe(camera => {
-							this.cameraService.camera.set(new Camera(
-								camera.position,
-								zoom,
-								camera.config
-							))
-						})
-				})
-		})
+		this.configService.renderConfig.observable
+			.pipe(first())
+			.subscribe(renderConfig => {
+				interval()
+					.pipe(
+						untilNewFrom(this.configService.renderConfig.observable),
+						withLatestFrom(this.cameraService.zoom.observable, (_, z) => z),
+						scan((current, next) => lerp(current, next, renderConfig.zoomAnimationSpeed)),
+						map(z => Math.round(z * 10) / 10),
+						distinctUntilChanged(),
+						throttleTime(1000 / (renderConfig.animationUps || Infinity))
+					)
+					.subscribe(zoom => {
+						this.cameraService.camera.observable
+							.pipe(first())
+							.subscribe(camera => {
+								this.cameraService.camera.set(new Camera(
+									camera.position,
+									zoom,
+									camera.config
+								))
+							})
+					})
+			})
 	}
 
 }

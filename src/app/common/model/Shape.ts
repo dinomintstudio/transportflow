@@ -46,6 +46,9 @@ export class Shape {
 		return new Shape(widthMapFunction(this.width), heightMapFunction(this.height))
 	}
 
+	/**
+	 * String representation
+	 */
 	toString(): string {
 		return `[${this.width}x${this.height}]`
 	}

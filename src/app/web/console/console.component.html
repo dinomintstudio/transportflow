@@ -1,11 +1,9 @@
 <div class='console'>
 	<div class='logs' #scroll>
-		<span class='log' *ngFor='let log of logs'>
-			{{log}}
-		</span>
+		<span class='log' *ngFor='let log of logs'>{{log}}</span>
 	</div>
 	<div class='input'>
 		<span>{{prefix}}</span>
-		<input type='text' [(ngModel)]='input' app-autofocus (keyup.enter)='command()'>
+		<input type='text' [(ngModel)]='input' app-autofocus (keyup.enter)='execute()'>
 	</div>
 </div>

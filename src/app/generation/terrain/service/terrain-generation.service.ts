@@ -41,8 +41,7 @@ export class TerrainGenerationService {
 		private randomService: RandomService,
 		private matcherService: MatcherService,
 		private distributionService: DistributionService
-	) {
-	}
+	) {}
 
 	/**
 	 * Generates tiled terrain by specified config

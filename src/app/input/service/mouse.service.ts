@@ -1,26 +1,67 @@
 import {Injectable} from '@angular/core'
 import {ObservableData} from '../../common/model/ObservableData'
 
+/**
+ * Provides observables for keyboard events
+ */
 @Injectable({
 	providedIn: 'root'
 })
 export class MouseService {
 
+	/**
+	 * Mouse click observable
+	 */
 	mouseClick: ObservableData<MouseEvent>
+
+	/**
+	 * Mouse move observable
+	 */
 	mouseMove: ObservableData<MouseEvent>
 
+	/**
+	 * Mouse in observable
+	 */
 	mouseIn: ObservableData<MouseEvent>
+
+	/**
+	 * Mouse out observable
+	 */
 	mouseOut: ObservableData<MouseEvent>
 
+	/**
+	 * Mouse down observable
+	 */
 	mouseDown: ObservableData<MouseEvent>
+
+	/**
+	 * Mouse up observable
+	 */
 	mouseUp: ObservableData<MouseEvent>
 
+	/**
+	 * Mouse drag observable
+	 */
 	mouseDrag: ObservableData<MouseEvent>
 
+	/**
+	 * Mouse wheel observable
+	 */
 	mouseWheel: ObservableData<WheelEvent>
+
+	/**
+	 * Zoom in observable
+	 */
 	zoomIn: ObservableData<void>
+
+	/**
+	 * Zoom out observable
+	 */
 	zoomOut: ObservableData<void>
 
+	/**
+	 * Is left mouse button is down
+	 */
 	private isDown = false
 
 	constructor() {

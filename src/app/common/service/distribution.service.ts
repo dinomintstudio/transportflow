@@ -19,8 +19,7 @@ export class DistributionService {
 	 */
 	constructor(
 		private randomService: RandomService
-	) {
-	}
+	) {}
 
 	/**
 	 * Equally distribute points within specified rectangle

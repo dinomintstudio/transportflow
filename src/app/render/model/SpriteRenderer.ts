@@ -7,7 +7,14 @@ import {Maybe} from '../../common/model/Maybe'
  */
 export class SpriteRenderer {
 
+	/**
+	 * Sprite supplier
+	 */
 	getSprite: (tile: Tile, adjacentTiles: Matrix<Maybe<Tile>>) => Maybe<HTMLImageElement>
+
+	/**
+	 * Whether renderer need adjacent tiles or not
+	 */
 	needAdjacentTiles: boolean
 
 	constructor(getSprite: (tile: Tile, adjacentTiles?: Matrix<Maybe<Tile>>) => Maybe<HTMLImageElement>, needAdjacentTiles: boolean = false) {

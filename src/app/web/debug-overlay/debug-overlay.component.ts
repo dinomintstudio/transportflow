@@ -4,7 +4,7 @@ import {RenderService} from '../../render/service/render.service'
 import {WorldService} from '../../game-logic/service/world.service'
 import {Camera} from '../../render/model/Camera'
 import {CameraService} from '../../render/service/camera.service'
-import {map} from 'rxjs/operators'
+import {first, map} from 'rxjs/operators'
 import {RenderProfileService} from '../../render/service/render-profile.service'
 import {Position} from '../../common/model/Position'
 import {InteractionService} from '../../input/service/interaction.service'
@@ -15,7 +15,7 @@ import {untilNewFrom} from '../../common/operator/until-new-from.operator'
 @Component({
 	selector: 'app-debug-overlay',
 	templateUrl: './debug-overlay.component.html',
-	styleUrls: ['./debug-overlay.component.scss']
+	styleUrls: ['./debug-overlay.component.sass']
 })
 export class DebugOverlayComponent implements OnInit {
 
@@ -43,75 +43,76 @@ export class DebugOverlayComponent implements OnInit {
 		private cameraService: CameraService,
 		private interactionService: InteractionService,
 		private configService: ConfigService
-	) {
-	}
+	) {}
 
 	ngOnInit(): void {
-		this.configService.renderConfig.observable.subscribe(renderConfig => {
-			this.renderProfileService.ups
-				.pipe(untilNewFrom(this.configService.renderConfig.observable))
-				.subscribe(
-					ups => this.ups = ups
-				)
-
-			this.maxFps = renderConfig.maxFps
-
-			this.worldService.world.observable
-				.pipe(untilNewFrom(this.configService.renderConfig.observable))
-				.subscribe(
-					world => this.mapSize = world.tilemap.shape
-				)
-
-			this.chunks = this.renderService.map.chunkMatrix.shape
-
-			this.chunkSize = this.renderService.map.chunkSize / renderConfig.tileResolution
-
-			this.mapTileResolution = renderConfig.tileResolution
-			this.minimapTileResolution = renderConfig.minimapResolution
-
-			this.cameraService.camera.observable
-				.pipe(
-					untilNewFrom(this.configService.renderConfig.observable),
-					map(c => new Camera(
-						c.position.map(Math.floor),
-						c.zoom,
-						c.config)
+		this.configService.renderConfig.observable
+			.pipe(first())
+			.subscribe(renderConfig => {
+				this.renderProfileService.ups
+					.pipe(untilNewFrom(this.configService.renderConfig.observable))
+					.subscribe(
+						ups => this.ups = ups
 					)
-				)
-				.subscribe(
-					camera => {
-						this.camera = camera
-					}
-				)
 
-			this.cameraService.camera.observable
-				.pipe(
-					untilNewFrom(this.configService.renderConfig.observable),
-					map(c => c.position),
-					this.worldService.boundPosition(),
-					map(c => c.map(Math.floor))
-				)
-				.subscribe(pos => this.boundedCameraPosition = pos)
+				this.maxFps = renderConfig.maxUps
 
-			this.interactionService.tileHover
-				.pipe(
-					untilNewFrom(this.configService.renderConfig.observable)
-				)
-				.subscribe(mousePos => this.mousePosition = mousePos)
+				this.worldService.world.observable
+					.pipe(untilNewFrom(this.configService.renderConfig.observable))
+					.subscribe(
+						world => this.mapSize = world.tilemap.shape
+					)
 
-			this.interactionService.tileHover
-				.pipe(
-					untilNewFrom(this.configService.renderConfig.observable),
-					this.worldService.boundPosition()
-				)
-				.subscribe(mousePos => this.boundedMousePosition = mousePos)
+				this.chunks = this.renderService.map.chunkMatrix.shape
 
-			// @ts-ignore
-			if (performance.memory) {
+				this.chunkSize = this.renderService.map.chunkSize / renderConfig.tileResolution
+
+				this.mapTileResolution = renderConfig.tileResolution
+				this.minimapTileResolution = renderConfig.minimapResolution
+
+				this.cameraService.camera.observable
+					.pipe(
+						untilNewFrom(this.configService.renderConfig.observable),
+						map(c => new Camera(
+							c.position.map(Math.floor),
+							c.zoom,
+							c.config)
+						)
+					)
+					.subscribe(
+						camera => {
+							this.camera = camera
+						}
+					)
+
+				this.cameraService.camera.observable
+					.pipe(
+						untilNewFrom(this.configService.renderConfig.observable),
+						map(c => c.position),
+						this.worldService.boundPosition(),
+						map(c => c.map(Math.floor))
+					)
+					.subscribe(pos => this.boundedCameraPosition = pos)
+
+				this.interactionService.tileHover
+					.pipe(
+						untilNewFrom(this.configService.renderConfig.observable)
+					)
+					.subscribe(mousePos => this.mousePosition = mousePos)
+
+				this.interactionService.tileHover
+					.pipe(
+						untilNewFrom(this.configService.renderConfig.observable),
+						this.worldService.boundPosition()
+					)
+					.subscribe(mousePos => this.boundedMousePosition = mousePos)
+
 				// @ts-ignore
-				interval(1000).subscribe(() => this.memory = this.formatMemory(performance.memory))
-			}
-		})
+				if (performance.memory) {
+					// @ts-ignore
+					interval(1000).subscribe(() => this.memory = this.formatMemory(performance.memory))
+				}
+			})
 	}
 
 	formatMemory(memoryInfo: any): string {

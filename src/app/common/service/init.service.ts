@@ -7,6 +7,9 @@ import {KeyService} from '../../input/service/key.service'
 import {MouseService} from '../../input/service/mouse.service'
 import {ConfigService} from './config.service'
 
+/**
+ * Bootstrap service, used to start services that need to work from the application launch
+ */
 @Injectable({
 	providedIn: 'root'
 })
@@ -19,6 +22,5 @@ export class InitService {
 		private keyService: KeyService,
 		private mouseService: MouseService,
 		private configService: ConfigService
-	) {
-	}
+	) {}
 }
