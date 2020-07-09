@@ -30,12 +30,28 @@ import {Position} from '../../common/model/Position'
 import {Range} from '../../common/model/Range'
 import {Rectangle} from '../../common/model/Rectangle'
 import {Shape} from '../../common/model/Shape'
+import {Biome} from '../../game-logic/model/Biome'
+import {City} from '../../game-logic/model/City'
+import {CityPlan} from '../../game-logic/model/CityPlan'
+import {Road} from '../../game-logic/model/Road'
+import {RoadTile} from '../../game-logic/model/RoadTile'
+import {Surface} from '../../game-logic/model/Surface'
+import {Tile} from '../../game-logic/model/Tile'
+import {World} from '../../game-logic/model/World'
+import {Camera} from 'src/app/render/model/Camera'
+import {SpriteRenderer} from 'src/app/render/model/SpriteRenderer'
 
+/**
+ * Responsible for providing evaluation of arbitrary string commands within application context with available services
+ * and models
+ * TODO: investigate better evaluation solutions
+ */
 @Injectable({
 	providedIn: 'root'
 })
 export class CommandEvaluationService {
 
+	// common
 	private ChunkedCanvas = ChunkedCanvas
 	private SingleCanvas = SingleCanvas
 	private Graph = Graph
@@ -48,6 +64,20 @@ export class CommandEvaluationService {
 	private Range = Range
 	private Rectangle = Rectangle
 	private Shape = Shape
+
+	// game-logic
+	private Biome = Biome
+	private City = City
+	private CityPlan = CityPlan
+	private Road = Road
+	private RoadTile = RoadTile
+	private Surface = Surface
+	private Tile = Tile
+	private World = World
+
+	// render
+	private Camera = Camera
+	private SpriteRenderer = SpriteRenderer
 
 	constructor(
 		private configService: ConfigService,
@@ -71,6 +101,10 @@ export class CommandEvaluationService {
 		private shortTermSchedulingService: ShortTermSchedulingService,
 	) {}
 
+	/**
+	 * Evaluate arbitrary string command within application context and return the result
+	 * @param command
+	 */
 	eval(command: string): any {
 		return eval(`${command.replaceAll('$', 'this.')}`)
 	}
