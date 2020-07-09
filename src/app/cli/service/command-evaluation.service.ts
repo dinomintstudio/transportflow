@@ -95,7 +95,7 @@ export class CommandEvaluationService {
 		private renderService: RenderService,
 		private renderProfileService: RenderProfileService,
 		private spriteService: SpriteService,
-		private spriteRenderService: SpriteResolverService,
+		private spriteRendererService: SpriteResolverService,
 		private clockService: ClockService,
 		private longTermSchedulingService: LongTermSchedulingService,
 		private shortTermSchedulingService: ShortTermSchedulingService,

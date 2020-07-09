@@ -5,6 +5,8 @@ import {Shape} from '../../common/model/Shape'
 import {SingleCanvas} from '../model/canvas/SingleCanvas'
 import {Rectangle} from '../../common/model/Rectangle'
 import {Position} from '../../common/model/Position'
+import {Sprite} from '../model/Sprite'
+import {first} from 'rxjs/operators'
 
 /**
  * Responsible for loading and caching sprites
@@ -20,15 +22,9 @@ export class SpriteService {
 	private spriteUrlMap: Map<string, string>
 
 	/**
-	 * Map <sprite name> -> <sprite element>
+	 * Map <sprite name> -> <sprite>
 	 */
-	private spriteMap: Map<string, HTMLImageElement>
-
-	/**
-	 * Map <sprite name> -> <sprite average color>.
-	 * Color in hex format: #rrggbb
-	 */
-	private spriteColorMap: Map<string, string>
+	private spriteMap: Map<string, Sprite>
 
 	/**
 	 * Indicates that sprites are already loaded or not
@@ -36,10 +32,9 @@ export class SpriteService {
 	private spritesLoaded: boolean
 
 	constructor(
-		private configService: ConfigService
+		private configService: ConfigService,
 	) {
-		this.spriteMap = new Map<string, HTMLImageElement>()
-		this.spriteColorMap = new Map<string, string>()
+		this.spriteMap = new Map<string, Sprite>()
 		this.configService.spritesConfig.observable.subscribe(config =>
 			this.spriteUrlMap = new Map<string, string>(<[]>config.sprites)
 		)
@@ -56,22 +51,33 @@ export class SpriteService {
 			return
 		}
 		this.configService.spritesConfig.observable.subscribe(spritesConfig => {
-			let spritesLoaded = 0
+			this.configService.renderConfig.observable
+				.pipe(first())
+				.subscribe(renderConfig => {
+					let spritesLoaded = 0
 
-			const spritesCount = spritesConfig.sprites.length
-			if (this.spriteMap.size === spritesCount) onload()
+					const spritesCount = spritesConfig.sprites.length
+					if (this.spriteMap.size === spritesCount) onload()
 
-			this.spriteUrlMap.forEach((path, name) =>
-				this.loadImage(path, sprite => {
-					this.spriteMap.set(name, sprite)
-					this.spriteColorMap.set(name, this.getAverageColor(sprite))
-					spritesLoaded++
-					if (spritesLoaded === spritesCount) {
-						onload()
-						this.spritesLoaded = true
-					}
+					this.spriteUrlMap.forEach((path, name) =>
+						this.loadImage(path, sprite => {
+							this.spriteMap.set(
+								name,
+								new Sprite(
+									name,
+									sprite,
+									new Shape(sprite.width, sprite.height).map(s => s / renderConfig.tileResolution),
+									this.getAverageColor(sprite)
+								)
+							)
+							spritesLoaded++
+							if (spritesLoaded === spritesCount) {
+								onload()
+								this.spritesLoaded = true
+							}
+						})
+					)
 				})
-			)
 		})
 	}
 
@@ -79,16 +85,8 @@ export class SpriteService {
 	 * Get cached sprite by name
 	 * @param spriteName
 	 */
-	fetch(spriteName: string): HTMLImageElement {
+	fetch(spriteName: string): Sprite {
 		return this.spriteMap.get(spriteName)
-	}
-
-	/**
-	 * Get average color of a cached sprite by name
-	 * @param spriteName
-	 */
-	getColor(spriteName: string): string {
-		return this.spriteColorMap.get(spriteName)
 	}
 
 	private loadImage(url: string, onload: (image: HTMLImageElement) => void): void {

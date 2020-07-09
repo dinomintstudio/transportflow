@@ -18,12 +18,21 @@ export class SpriteResolverService {
 	/**
 	 * Array of sprite resolvers
 	 */
-	spriteResolvers: SpriteResolver[] = [
+	mapSpriteResolvers: SpriteResolver[] = [
 		new SpriteResolver((t) => this.getSurfaceSprite(t)),
 		new SpriteResolver((t) => this.getBuildingSprite(t)),
 		new SpriteResolver((t, a) => this.getRoadSprite(t, a), true),
 		new SpriteResolver((t) => this.getPlantSprite(t)),
 		new SpriteResolver((t) => this.getBorderSprite(t)),
+	]
+
+	/**
+	 * Array of sprite resolvers
+	 */
+	miniMapSpriteResolvers: SpriteResolver[] = [
+		new SpriteResolver((t) => this.getSurfaceSprite(t)),
+		new SpriteResolver((t) => this.getBuildingSprite(t)),
+		new SpriteResolver((t, a) => this.getRoadSprite(t, a), true),
 	]
 
 	getSurfaceSprite(tile: Tile): Maybe<string> {

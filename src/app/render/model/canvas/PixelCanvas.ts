@@ -1,5 +1,6 @@
 import {Shape} from '../../../common/model/Shape'
 import {Position} from '../../../common/model/Position'
+import {Rectangle} from '../../../common/model/Rectangle'
 
 /**
  * Wrapper around `HTMLCanvasElement`, specified on drawing pixel individually
@@ -55,8 +56,17 @@ export class PixelCanvas {
 	 * @param color
 	 */
 	drawPixel(position: Position, color: string): void {
+		this.drawRect(Rectangle.rectangleByOnePoint(position, Shape.square(1)), color)
+	}
+
+	/**
+	 * Set color of a rectangular area
+	 * @param rectangle
+	 * @param color
+	 */
+	drawRect(rectangle: Rectangle, color: string): void {
 		this.context.fillStyle = color
-		this.context.fillRect(position.x, position.y, 1, 1)
+		this.context.fillRect(rectangle.topLeft.x, rectangle.topLeft.y, rectangle.shape.width, rectangle.shape.height)
 	}
 
 	/**

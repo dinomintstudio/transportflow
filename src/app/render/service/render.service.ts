@@ -59,7 +59,7 @@ export class RenderService {
 		private cameraService: CameraService,
 		private worldService: WorldService,
 		private spriteService: SpriteService,
-		private spriteRenderService: SpriteResolverService,
+		private spriteResolverService: SpriteResolverService,
 		private interactionService: InteractionService,
 		private renderProfileService: RenderProfileService,
 		private configService: ConfigService
@@ -326,21 +326,21 @@ export class RenderService {
 					Shape.square(config.chunkSize)
 				)
 				const chunkTilemap: Matrix<Tile> = tilemap.of(chunkTileRect)
-				this.spriteRenderService.spriteResolvers.forEach(spriteRenderer => {
+				this.spriteResolverService.mapSpriteResolvers.forEach(spriteResolver => {
 					chunkTilemap.forEach((tile: Tile, position: Position) => {
 						if (!tile) return
 						const tilePosition = position.add(chunkTileRect.topLeft)
 
-						spriteRenderer
+						spriteResolver
 							.getSprite(
 								tile,
-								spriteRenderer.needAdjacentTiles
+								spriteResolver.needAdjacentTiles
 									? this.worldService.getAdjacentTileMatrix(tilemap, tilePosition)
 									: null
 							)
 							.ifPresent(sprite => {
 								this.drawMapSprite(
-									this.spriteService.fetch(sprite),
+									this.spriteService.fetch(sprite).image,
 									tilePosition.map(c => c * config.tileResolution)
 								)
 							})
@@ -353,15 +353,16 @@ export class RenderService {
 	 * Draw each map chunk on minimap canvas
 	 */
 	private drawMinimap(tilemap: any): void {
-		tilemap.forEach((tile, position) => {
-			this.spriteRenderService.spriteResolvers.forEach(spriteRenderer => {
-				spriteRenderer.getSprite(
+		this.spriteResolverService.miniMapSpriteResolvers.forEach(spriteResolver => {
+			tilemap.forEach((tile, position) => {
+				spriteResolver.getSprite(
 					tile,
-					spriteRenderer.needAdjacentTiles
+					spriteResolver.needAdjacentTiles
 						? this.worldService.getAdjacentTileMatrix(tilemap, position)
 						: null
 				).ifPresent(spriteName => {
-					this.minimap.drawPixel(position, this.spriteService.getColor(spriteName))
+					const sprite = this.spriteService.fetch(spriteName)
+					this.minimap.drawRect(Rectangle.rectangleByOnePoint(position, sprite.tileSize), sprite.color)
 				})
 			})
 		})
@@ -400,7 +401,7 @@ export class RenderService {
 		if (camera.zoom > camera.config.minimapTriggerZoom) {
 			this.interactionCanvas.clear()
 			this.interactionCanvas.drawImage(
-				this.spriteService.fetch('hover'),
+				this.spriteService.fetch('hover').image,
 				Rectangle.rectangleByOnePoint(
 					hoverPos
 						.map(c => Math.floor(c))
