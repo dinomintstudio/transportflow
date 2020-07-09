@@ -22,7 +22,7 @@ import {InteractionService} from '../../input/service/interaction.service'
 import {RenderProfileService} from './render-profile.service'
 import {ConfigService} from '../../common/service/config.service'
 import {untilNewFrom} from '../../common/operator/until-new-from.operator'
-import {SpriteRenderService} from './sprite-render.service'
+import {SpriteResolverService} from './sprite-resolver.service'
 import {PixelCanvas} from '../model/canvas/PixelCanvas'
 
 /**
@@ -59,7 +59,7 @@ export class RenderService {
 		private cameraService: CameraService,
 		private worldService: WorldService,
 		private spriteService: SpriteService,
-		private spriteRenderService: SpriteRenderService,
+		private spriteRenderService: SpriteResolverService,
 		private interactionService: InteractionService,
 		private renderProfileService: RenderProfileService,
 		private configService: ConfigService
@@ -326,7 +326,7 @@ export class RenderService {
 					Shape.square(config.chunkSize)
 				)
 				const chunkTilemap: Matrix<Tile> = tilemap.of(chunkTileRect)
-				this.spriteRenderService.spriteRenderers.forEach(spriteRenderer => {
+				this.spriteRenderService.spriteResolvers.forEach(spriteRenderer => {
 					chunkTilemap.forEach((tile: Tile, position: Position) => {
 						if (!tile) return
 						const tilePosition = position.add(chunkTileRect.topLeft)
@@ -354,7 +354,7 @@ export class RenderService {
 	 */
 	private drawMinimap(tilemap: any): void {
 		tilemap.forEach((tile, position) => {
-			this.spriteRenderService.spriteRenderers.forEach(spriteRenderer => {
+			this.spriteRenderService.spriteResolvers.forEach(spriteRenderer => {
 				spriteRenderer.getSprite(
 					tile,
 					spriteRenderer.needAdjacentTiles

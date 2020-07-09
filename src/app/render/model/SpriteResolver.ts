@@ -5,7 +5,7 @@ import {Maybe} from '../../common/model/Maybe'
 /**
  * Handles mapping from tile (and adjacent tiles if needed) to sprite name
  */
-export class SpriteRenderer {
+export class SpriteResolver {
 
 	/**
 	 * Sprite supplier
@@ -13,7 +13,7 @@ export class SpriteRenderer {
 	getSprite: (tile: Tile, adjacentTiles: Matrix<Maybe<Tile>>) => Maybe<string>
 
 	/**
-	 * Whether renderer need adjacent tiles or not
+	 * Whether resolver need adjacent tiles or not
 	 */
 	needAdjacentTiles: boolean
 

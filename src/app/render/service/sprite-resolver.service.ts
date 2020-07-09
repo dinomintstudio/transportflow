@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core'
-import {SpriteRenderer} from '../model/SpriteRenderer'
+import {SpriteResolver} from '../model/SpriteResolver'
 import {Tile} from '../../game-logic/model/Tile'
 import {Maybe} from '../../common/model/Maybe'
 import {Shape} from '../../common/model/Shape'
@@ -7,22 +7,23 @@ import {Matrix} from '../../common/model/Matrix'
 import {Position} from '../../common/model/Position'
 
 /**
- * Service responsible for providing sprite renderers - functions that responsible for rendering of a specific sprite
+ * Service responsible for providing sprite resolvers - functions that responsible for matching tile to a specific
+ * sprite name
  */
 @Injectable({
 	providedIn: 'root'
 })
-export class SpriteRenderService {
+export class SpriteResolverService {
 
 	/**
-	 * Array of sprite renderers
+	 * Array of sprite resolvers
 	 */
-	spriteRenderers: SpriteRenderer[] = [
-		new SpriteRenderer((t) => this.getSurfaceSprite(t)),
-		new SpriteRenderer((t) => this.getBuildingSprite(t)),
-		new SpriteRenderer((t, a) => this.getRoadSprite(t, a), true),
-		new SpriteRenderer((t) => this.getPlantSprite(t)),
-		new SpriteRenderer((t) => this.getBorderSprite(t)),
+	spriteResolvers: SpriteResolver[] = [
+		new SpriteResolver((t) => this.getSurfaceSprite(t)),
+		new SpriteResolver((t) => this.getBuildingSprite(t)),
+		new SpriteResolver((t, a) => this.getRoadSprite(t, a), true),
+		new SpriteResolver((t) => this.getPlantSprite(t)),
+		new SpriteResolver((t) => this.getBorderSprite(t)),
 	]
 
 	getSurfaceSprite(tile: Tile): Maybe<string> {
