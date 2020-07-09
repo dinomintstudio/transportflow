@@ -364,7 +364,7 @@ export class RenderService {
 				})
 			})
 		})
-		this.minimap.drawBorder(1, 'rgba(0, 0, 0, 0.3)')
+		this.minimap.drawBorder('rgba(0, 0, 0, 0.3)')
 	}
 
 	/**

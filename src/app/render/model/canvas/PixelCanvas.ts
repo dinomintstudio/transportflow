@@ -70,11 +70,10 @@ export class PixelCanvas {
 
 	/**
 	 * Draw border around canvas
-	 * @param strokeWidth
 	 * @param color
 	 */
-	drawBorder(strokeWidth: number, color: string): void {
-		this.context.lineWidth = strokeWidth
+	drawBorder(color: string): void {
+		this.context.lineWidth = 1
 		this.context.strokeStyle = color
 		this.context.strokeRect(0, 0, this.resolution.width, this.resolution.height)
 	}
