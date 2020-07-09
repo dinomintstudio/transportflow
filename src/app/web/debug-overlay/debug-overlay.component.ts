@@ -68,7 +68,6 @@ export class DebugOverlayComponent implements OnInit {
 				this.chunkSize = this.renderService.map.chunkSize / renderConfig.tileResolution
 
 				this.mapTileResolution = renderConfig.tileResolution
-				this.minimapTileResolution = renderConfig.minimapResolution
 
 				this.cameraService.camera.observable
 					.pipe(
