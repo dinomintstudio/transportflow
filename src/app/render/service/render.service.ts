@@ -120,7 +120,8 @@ export class RenderService {
 
 						this.log.debug('initialize minimap')
 						this.minimap = new PixelCanvas(
-							createCanvas(world.tilemap.shape)
+							createCanvas(world.tilemap.shape),
+							false
 						)
 
 						this.log.debug('set initial camera')
