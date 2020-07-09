@@ -23,6 +23,7 @@ import {RenderProfileService} from './render-profile.service'
 import {ConfigService} from '../../common/service/config.service'
 import {untilNewFrom} from '../../common/operator/until-new-from.operator'
 import {SpriteRenderService} from './sprite-render.service'
+import {PixelCanvas} from '../model/canvas/PixelCanvas'
 
 /**
  * Responsible for rendering canvases and updating map
@@ -42,7 +43,7 @@ export class RenderService {
 	/**
 	 * Off-screen world minimap
 	 */
-	minimap: SingleCanvas
+	minimap: PixelCanvas
 
 	/**
 	 * World canvas layer
@@ -118,7 +119,7 @@ export class RenderService {
 						)
 
 						this.log.debug('initialize minimap')
-						this.minimap = new SingleCanvas(
+						this.minimap = new PixelCanvas(
 							createCanvas(world.tilemap.shape)
 						)
 
@@ -145,19 +146,21 @@ export class RenderService {
 	 * @param complete update complete callback
 	 */
 	private updateChunks(complete?: () => void): void {
-		this.worldService.world.observable.subscribe(world => {
-			this.log.debug('draw visible chunks')
-			const startDrawChunks = new Date()
-			this.drawChunks(world.tilemap)
-			this.log.debug(`drawn visible chunks in ${(new Date().getTime() - startDrawChunks.getTime())}ms`)
+		this.worldService.world.observable
+			.pipe(first())
+			.subscribe(world => {
+				this.log.debug('draw visible chunks')
+				const startDrawChunks = new Date()
+				this.drawChunks(world.tilemap)
+				this.log.debug(`drawn visible chunks in ${(new Date().getTime() - startDrawChunks.getTime())}ms`)
 
-			this.log.debug('draw minimap')
-			const startDrawMinimap = new Date()
-			this.drawMinimap()
-			this.log.debug(`drawn minimap in ${(new Date().getTime() - startDrawMinimap.getTime())}ms`)
+				this.log.debug('draw minimap')
+				const startDrawMinimap = new Date()
+				this.drawMinimap(world.tilemap)
+				this.log.debug(`drawn minimap in ${(new Date().getTime() - startDrawMinimap.getTime())}ms`)
 
-			complete?.()
-		})
+				complete?.()
+			})
 	}
 
 	/**
@@ -336,7 +339,7 @@ export class RenderService {
 							)
 							.ifPresent(sprite => {
 								this.drawMapSprite(
-									sprite,
+									this.spriteService.fetch(sprite),
 									tilePosition.map(c => c * config.tileResolution)
 								)
 							})
@@ -348,22 +351,20 @@ export class RenderService {
 	/**
 	 * Draw each map chunk on minimap canvas
 	 */
-	private drawMinimap(): void {
-		this.configService.renderConfig.observable
-			.pipe(first())
-			.subscribe(config => {
-				this.map.chunkMatrix.forEach((chunk, position) => {
-					this.minimap.drawImage(
-						chunk.canvas,
-						Rectangle
-							.rectangleByOnePoint(
-								position.map(c => c * config.chunkSize),
-								Shape.square(config.chunkSize)
-							)
-					)
+	private drawMinimap(tilemap: any): void {
+		tilemap.forEach((tile, position) => {
+			this.spriteRenderService.spriteRenderers.forEach(spriteRenderer => {
+				spriteRenderer.getSprite(
+					tile,
+					spriteRenderer.needAdjacentTiles
+						? this.worldService.getAdjacentTileMatrix(tilemap, position)
+						: null
+				).ifPresent(spriteName => {
+					this.minimap.drawPixel(position, this.spriteService.getColor(spriteName))
 				})
-				this.minimap.drawBorder(1, 'rgba(0, 0, 0, 0.3)')
 			})
+		})
+		this.minimap.drawBorder(1, 'rgba(0, 0, 0, 0.3)')
 	}
 
 	/**

@@ -5,7 +5,6 @@ import {Maybe} from '../../common/model/Maybe'
 import {Shape} from '../../common/model/Shape'
 import {Matrix} from '../../common/model/Matrix'
 import {Position} from '../../common/model/Position'
-import {SpriteService} from './sprite.service'
 
 /**
  * Service responsible for providing sprite renderers - functions that responsible for rendering of a specific sprite
@@ -26,47 +25,43 @@ export class SpriteRenderService {
 		new SpriteRenderer((t) => this.getBorderSprite(t)),
 	]
 
-	constructor(
-		private spriteService: SpriteService,
-	) {}
-
-	private getSurfaceSprite(tile: Tile): Maybe<HTMLImageElement> {
+	getSurfaceSprite(tile: Tile): Maybe<string> {
 		let surface: string = tile.surface.type === 'land' ? tile.biome.type : tile.surface.type
 		if (tile.isSnow) surface = 'snow'
-		return new Maybe(this.spriteService.fetch(surface))
+		return new Maybe(surface)
 	}
 
-	private getBorderSprite(_): Maybe<HTMLImageElement> {
-		return new Maybe(this.spriteService.fetch('border'))
+	private getBorderSprite(_): Maybe<string> {
+		return new Maybe('border')
 	}
 
-	private getBuildingSprite(tile: Tile): Maybe<HTMLImageElement> {
+	private getBuildingSprite(tile: Tile): Maybe<string> {
 		if (tile.building.isPresent() && tile.building.get().position.topLeft.equals(tile.position)) {
 			const buildingShape: Shape = tile.building.get().position.shape
 			return new Maybe(
-				this.spriteService.fetch(`house_${buildingShape.width + 1}x${buildingShape.height + 1}`)
+				`house_${buildingShape.width + 1}x${buildingShape.height + 1}`
 			)
 		}
 		return Maybe.empty()
 	}
 
-	private getRoadSprite(tile: Tile, adjacentTiles: Matrix<Maybe<Tile>>): Maybe<HTMLImageElement> {
+	private getRoadSprite(tile: Tile, adjacentTiles: Matrix<Maybe<Tile>>): Maybe<string> {
 		if (tile.road.isPresent()) {
 			const adjacentRoads: Matrix<Boolean> = adjacentTiles.map(t => t.isPresent() && t.get().road.isPresent())
-			let asset = `road_${
+			let sprite = `road_${
 				(adjacentRoads.at(new Position(1, 0)) ? 'n' : '') +
 				(adjacentRoads.at(new Position(2, 1)) ? 'e' : '') +
 				(adjacentRoads.at(new Position(1, 2)) ? 's' : '') +
 				(adjacentRoads.at(new Position(0, 1)) ? 'w' : '')
 			}`
-			return new Maybe(this.spriteService.fetch(asset))
+			return new Maybe(sprite)
 		}
 		return Maybe.empty()
 	}
 
-	private getPlantSprite(tile: Tile): Maybe<HTMLImageElement> {
+	private getPlantSprite(tile: Tile): Maybe<string> {
 		if (tile.isPlant) {
-			return new Maybe(this.spriteService.fetch('tree'))
+			return new Maybe('tree')
 		}
 		return Maybe.empty()
 	}
