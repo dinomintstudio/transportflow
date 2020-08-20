@@ -128,6 +128,10 @@ export class Graph<NK, N, EK, E> {
 			_.includes(n2.adjacentNodes().map(n => n.key), key1)
 	}
 
+	getEdges(): GraphEdge<NK, N, EK, E>[] {
+		return [...new Set([...this.nodes.values()].flatMap(node => node.edges))]
+	}
+
 	/**
 	 * Split graph into connected components
 	 */

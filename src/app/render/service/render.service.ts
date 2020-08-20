@@ -4,7 +4,7 @@ import {Camera} from '../model/Camera'
 import {Position} from '../../common/model/Position'
 import {WorldService} from '../../game-logic/service/world.service'
 import {SpriteService} from './sprite.service'
-import {first, throttleTime} from 'rxjs/operators'
+import {filter, first, throttleTime} from 'rxjs/operators'
 import {World} from '../../game-logic/model/World'
 
 import {Tile} from '../../game-logic/model/Tile'
@@ -230,6 +230,16 @@ export class RenderService {
 
 	private drawInteractionLayer(camera, hoverPos): void {
 		this.drawHoverTile(camera, hoverPos)
+		this.roadService.roadNetwork.observable
+			.pipe(
+				filter(n => !!n),
+				first()
+			)
+			.subscribe(network => {
+				network.getEdges().forEach(edge => {
+					this.drawLine(camera, edge.nodes[0].key, edge.nodes[1].key)
+				})
+			})
 	}
 
 	/**
