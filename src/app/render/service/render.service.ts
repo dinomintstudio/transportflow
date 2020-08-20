@@ -24,6 +24,7 @@ import {ConfigService} from '../../common/service/config.service'
 import {untilNewFrom} from '../../common/operator/until-new-from.operator'
 import {SpriteResolverService} from './sprite-resolver.service'
 import {PixelCanvas} from '../model/canvas/PixelCanvas'
+import {RoadService} from '../../game-logic/service/road.service'
 
 /**
  * Responsible for rendering canvases and updating map
@@ -62,7 +63,8 @@ export class RenderService {
 		private spriteResolverService: SpriteResolverService,
 		private interactionService: InteractionService,
 		private renderProfileService: RenderProfileService,
-		private configService: ConfigService
+		private configService: ConfigService,
+		private roadService: RoadService
 	) {
 		this.loadSprites(() => {
 			this.initMap(() => {
@@ -202,7 +204,7 @@ export class RenderService {
 									this.interactionService.tileHover
 										.pipe(first())
 										.subscribe(hoverPos =>
-											this.drawHoverTile(camera, hoverPos)
+											this.drawInteractionLayer(camera, hoverPos)
 										)
 								} else {
 									this.drawMinimapOnWorldLayer(cyclicCamera, destinationRect)
@@ -221,9 +223,13 @@ export class RenderService {
 				this.cameraService.camera.observable
 					.pipe(first())
 					.subscribe(camera => {
-						this.drawHoverTile(camera, hoverPos)
+						this.drawInteractionLayer(camera, hoverPos)
 					})
 			})
+	}
+
+	private drawInteractionLayer(camera, hoverPos): void {
+		this.drawHoverTile(camera, hoverPos)
 	}
 
 	/**
@@ -394,6 +400,7 @@ export class RenderService {
 	/**
 	 * Draw hovered tile highlight
 	 * TODO: move to separate service when more of such draws appear
+	 *
 	 * @param camera
 	 * @param hoverPos
 	 */
@@ -403,17 +410,41 @@ export class RenderService {
 			this.interactionCanvas.drawImage(
 				this.spriteService.fetch('hover').image,
 				Rectangle.rectangleByOnePoint(
-					hoverPos
-						.map(c => Math.floor(c))
-						.sub(camera.position)
-						.map(c => c * camera.zoom)
-						.add(Position.fromShape(this.worldCanvas.resolution.map(c => c / 2))),
+					this.mapTilePositionToDrawPosition(camera, hoverPos),
 					Shape.square(camera.zoom)
 				)
 			)
 		} else {
 			this.interactionCanvas.clear()
 		}
+	}
+
+	/**
+	 * Draw a line between two tiles
+	 * TODO: move to separate service when more of such draws appear
+	 *
+	 * @param camera
+	 * @param pos1
+	 * @param pos2
+	 */
+	private drawLine(camera: Camera, pos1: Position, pos2: Position) {
+		this.configService.renderConfig.observable.subscribe(renderConfig => {
+			const drawPos1 = this.mapTilePositionToDrawPosition(camera, pos1)
+				.add(Position.fromShape(Shape.square(0.5)).map(c => c * camera.zoom))
+			const drawPos2 = this.mapTilePositionToDrawPosition(camera, pos2)
+				.add(Position.fromShape(Shape.square(0.5)).map(c => c * camera.zoom))
+			if (camera.zoom > camera.config.minimapTriggerZoom) {
+				this.interactionCanvas.drawLine(drawPos1, drawPos2, 2, 'red')
+			}
+		})
+	}
+
+	private mapTilePositionToDrawPosition(camera: Camera, position: Position): Position {
+		return position
+			.map(c => Math.floor(c))
+			.sub(camera.position)
+			.map(c => c * camera.zoom)
+			.add(Position.fromShape(this.worldCanvas.resolution.map(c => c / 2)))
 	}
 
 }
