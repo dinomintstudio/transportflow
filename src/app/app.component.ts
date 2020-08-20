@@ -21,6 +21,7 @@ import {JungleBiomeConfig} from './generation/terrain/config/biome/JungleBiomeCo
 import {AltitudeMapConfig} from './generation/terrain/config/noisemap/AltitudeMapConfig'
 import {WorldGenerationService} from './generation/world/service/world-generation.service'
 import {WorldService} from './game-logic/service/world.service'
+import {NavigationService} from './game-logic/service/navigation.service'
 
 @Component({
 	selector: 'app-root',
@@ -37,7 +38,8 @@ export class AppComponent {
 		private cityGenerationService: CityGenerationService,
 		private renderService: RenderService,
 		private worldGenerationService: WorldGenerationService,
-		private worldService: WorldService
+		private worldService: WorldService,
+		private navigationService: NavigationService
 	) {
 		this.randomService.seed.set('seed')
 		const terrainGenerationConfig = new TerrainGenerationConfig(

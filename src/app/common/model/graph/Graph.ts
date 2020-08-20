@@ -1,8 +1,9 @@
 import {GraphNode} from './GraphNode'
 import {GraphEdge} from './GraphEdge'
+import * as _ from 'lodash'
 
 /**
- * Graph data structure
+ * Undirected graph data structure
  *
  * @param NK node key type
  * @param N node type
@@ -111,6 +112,20 @@ export class Graph<NK, N, EK, E> {
 			lines.push(`${k} -> ${adjacentKeys.length === 0 ? 'x' : adjacentKeys.join(', ')}`)
 		})
 		return lines.join('\n')
+	}
+
+	/**
+	 * Check whether or not nodes with specified keys are connected
+	 *
+	 * @param key1
+	 * @param key2
+	 */
+	connected(key1: NK, key2: NK): boolean {
+		const n1 = this.getNode(key1)
+		const n2 = this.getNode(key2)
+
+		return _.includes(n1.adjacentNodes().map(n => n.key), key2) &&
+			_.includes(n2.adjacentNodes().map(n => n.key), key1)
 	}
 
 	/**
