@@ -270,23 +270,27 @@ export class RenderService {
 	 * @private
 	 */
 	private drawRoadNetwork(camera: Camera): void {
-		this.roadService.intersectionNetwork.observable
-			.pipe(
-				filter(n => !!n),
-				first()
-			)
-			.subscribe(network => {
-				network.getEdges().forEach(edge => {
-					this.drawLine(camera, edge.nodes[0].key, edge.nodes[1].key, 4, 'yellow')
-				})
-				network.getNodes().forEach(node => {
-					this.drawDot(camera, node.key, 8, 'cyan')
-				})
-				network.getEdges().forEach(edge => {
-					edge.value.forEach(tile => {
-						this.drawDot(camera, tile.position, 5, 'red')
+		this.configService.renderConfig.observable
+			.pipe(first())
+			.subscribe(renderConfig => {
+				this.roadService.intersectionNetwork.observable
+					.pipe(
+						filter(n => !!n),
+						first()
+					)
+					.subscribe(network => {
+						network.getEdges().forEach(edge => {
+							this.drawLine(camera, edge.nodes[0].key, edge.nodes[1].key, 2, 'yellow')
+						})
+						network.getNodes().forEach(node => {
+							this.drawDot(camera, node.key, 3, 'cyan')
+						})
+						network.getEdges().forEach(edge => {
+							edge.value.forEach(tile => {
+								this.drawDot(camera, tile.position, 2, 'red')
+							})
+						})
 					})
-				})
 			})
 	}
 
@@ -489,12 +493,13 @@ export class RenderService {
 	 */
 	private drawLine(camera: Camera, pos1: Position, pos2: Position, lineWidth: number, color: string) {
 		this.configService.renderConfig.observable.subscribe(renderConfig => {
+			const valueToPixel: number = camera.zoom / (renderConfig.tileResolution / 2)
 			const drawPos1 = this.mapTilePositionToDrawPosition(camera, pos1)
 				.add(Position.fromShape(Shape.square(0.5)).map(c => c * camera.zoom))
 			const drawPos2 = this.mapTilePositionToDrawPosition(camera, pos2)
 				.add(Position.fromShape(Shape.square(0.5)).map(c => c * camera.zoom))
 			if (camera.zoom > camera.config.minimapTriggerZoom) {
-				this.debugCanvas.drawLine(drawPos1, drawPos2, lineWidth, color)
+				this.debugCanvas.drawLine(drawPos1, drawPos2, lineWidth * valueToPixel, color)
 			}
 		})
 	}
@@ -510,10 +515,11 @@ export class RenderService {
 	 */
 	private drawDot(camera: Camera, position: Position, radius: number, color: string) {
 		this.configService.renderConfig.observable.subscribe(renderConfig => {
+			const valueToPixel: number = camera.zoom / (renderConfig.tileResolution / 2)
 			const drawPosition = this.mapTilePositionToDrawPosition(camera, position)
 				.add(Position.fromShape(Shape.square(0.5)).map(c => c * camera.zoom))
 			if (camera.zoom > camera.config.minimapTriggerZoom) {
-				this.debugCanvas.drawCircle(drawPosition, radius, color)
+				this.debugCanvas.drawCircle(drawPosition, radius * valueToPixel, color)
 			}
 		})
 	}

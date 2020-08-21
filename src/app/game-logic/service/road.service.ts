@@ -8,7 +8,6 @@ import {Graph} from '../../common/model/graph/Graph'
 import {Position} from '../../common/model/Position'
 import {ObservableData} from '../../common/model/ObservableData'
 import {Maybe} from '../../common/model/Maybe'
-import {Matrix} from '../../common/model/Matrix'
 import * as _ from 'lodash'
 import {GraphNode} from '../../common/model/graph/GraphNode'
 
@@ -45,10 +44,7 @@ export class RoadService {
 				const network = new Graph<Position, Tile, void, void>()
 
 				this.worldService.world.observable.subscribe(world => {
-					tiles.forEach(tile => {
-						network.addNode(tile.position, tile)
-						const adjacentTiles: Matrix<Maybe<Tile>> = this.worldService.getAdjacentTileMatrix(world.tilemap, tile.position)
-					})
+					tiles.forEach(tile => network.addNode(tile.position, tile))
 					tiles.forEach(tile => {
 						const nearTiles: Maybe<Tile>[] = this.worldService
 							.getAdjacentTileMatrix(world.tilemap, tile.position)
@@ -92,9 +88,7 @@ export class RoadService {
 	 *  buffer value
 	 *  5. Clear buffer
 	 *  6. Until a map is empty, repeat from step 3
-	 *  7. Check for intersections that are not in intersection graph. Add them, they have no connections
-	 *
-	 *  TODO: handle the case of two adjacent dead-ends. They will be added disconnected
+	 *  7. Check for intersections that are not in intersection graph. Add them, connecting to the adjacent nodes
 	 */
 	buildIntersectionNetwork<T>(): void {
 		this.roadNetwork.observable
@@ -106,16 +100,21 @@ export class RoadService {
 				const intersectionNetwork = new Graph<Position, Tile, void, Tile[]>()
 
 				// 1
-				const map = new Map<Position, GraphNode<Position, Tile, void, void>>(
+				const roadMap = new Map<Position, GraphNode<Position, Tile, void, void>>(
 					[...roadNetwork.nodes.values()]
 						.filter(node => node.edges.length === 2)
 						.map(node => [node.value.position, node])
 				)
+				const intersectionMap = new Map<Position, GraphNode<Position, Tile, void, void>>(
+					[...roadNetwork.nodes.values()]
+						.filter(node => node.edges.length !== 2)
+						.map(node => [node.value.position, node])
+				)
 
 				// 2, 3
-				while (map.size !== 0) {
-					const roadPosition = map.keys().next().value
-					map.delete(roadPosition)
+				while (roadMap.size !== 0) {
+					const roadPosition = roadMap.keys().next().value
+					roadMap.delete(roadPosition)
 
 					const [leftIntersection, leftPath] = this.traverseUntilIntersection(roadNetwork.getNode(roadPosition), true)
 					const [rightIntersection, rightPath] = this.traverseUntilIntersection(roadNetwork.getNode(roadPosition), false)
@@ -124,13 +123,14 @@ export class RoadService {
 
 					// 3.1
 					path.forEach(r => {
-						map.delete(r)
+						roadMap.delete(r)
 					});
 
 					// 4
 					[leftIntersection, rightIntersection]
 						.forEach(n => {
 							try {
+								intersectionMap.delete(n.key)
 								intersectionNetwork.addNode(n.key, n.value)
 							} catch (e) {}
 						})
@@ -141,6 +141,17 @@ export class RoadService {
 						path.map(p => roadNetwork.getNode(p).value)
 					)
 				}
+
+				// 7
+				intersectionMap.forEach(node => {
+					intersectionNetwork.addNode(node.key, node.value)
+				})
+				intersectionMap.forEach(node => {
+					node.adjacentNodes().forEach(adjacent => {
+						if (intersectionNetwork.connected(node.key, adjacent.key)) return
+						intersectionNetwork.connect(node.key, adjacent.key, undefined, [])
+					})
+				})
 
 				this.log.info(intersectionNetwork.adjacencyList())
 				this.intersectionNetwork.set(intersectionNetwork)
