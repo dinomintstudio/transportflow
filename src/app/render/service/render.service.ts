@@ -496,4 +496,5 @@ export class RenderService {
 			.map(c => c * camera.zoom)
 			.add(Position.fromShape(this.worldCanvas.resolution.map(c => c / 2)))
 	}
+
 }
