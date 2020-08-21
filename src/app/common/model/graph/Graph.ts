@@ -33,6 +33,7 @@ export class Graph<NK, N, EK, E> {
 	 * @param value
 	 */
 	addNode(key: NK, value: N): void {
+		if (this.nodes.has(key)) throw Error('node with such key already exists')
 		this.nodes.set(key, new GraphNode<NK, N, EK, E>(key, value))
 	}
 
@@ -45,6 +46,13 @@ export class Graph<NK, N, EK, E> {
 		const node = this.nodes.get(key)
 		if (!node) throw Error('no node with such key')
 		return node
+	}
+
+	/**
+	 * Get nodes as an array
+	 */
+	getNodes(): GraphNode<NK, N, EK, E>[] {
+		return [...this.nodes.values()]
 	}
 
 	/**

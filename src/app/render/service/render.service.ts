@@ -270,14 +270,22 @@ export class RenderService {
 	 * @private
 	 */
 	private drawRoadNetwork(camera: Camera): void {
-		this.roadService.roadNetwork.observable
+		this.roadService.intersectionNetwork.observable
 			.pipe(
 				filter(n => !!n),
 				first()
 			)
 			.subscribe(network => {
 				network.getEdges().forEach(edge => {
-					this.drawLine(camera, edge.nodes[0].key, edge.nodes[1].key)
+					this.drawLine(camera, edge.nodes[0].key, edge.nodes[1].key, 4, 'yellow')
+				})
+				network.getNodes().forEach(node => {
+					this.drawDot(camera, node.key, 8, 'cyan')
+				})
+				network.getEdges().forEach(edge => {
+					edge.value.forEach(tile => {
+						this.drawDot(camera, tile.position, 5, 'red')
+					})
 				})
 			})
 	}
@@ -476,15 +484,36 @@ export class RenderService {
 	 * @param camera
 	 * @param pos1
 	 * @param pos2
+	 * @param lineWidth
+	 * @param color
 	 */
-	private drawLine(camera: Camera, pos1: Position, pos2: Position) {
+	private drawLine(camera: Camera, pos1: Position, pos2: Position, lineWidth: number, color: string) {
 		this.configService.renderConfig.observable.subscribe(renderConfig => {
 			const drawPos1 = this.mapTilePositionToDrawPosition(camera, pos1)
 				.add(Position.fromShape(Shape.square(0.5)).map(c => c * camera.zoom))
 			const drawPos2 = this.mapTilePositionToDrawPosition(camera, pos2)
 				.add(Position.fromShape(Shape.square(0.5)).map(c => c * camera.zoom))
 			if (camera.zoom > camera.config.minimapTriggerZoom) {
-				this.debugCanvas.drawLine(drawPos1, drawPos2, 2, 'red')
+				this.debugCanvas.drawLine(drawPos1, drawPos2, lineWidth, color)
+			}
+		})
+	}
+
+	/**
+	 * Draw a dot in the middle of a specified tile
+	 * TODO: move to separate service when more of such draws appear
+	 *
+	 * @param camera
+	 * @param position
+	 * @param radius
+	 * @param color
+	 */
+	private drawDot(camera: Camera, position: Position, radius: number, color: string) {
+		this.configService.renderConfig.observable.subscribe(renderConfig => {
+			const drawPosition = this.mapTilePositionToDrawPosition(camera, position)
+				.add(Position.fromShape(Shape.square(0.5)).map(c => c * camera.zoom))
+			if (camera.zoom > camera.config.minimapTriggerZoom) {
+				this.debugCanvas.drawCircle(drawPosition, radius, color)
 			}
 		})
 	}

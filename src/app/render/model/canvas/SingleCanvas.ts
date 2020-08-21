@@ -122,5 +122,12 @@ export class SingleCanvas implements Canvas {
 		}
 	}
 
+	drawCircle(drawPosition: Position, radius: number, color: string): void {
+		this.context.beginPath()
+		this.context.fillStyle = color
+		this.context.arc(drawPosition.x, drawPosition.y, radius, 0, 2 * Math.PI)
+		this.context.fill()
+	}
+
 }
 
