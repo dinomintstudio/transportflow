@@ -30,7 +30,12 @@
             "styles": [
               "src/styles.sass"
             ],
-            "scripts": []
+            "scripts": [],
+            "showCircularDependencies": false,
+            "allowedCommonJsDependencies": [
+              "lodash",
+              "simplex-noise"
+            ]
           },
           "configurations": {
             "production": {
