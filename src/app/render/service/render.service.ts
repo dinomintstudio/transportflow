@@ -25,6 +25,7 @@ import {untilNewFrom} from '../../common/operator/until-new-from.operator'
 import {SpriteResolverService} from './sprite-resolver.service'
 import {PixelCanvas} from '../model/canvas/PixelCanvas'
 import {RoadService} from '../../game-logic/service/road.service'
+import {RenderDebugService} from './render-debug.service'
 
 /**
  * Responsible for rendering canvases and updating map
@@ -56,6 +57,11 @@ export class RenderService {
 	 */
 	interactionCanvas: SingleCanvas
 
+	/**
+	 * Debug canvas layer
+	 */
+	debugCanvas: SingleCanvas
+
 	constructor(
 		private cameraService: CameraService,
 		private worldService: WorldService,
@@ -64,13 +70,15 @@ export class RenderService {
 		private interactionService: InteractionService,
 		private renderProfileService: RenderProfileService,
 		private configService: ConfigService,
-		private roadService: RoadService
+		private roadService: RoadService,
+		private renderDebugService: RenderDebugService
 	) {
 		this.loadSprites(() => {
 			this.initMap(() => {
 				this.updateChunks(() => setTimeout(() => this.cameraService.camera.update(), 0))
 				this.updateWorldLayer()
 				this.updateInteractionLayer()
+				this.updateDebugLayer()
 			})
 		})
 	}
@@ -79,12 +87,17 @@ export class RenderService {
 	 * Initialize canvas layers
 	 * @param worldCanvas
 	 * @param interactionCanvas
+	 * @param debugCanvas
 	 * @param canvasContainer
 	 */
-	initView(worldCanvas: HTMLCanvasElement, interactionCanvas: HTMLCanvasElement, canvasContainer: HTMLElement): void {
+	initView(worldCanvas: HTMLCanvasElement,
+	         interactionCanvas: HTMLCanvasElement,
+	         debugCanvas: HTMLCanvasElement,
+	         canvasContainer: HTMLElement): void {
 		this.log.debug('initialize render view')
 		this.worldCanvas = new SingleCanvas(worldCanvas)
 		this.interactionCanvas = new SingleCanvas(interactionCanvas, true)
+		this.debugCanvas = new SingleCanvas(debugCanvas, true)
 
 		window.addEventListener('resize', () =>
 			this.resizeCanvas(new Shape(canvasContainer.offsetWidth, canvasContainer.offsetHeight))
@@ -203,9 +216,9 @@ export class RenderService {
 									this.drawMapOnWorldLayer(cyclicCamera, destinationRect)
 									this.interactionService.tileHover
 										.pipe(first())
-										.subscribe(hoverPos =>
+										.subscribe(hoverPos => {
 											this.drawInteractionLayer(camera, hoverPos)
-										)
+										})
 								} else {
 									this.drawMinimapOnWorldLayer(cyclicCamera, destinationRect)
 								}
@@ -230,6 +243,33 @@ export class RenderService {
 
 	private drawInteractionLayer(camera, hoverPos): void {
 		this.drawHoverTile(camera, hoverPos)
+	}
+
+	private updateDebugLayer(): void {
+		this.cameraService.camera.observable
+			.subscribe(camera => {
+				this.renderDebugService.overlayVisible.observable
+					.pipe(untilNewFrom(this.cameraService.camera.observable))
+					.subscribe(visible => {
+						this.debugCanvas.clear()
+						if (visible) {
+							this.drawDebugLayer(camera)
+						}
+					})
+			})
+	}
+
+	private drawDebugLayer(camera: Camera): void {
+		this.drawRoadNetwork(camera)
+	}
+
+	/**
+	 * TODO: move to separate service when more of such draws appear
+	 *
+	 * @param camera
+	 * @private
+	 */
+	private drawRoadNetwork(camera: Camera): void {
 		this.roadService.roadNetwork.observable
 			.pipe(
 				filter(n => !!n),
@@ -247,7 +287,7 @@ export class RenderService {
 	 * @param shape
 	 */
 	private resizeCanvas(shape: Shape): void {
-		[this.worldCanvas, this.interactionCanvas].forEach(c => c.setResolution(shape))
+		[this.worldCanvas, this.interactionCanvas, this.debugCanvas].forEach(c => c.setResolution(shape))
 		this.cameraService.camera.update()
 	}
 
@@ -444,7 +484,7 @@ export class RenderService {
 			const drawPos2 = this.mapTilePositionToDrawPosition(camera, pos2)
 				.add(Position.fromShape(Shape.square(0.5)).map(c => c * camera.zoom))
 			if (camera.zoom > camera.config.minimapTriggerZoom) {
-				this.interactionCanvas.drawLine(drawPos1, drawPos2, 2, 'red')
+				this.debugCanvas.drawLine(drawPos1, drawPos2, 2, 'red')
 			}
 		})
 	}
@@ -456,5 +496,4 @@ export class RenderService {
 			.map(c => c * camera.zoom)
 			.add(Position.fromShape(this.worldCanvas.resolution.map(c => c / 2)))
 	}
-
 }

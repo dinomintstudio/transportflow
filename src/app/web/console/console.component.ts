@@ -119,7 +119,6 @@ export class ConsoleComponent implements OnInit, AfterViewChecked {
 			.subscribe(e => {
 				e.preventDefault()
 				this.commandOffset = Math.max(this.commandOffset - 1, 0)
-				console.log(this.commandOffset)
 				this.input = [...this.history, ''].reverse()[this.commandOffset]
 			})
 	}

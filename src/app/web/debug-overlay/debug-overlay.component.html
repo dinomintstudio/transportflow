@@ -1,12 +1,14 @@
-<div class='debug-overlay'>
-	<p>UPS: {{ups}}</p>
+<div class='debug-overlay' *ngIf="visible">
+	<p *ngIf="ups">UPS: {{ups}}</p>
 	<p *ngIf='maxFps'>Max FPS: {{maxFps}}</p>
 	<p *ngIf='memory'>Memory: {{memory}}</p>
-	<p>Map size: {{mapSize}}</p>
-	<p>Chunks: {{chunks}}</p>
-	<p>Chunk size: {{chunkSize}}</p>
-	<p>Map tile resolution: {{mapTileResolution}}</p>
-	<p>Camera at {{camera.position}} bounded: {{boundedCameraPosition}}</p>
-	<p>Zoom: {{camera.zoom.toFixed(2)}}</p>
-	<p>Mouse position: {{mousePosition}} bounded: {{boundedMousePosition}}</p>
+	<p *ngIf="mapSize">Map size: {{mapSize}}</p>
+	<p *ngIf="chunks">Chunks: {{chunks}}</p>
+	<p *ngIf="chunkSize">Chunk size: {{chunkSize}}</p>
+	<p *ngIf="mapTileResolution">Map tile resolution: {{mapTileResolution}}</p>
+	<p *ngIf="camera.position && boundedCameraPosition">Camera at {{camera.position}}
+		bounded: {{boundedCameraPosition}}</p>
+	<p *ngIf="camera.zoom">Zoom: {{camera.zoom.toFixed(2)}}</p>
+	<p *ngIf="mousePosition && boundedMousePosition">Mouse position: {{mousePosition}}
+		bounded: {{boundedMousePosition}}</p>
 </div>
