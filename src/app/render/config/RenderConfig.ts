@@ -16,12 +16,6 @@ export class RenderConfig {
 	spriteResolution: number
 
 	/**
-	 * Resolution of a minimap tile.
-	 * Always a square
-	 */
-	minimapResolution: number
-
-	/**
 	 * Number of tiles in a chunk side
 	 * Always a square, so tiles in chunk is n^2
 	 */
@@ -63,7 +57,6 @@ export class RenderConfig {
 	constructor(
 		tileResolution: number,
 		spriteResolution: number,
-		minimapResolution: number,
 		chunkSize: number,
 		chunkOverhead: number,
 		maxFps: number,
@@ -74,7 +67,6 @@ export class RenderConfig {
 	) {
 		this.tileResolution = tileResolution
 		this.spriteResolution = spriteResolution
-		this.minimapResolution = minimapResolution
 		this.chunkSize = chunkSize
 		this.chunkOverhead = chunkOverhead
 		this.maxUps = maxFps
@@ -92,7 +84,6 @@ export class RenderConfig {
 		return new RenderConfig(
 			json.tileResolution,
 			json.spriteResolution,
-			json.minimapResolution,
 			json.chunkSize,
 			json.chunkOverhead,
 			json.maxFps,

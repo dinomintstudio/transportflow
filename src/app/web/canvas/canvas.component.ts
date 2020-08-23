@@ -15,15 +15,15 @@ export class CanvasComponent implements OnInit {
 	@ViewChild('canvasContainer', {static: true}) container: ElementRef
 
 	consoleOpen: boolean
-	overlayVisible: boolean
+	renderService: RenderService
 
 	constructor(
-		private renderService: RenderService,
+		renderService: RenderService,
 		private keyService: KeyService,
 		private configService: ConfigService
 	) {
+		this.renderService = renderService
 		this.consoleOpen = false
-		this.overlayVisible = false
 
 		this.configService.renderConfig.observable
 			.pipe(first())
@@ -35,12 +35,6 @@ export class CanvasComponent implements OnInit {
 					)
 					.subscribe(() => this.consoleOpen = true)
 
-				this.keyService.keypress.observable
-					.pipe(
-						untilNewFrom(this.configService.renderConfig.observable),
-						filter(e => e.key === renderConfig.debugOverlayKey)
-					)
-					.subscribe(() => this.overlayVisible = !this.overlayVisible)
 			})
 	}
 
@@ -48,6 +42,7 @@ export class CanvasComponent implements OnInit {
 		this.renderService.initView(
 			<HTMLCanvasElement>document.getElementById('worldCanvas'),
 			<HTMLCanvasElement>document.getElementById('interactionCanvas'),
+			<HTMLCanvasElement>document.getElementById('debugCanvas'),
 			this.container.nativeElement
 		)
 	}

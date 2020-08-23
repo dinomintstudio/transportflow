@@ -93,6 +93,7 @@ export class Matrix<T> {
 
 	/**
 	 * Return submatrix of specified @param rectangle
+	 * TODO: cyclic parameter
 	 * @param rectangle submatrix position and shape
 	 * @param outFill if @param rectangle goes out of matrix's bound then such elements filled with it
 	 */

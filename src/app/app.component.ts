@@ -14,12 +14,14 @@ import {RandomService} from './common/service/random.service'
 import {CityGenerationConfig} from './generation/city/config/CityGenerationConfig'
 import {CityGenerationService} from './generation/city/service/city-generation.service'
 import {RenderService} from './render/service/render.service'
-import {WorldService} from './game-logic/service/world.service'
 import {WorldGenerationConfig} from './generation/world/config/WorldGenerationConfig'
 import {DesertBiomeConfig} from './generation/terrain/config/biome/DesertBiomeConfig'
 import {TaigaBiomeConfig} from './generation/terrain/config/biome/TaigaBiomeConfig'
 import {JungleBiomeConfig} from './generation/terrain/config/biome/JungleBiomeConfig'
 import {AltitudeMapConfig} from './generation/terrain/config/noisemap/AltitudeMapConfig'
+import {WorldGenerationService} from './generation/world/service/world-generation.service'
+import {WorldService} from './game-logic/service/world.service'
+import {NavigationService} from './game-logic/service/navigation.service'
 
 @Component({
 	selector: 'app-root',
@@ -35,7 +37,9 @@ export class AppComponent {
 		private randomService: RandomService,
 		private cityGenerationService: CityGenerationService,
 		private renderService: RenderService,
-		private worldService: WorldService
+		private worldGenerationService: WorldGenerationService,
+		private worldService: WorldService,
+		private navigationService: NavigationService
 	) {
 		this.randomService.seed.set('seed')
 		const terrainGenerationConfig = new TerrainGenerationConfig(
@@ -101,7 +105,7 @@ export class AppComponent {
 		)
 
 		this.worldService.world.set(
-			this.worldService.generate(
+			this.worldGenerationService.generate(
 				tiledTerrain,
 				new WorldGenerationConfig(
 					terrainGenerationConfig,

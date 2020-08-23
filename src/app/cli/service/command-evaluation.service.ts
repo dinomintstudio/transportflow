@@ -14,12 +14,12 @@ import {MouseService} from '../../input/service/mouse.service'
 import {CameraService} from '../../render/service/camera.service'
 import {RenderProfileService} from '../../render/service/render-profile.service'
 import {SpriteService} from '../../render/service/sprite.service'
-import {SpriteRenderService} from '../../render/service/sprite-render.service'
+import {SpriteResolverService} from '../../render/service/sprite-resolver.service'
 import {ClockService} from '../../scheduling/service/clock.service'
 import {LongTermSchedulingService} from '../../scheduling/service/long-term-scheduling.service'
 import {ShortTermSchedulingService} from '../../scheduling/service/short-term-scheduling.service'
-import {ChunkedCanvas} from '../../common/model/canvas/ChunkedCanvas'
-import {SingleCanvas} from '../../common/model/canvas/SingleCanvas'
+import {ChunkedCanvas} from '../../render/model/canvas/ChunkedCanvas'
+import {SingleCanvas} from '../../render/model/canvas/SingleCanvas'
 import {Graph} from '../../common/model/graph/Graph'
 import {GraphEdge} from '../../common/model/graph/GraphEdge'
 import {GraphNode} from '../../common/model/graph/GraphNode'
@@ -39,7 +39,7 @@ import {Surface} from '../../game-logic/model/Surface'
 import {Tile} from '../../game-logic/model/Tile'
 import {World} from '../../game-logic/model/World'
 import {Camera} from 'src/app/render/model/Camera'
-import {SpriteRenderer} from 'src/app/render/model/SpriteRenderer'
+import {SpriteResolver} from 'src/app/render/model/SpriteResolver'
 
 /**
  * Responsible for providing evaluation of arbitrary string commands within application context with available services
@@ -77,7 +77,7 @@ export class CommandEvaluationService {
 
 	// render
 	private Camera = Camera
-	private SpriteRenderer = SpriteRenderer
+	private SpriteRenderer = SpriteResolver
 
 	constructor(
 		private configService: ConfigService,
@@ -95,7 +95,7 @@ export class CommandEvaluationService {
 		private renderService: RenderService,
 		private renderProfileService: RenderProfileService,
 		private spriteService: SpriteService,
-		private spriteRenderService: SpriteRenderService,
+		private spriteRendererService: SpriteResolverService,
 		private clockService: ClockService,
 		private longTermSchedulingService: LongTermSchedulingService,
 		private shortTermSchedulingService: ShortTermSchedulingService,
@@ -106,7 +106,7 @@ export class CommandEvaluationService {
 	 * @param command
 	 */
 	eval(command: string): any {
-		return eval(command.replace(new RegExp('\\$'), 'this.'))
+		return eval(command.replace(new RegExp('\\$', 'g'), 'this.'))
 	}
 
 }

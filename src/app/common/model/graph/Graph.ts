@@ -1,8 +1,9 @@
 import {GraphNode} from './GraphNode'
 import {GraphEdge} from './GraphEdge'
+import * as _ from 'lodash'
 
 /**
- * Graph data structure
+ * Undirected graph data structure
  *
  * @param NK node key type
  * @param N node type
@@ -32,6 +33,7 @@ export class Graph<NK, N, EK, E> {
 	 * @param value
 	 */
 	addNode(key: NK, value: N): void {
+		if (this.nodes.has(key)) throw Error('node with such key already exists')
 		this.nodes.set(key, new GraphNode<NK, N, EK, E>(key, value))
 	}
 
@@ -44,6 +46,13 @@ export class Graph<NK, N, EK, E> {
 		const node = this.nodes.get(key)
 		if (!node) throw Error('no node with such key')
 		return node
+	}
+
+	/**
+	 * Get nodes as an array
+	 */
+	getNodes(): GraphNode<NK, N, EK, E>[] {
+		return [...this.nodes.values()]
 	}
 
 	/**
@@ -111,6 +120,24 @@ export class Graph<NK, N, EK, E> {
 			lines.push(`${k} -> ${adjacentKeys.length === 0 ? 'x' : adjacentKeys.join(', ')}`)
 		})
 		return lines.join('\n')
+	}
+
+	/**
+	 * Check whether or not nodes with specified keys are connected
+	 *
+	 * @param key1
+	 * @param key2
+	 */
+	connected(key1: NK, key2: NK): boolean {
+		const n1 = this.getNode(key1)
+		const n2 = this.getNode(key2)
+
+		return _.includes(n1.adjacentNodes().map(n => n.key), key2) &&
+			_.includes(n2.adjacentNodes().map(n => n.key), key1)
+	}
+
+	getEdges(): GraphEdge<NK, N, EK, E>[] {
+		return [...new Set([...this.nodes.values()].flatMap(node => node.edges))]
 	}
 
 	/**

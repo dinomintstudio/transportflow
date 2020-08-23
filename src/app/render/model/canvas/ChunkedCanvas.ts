@@ -1,7 +1,7 @@
-import {Shape} from '../Shape'
-import {Rectangle} from '../Rectangle'
-import {Matrix} from '../Matrix'
-import {Position} from '../Position'
+import {Shape} from '../../../common/model/Shape'
+import {Rectangle} from '../../../common/model/Rectangle'
+import {Matrix} from '../../../common/model/Matrix'
+import {Position} from '../../../common/model/Position'
 import {Canvas, createCanvas} from './Canvas'
 import {SingleCanvas} from './SingleCanvas'
 

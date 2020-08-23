@@ -1,6 +1,6 @@
-import {Rectangle} from '../Rectangle'
-import {Shape} from '../Shape'
-import {Position} from '../Position'
+import {Rectangle} from '../../../common/model/Rectangle'
+import {Shape} from '../../../common/model/Shape'
+import {Position} from '../../../common/model/Position'
 import {Canvas} from './Canvas'
 
 /**
@@ -100,6 +100,15 @@ export class SingleCanvas implements Canvas {
 		this.context.strokeRect(0, 0, this.resolution.width, this.resolution.height)
 	}
 
+	drawLine(pos1, pos2, lineWidth?, color?) {
+		this.context.beginPath()
+		this.context.lineWidth = lineWidth
+		this.context.strokeStyle = color
+		this.context.moveTo(pos1.x, pos1.y)
+		this.context.lineTo(pos2.x, pos2.y)
+		this.context.stroke()
+	}
+
 	/**
 	 * Remove canvas contents.
 	 * Canvas with alpha layer will become transparent, canvas without alpha layer will become black
@@ -111,6 +120,13 @@ export class SingleCanvas implements Canvas {
 			this.context.fillStyle = 'black'
 			this.context.fillRect(0, 0, this.canvas.width, this.canvas.height)
 		}
+	}
+
+	drawCircle(drawPosition: Position, radius: number, color: string): void {
+		this.context.beginPath()
+		this.context.fillStyle = color
+		this.context.arc(drawPosition.x, drawPosition.y, radius, 0, 2 * Math.PI)
+		this.context.fill()
 	}
 
 }

@@ -11,6 +11,7 @@ import {InteractionService} from '../../input/service/interaction.service'
 import {interval} from 'rxjs'
 import {ConfigService} from '../../common/service/config.service'
 import {untilNewFrom} from '../../common/operator/until-new-from.operator'
+import {RenderDebugService} from '../../render/service/render-debug.service'
 
 @Component({
 	selector: 'app-debug-overlay',
@@ -25,7 +26,6 @@ export class DebugOverlayComponent implements OnInit {
 	chunks: Shape
 	chunkSize: number
 	mapTileResolution: number
-	minimapTileResolution: number
 
 	camera: Camera
 	boundedCameraPosition: Position
@@ -36,13 +36,16 @@ export class DebugOverlayComponent implements OnInit {
 	// memory report in format <usedJSHeapSize>MB/<totalJSHeapSize>MB/<jsHeapSizeLimit>MB
 	memory: string
 
+	visible: boolean
+
 	constructor(
 		private renderService: RenderService,
 		private renderProfileService: RenderProfileService,
 		private worldService: WorldService,
 		private cameraService: CameraService,
 		private interactionService: InteractionService,
-		private configService: ConfigService
+		private configService: ConfigService,
+		private renderDebugService: RenderDebugService
 	) {}
 
 	ngOnInit(): void {
@@ -68,7 +71,6 @@ export class DebugOverlayComponent implements OnInit {
 				this.chunkSize = this.renderService.map.chunkSize / renderConfig.tileResolution
 
 				this.mapTileResolution = renderConfig.tileResolution
-				this.minimapTileResolution = renderConfig.minimapResolution
 
 				this.cameraService.camera.observable
 					.pipe(
@@ -107,15 +109,17 @@ export class DebugOverlayComponent implements OnInit {
 					)
 					.subscribe(mousePos => this.boundedMousePosition = mousePos)
 
-				// @ts-ignore
-				if (performance.memory) {
-					// @ts-ignore
-					interval(1000).subscribe(() => this.memory = this.formatMemory(performance.memory))
+				if ((performance as any).memory) {
+					interval(1000).subscribe(() => this.memory = this.formatMemory((performance as any).memory))
 				}
 			})
+
+		this.renderDebugService.overlayVisible.observable.subscribe(overlayVisible => {
+			this.visible = overlayVisible
+		})
 	}
 
-	formatMemory(memoryInfo: any): string {
+	private formatMemory(memoryInfo: any): string {
 		return [
 			memoryInfo.usedJSHeapSize,
 			memoryInfo.totalJSHeapSize,

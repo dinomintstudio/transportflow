@@ -4,25 +4,25 @@ import {Camera} from '../model/Camera'
 import {Position} from '../../common/model/Position'
 import {WorldService} from '../../game-logic/service/world.service'
 import {SpriteService} from './sprite.service'
-import {first, throttleTime} from 'rxjs/operators'
+import {first} from 'rxjs/operators'
 import {World} from '../../game-logic/model/World'
 
 import {Tile} from '../../game-logic/model/Tile'
 import {Rectangle} from '../../common/model/Rectangle'
 import {Shape} from '../../common/model/Shape'
 import {Matrix} from '../../common/model/Matrix'
-import {SingleCanvas} from '../../common/model/canvas/SingleCanvas'
-import {ChunkedCanvas} from '../../common/model/canvas/ChunkedCanvas'
-import {createCanvas} from '../../common/model/canvas/Canvas'
+import {SingleCanvas} from '../model/canvas/SingleCanvas'
+import {ChunkedCanvas} from '../model/canvas/ChunkedCanvas'
+import {createCanvas} from '../model/canvas/Canvas'
 import {CameraConfig} from '../config/CameraConfig'
 import {Range} from '../../common/model/Range'
 import {Log} from '../../common/model/Log'
-import * as _ from 'lodash'
-import {InteractionService} from '../../input/service/interaction.service'
-import {RenderProfileService} from './render-profile.service'
 import {ConfigService} from '../../common/service/config.service'
-import {untilNewFrom} from '../../common/operator/until-new-from.operator'
-import {SpriteRenderService} from './sprite-render.service'
+import {SpriteResolverService} from './sprite-resolver.service'
+import {PixelCanvas} from '../model/canvas/PixelCanvas'
+import {InteractionLayerRenderService} from './interaction-layer-render.service'
+import {DebugLayerRenderService} from './debug-layer-render.service'
+import {WorldLayerRenderService} from './world-layer-render.service'
 
 /**
  * Responsible for rendering canvases and updating map
@@ -42,32 +42,24 @@ export class RenderService {
 	/**
 	 * Off-screen world minimap
 	 */
-	minimap: SingleCanvas
-
-	/**
-	 * World canvas layer
-	 */
-	worldCanvas: SingleCanvas
-
-	/**
-	 * Interaction canvas layer
-	 */
-	interactionCanvas: SingleCanvas
+	minimap: PixelCanvas
 
 	constructor(
 		private cameraService: CameraService,
 		private worldService: WorldService,
 		private spriteService: SpriteService,
-		private spriteRenderService: SpriteRenderService,
-		private interactionService: InteractionService,
-		private renderProfileService: RenderProfileService,
-		private configService: ConfigService
+		private spriteResolverService: SpriteResolverService,
+		private configService: ConfigService,
+		private interactionLayerRenderService: InteractionLayerRenderService,
+		private debugLayerRenderService: DebugLayerRenderService,
+		private worldLayerRenderService: WorldLayerRenderService
 	) {
 		this.loadSprites(() => {
 			this.initMap(() => {
 				this.updateChunks(() => setTimeout(() => this.cameraService.camera.update(), 0))
-				this.updateWorldLayer()
-				this.updateInteractionLayer()
+				this.worldLayerRenderService.updateWorldLayer()
+				this.interactionLayerRenderService.updateInteractionLayer()
+				this.debugLayerRenderService.updateDebugLayer()
 			})
 		})
 	}
@@ -76,17 +68,37 @@ export class RenderService {
 	 * Initialize canvas layers
 	 * @param worldCanvas
 	 * @param interactionCanvas
+	 * @param debugCanvas
 	 * @param canvasContainer
 	 */
-	initView(worldCanvas: HTMLCanvasElement, interactionCanvas: HTMLCanvasElement, canvasContainer: HTMLElement): void {
+	initView(worldCanvas: HTMLCanvasElement,
+	         interactionCanvas: HTMLCanvasElement,
+	         debugCanvas: HTMLCanvasElement,
+	         canvasContainer: HTMLElement): void {
 		this.log.debug('initialize render view')
-		this.worldCanvas = new SingleCanvas(worldCanvas)
-		this.interactionCanvas = new SingleCanvas(interactionCanvas, true)
+		this.worldLayerRenderService.canvas = new SingleCanvas(worldCanvas)
+		this.interactionLayerRenderService.canvas = new SingleCanvas(interactionCanvas, true)
+		this.debugLayerRenderService.canvas = new SingleCanvas(debugCanvas, true)
 
 		window.addEventListener('resize', () =>
 			this.resizeCanvas(new Shape(canvasContainer.offsetWidth, canvasContainer.offsetHeight))
 		)
 		window.dispatchEvent(new Event('resize'))
+	}
+
+	/**
+	 * Map tile world map position to draw position on canvas based on current camera position and zoom
+	 * TODO: move
+	 *
+	 * @param camera
+	 * @param position
+	 */
+	mapTilePositionToDrawPosition(camera: Camera, position: Position): Position {
+		return position
+			.map(c => Math.floor(c))
+			.sub(camera.position)
+			.map(c => c * camera.zoom)
+			.add(Position.fromShape(this.worldLayerRenderService.canvas.resolution.map(c => c / 2)))
 	}
 
 	/**
@@ -118,8 +130,9 @@ export class RenderService {
 						)
 
 						this.log.debug('initialize minimap')
-						this.minimap = new SingleCanvas(
-							createCanvas(world.tilemap.shape.map(s => s * config.minimapResolution))
+						this.minimap = new PixelCanvas(
+							createCanvas(world.tilemap.shape),
+							false
 						)
 
 						this.log.debug('set initial camera')
@@ -128,7 +141,7 @@ export class RenderService {
 							config.tileResolution,
 							new CameraConfig(
 								new Range(1, 1000),
-								16
+								8
 							)
 						))
 
@@ -145,80 +158,20 @@ export class RenderService {
 	 * @param complete update complete callback
 	 */
 	private updateChunks(complete?: () => void): void {
-		this.worldService.world.observable.subscribe(world => {
-			this.log.debug('draw visible chunks')
-			const startDrawChunks = new Date()
-			this.drawChunks(world.tilemap)
-			this.log.debug(`drawn visible chunks in ${(new Date().getTime() - startDrawChunks.getTime())}ms`)
-
-			this.log.debug('draw minimap')
-			const startDrawMinimap = new Date()
-			this.drawMinimap()
-			this.log.debug(`drawn minimap in ${(new Date().getTime() - startDrawMinimap.getTime())}ms`)
-
-			complete?.()
-		})
-	}
-
-	/**
-	 * Update world layer for each new camera update
-	 */
-	private updateWorldLayer(): void {
-		this.configService.renderConfig.observable
+		this.worldService.world.observable
 			.pipe(first())
-			.subscribe(config => {
-				this.worldService.world.observable
-					.pipe(first())
-					.subscribe(world => {
-						this.cameraService.camera.observable
-							.pipe(
-								untilNewFrom(this.configService.renderConfig.observable),
-								throttleTime(1000 / (config.maxUps || Infinity))
-							)
-							.subscribe(camera => {
-								if (!this.worldCanvas) return
-								this.renderProfileService.frame.set()
+			.subscribe(world => {
+				this.log.debug('draw visible chunks')
+				const startDrawChunks = new Date()
+				this.drawChunks(world.tilemap)
+				this.log.debug(`drawn visible chunks in ${(new Date().getTime() - startDrawChunks.getTime())}ms`)
 
-								const cyclicCamera = new Camera(
-									camera.position.mapEach(
-										x => x % world.tilemap.shape.width,
-										y => y % world.tilemap.shape.height
-									),
-									camera.zoom,
-									camera.config
-								)
+				this.log.debug('draw minimap')
+				const startDrawMinimap = new Date()
+				this.drawMinimap(world.tilemap)
+				this.log.debug(`drawn minimap in ${(new Date().getTime() - startDrawMinimap.getTime())}ms`)
 
-								const destinationRect = Rectangle.rectangleByOnePoint(
-									Position.ZERO,
-									this.worldCanvas.resolution
-								)
-
-								if (cyclicCamera.zoom > cyclicCamera.config.minimapTriggerZoom) {
-									this.drawMapOnWorldLayer(cyclicCamera, destinationRect)
-									this.interactionService.tileHover
-										.pipe(first())
-										.subscribe(hoverPos =>
-											this.drawHoverTile(camera, hoverPos)
-										)
-								} else {
-									this.drawMinimapOnWorldLayer(cyclicCamera, destinationRect)
-								}
-							})
-					})
-			})
-	}
-
-	/**
-	 * Update map view or minimap view based on zoom for each new camera and map update
-	 */
-	private updateInteractionLayer(): void {
-		this.interactionService.tileHover
-			.subscribe(hoverPos => {
-				this.cameraService.camera.observable
-					.pipe(first())
-					.subscribe(camera => {
-						this.drawHoverTile(camera, hoverPos)
-					})
+				complete?.()
 			})
 	}
 
@@ -227,78 +180,12 @@ export class RenderService {
 	 * @param shape
 	 */
 	private resizeCanvas(shape: Shape): void {
-		[this.worldCanvas, this.interactionCanvas].forEach(c => c.setResolution(shape))
+		[this.worldLayerRenderService.canvas,
+			this.interactionLayerRenderService.canvas,
+			this.debugLayerRenderService.canvas
+		].forEach(c => c.setResolution(shape))
+
 		this.cameraService.camera.update()
-	}
-
-	/**
-	 * Draw map on world layer
-	 * @param camera
-	 * @param destinationRect
-	 */
-	private drawMapOnWorldLayer(camera: Camera, destinationRect: Rectangle): void {
-		this.configService.renderConfig.observable
-			.pipe(first())
-			.subscribe(config => {
-				this.provideUnboundedCameras(camera, this.map.resolution, config.tileResolution, unboundedCamera => {
-					this.map.drawPartOn(
-						unboundedCamera.getViewCameraRect(this.worldCanvas.resolution, config.tileResolution),
-						this.worldCanvas,
-						destinationRect
-					)
-				})
-			})
-	}
-
-	/**
-	 * Draw minimap on world layer
-	 * @param camera
-	 * @param destinationRect
-	 */
-	private drawMinimapOnWorldLayer(camera: Camera, destinationRect: Rectangle): void {
-		this.configService.renderConfig.observable
-			.pipe(first())
-			.subscribe(config => {
-				this.provideUnboundedCameras(camera, this.minimap.resolution, config.minimapResolution, unboundedCamera => {
-					this.worldCanvas.drawImage(
-						this.minimap.canvas,
-						destinationRect,
-						unboundedCamera.getViewCameraRect(this.worldCanvas.resolution, config.minimapResolution)
-					)
-				})
-			})
-	}
-
-	/**
-	 * Generate all cameras for drawing visible unbounded tiles.
-	 * Unbounded means visible due to infinite nature of the enclosed map
-	 * @param camera
-	 * @param mapResolution
-	 * @param tileResolution
-	 * @param cameraSupplier
-	 */
-	private provideUnboundedCameras(camera: Camera, mapResolution: Shape, tileResolution: number, cameraSupplier: (camera: Camera) => void): void {
-		const visibleWorldsShape = this.worldCanvas.resolution
-			.mapEach(
-				w => w / (mapResolution.width * camera.zoom / tileResolution),
-				h => h / (mapResolution.height * camera.zoom / tileResolution)
-			)
-			.map(s => Math.floor(s / 2) + 1)
-
-		_.range(-visibleWorldsShape.width, visibleWorldsShape.width + 2).forEach(x => {
-			_.range(-visibleWorldsShape.height, visibleWorldsShape.height + 2).forEach(y => {
-				cameraSupplier(
-					new Camera(
-						camera.position.mapEach(
-							c => c + (x * mapResolution.width / tileResolution),
-							c => c + (y * mapResolution.height / tileResolution)
-						),
-						camera.zoom,
-						camera.config
-					)
-				)
-			})
-		})
 	}
 
 	/**
@@ -326,21 +213,21 @@ export class RenderService {
 					Shape.square(config.chunkSize)
 				)
 				const chunkTilemap: Matrix<Tile> = tilemap.of(chunkTileRect)
-				this.spriteRenderService.spriteRenderers.forEach(spriteRenderer => {
+				this.spriteResolverService.mapSpriteResolvers.forEach(spriteResolver => {
 					chunkTilemap.forEach((tile: Tile, position: Position) => {
 						if (!tile) return
 						const tilePosition = position.add(chunkTileRect.topLeft)
 
-						spriteRenderer
+						spriteResolver
 							.getSprite(
 								tile,
-								spriteRenderer.needAdjacentTiles
+								spriteResolver.needAdjacentTiles
 									? this.worldService.getAdjacentTileMatrix(tilemap, tilePosition)
 									: null
 							)
 							.ifPresent(sprite => {
 								this.drawMapSprite(
-									sprite,
+									this.spriteService.fetch(sprite).image,
 									tilePosition.map(c => c * config.tileResolution)
 								)
 							})
@@ -352,23 +239,21 @@ export class RenderService {
 	/**
 	 * Draw each map chunk on minimap canvas
 	 */
-	private drawMinimap(): void {
-		this.configService.renderConfig.observable
-			.pipe(first())
-			.subscribe(config => {
-				this.map.chunkMatrix.forEach((chunk, position) => {
-					this.minimap.drawImage(
-						chunk.canvas,
-						Rectangle
-							.rectangleByOnePoint(
-								position.map(c => c * config.chunkSize),
-								Shape.square(config.chunkSize)
-							)
-							.multiply(config.minimapResolution)
-					)
+	private drawMinimap(tilemap: any): void {
+		this.spriteResolverService.miniMapSpriteResolvers.forEach(spriteResolver => {
+			tilemap.forEach((tile, position) => {
+				spriteResolver.getSprite(
+					tile,
+					spriteResolver.needAdjacentTiles
+						? this.worldService.getAdjacentTileMatrix(tilemap, position)
+						: null
+				).ifPresent(spriteName => {
+					const sprite = this.spriteService.fetch(spriteName)
+					this.minimap.drawRect(Rectangle.rectangleByOnePoint(position, sprite.tileSize), sprite.color)
 				})
-				this.minimap.drawBorder(1, 'rgba(0, 0, 0, 0.3)')
 			})
+		})
+		this.minimap.drawBorder('rgba(0, 0, 0, 0.3)')
 	}
 
 	/**
@@ -391,31 +276,6 @@ export class RenderService {
 					spriteRect
 				)
 			})
-	}
-
-	/**
-	 * Draw hovered tile highlight
-	 * TODO: move to separate service when more of such draws appear
-	 * @param camera
-	 * @param hoverPos
-	 */
-	private drawHoverTile(camera: Camera, hoverPos: Position) {
-		if (camera.zoom > camera.config.minimapTriggerZoom) {
-			this.interactionCanvas.clear()
-			this.interactionCanvas.drawImage(
-				this.spriteService.fetch('hover'),
-				Rectangle.rectangleByOnePoint(
-					hoverPos
-						.map(c => Math.floor(c))
-						.sub(camera.position)
-						.map(c => c * camera.zoom)
-						.add(Position.fromShape(this.worldCanvas.resolution.map(c => c / 2))),
-					Shape.square(camera.zoom)
-				)
-			)
-		} else {
-			this.interactionCanvas.clear()
-		}
 	}
 
 }

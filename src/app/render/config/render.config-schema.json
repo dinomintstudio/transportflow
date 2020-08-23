@@ -5,7 +5,6 @@
   "required": [
     "tileResolution",
     "spriteResolution",
-    "minimapResolution",
     "chunkSize",
     "chunkLoadOverhead",
     "zoomAnimationSpeed",
@@ -24,10 +23,6 @@
     "tileResolution": {
       "type": "integer",
       "description": "Tile resolution in pixels per tile"
-    },
-    "minimapResolution": {
-      "type": "integer",
-      "description": "Minimap resolution in pixels per tile"
     },
     "chunkSize": {
       "type": "integer",
