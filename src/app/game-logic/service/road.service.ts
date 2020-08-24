@@ -19,8 +19,10 @@ export class RoadService {
 	log: Log = new Log(this)
 
 	roadTiles: Observable<Tile[]>
-	roadNetwork: ObservableData<Graph<Position, Tile, void, void>> = new ObservableData<Graph<Position, Tile, void, void>>()
-	intersectionNetwork: ObservableData<Graph<Position, Tile, void, Tile[]>> = new ObservableData<Graph<Position, Tile, void, Tile[]>>()
+	roadNetwork: ObservableData<Graph<Position, Tile, void, void>>
+		= new ObservableData<Graph<Position, Tile, void, void>>()
+	intersectionNetwork: ObservableData<Graph<Position, Tile, void, Graph<Position, Tile, void, void>>>
+		= new ObservableData<Graph<Position, Tile, void, Graph<Position, Tile, void, void>>>()
 
 	constructor(
 		private worldService: WorldService
@@ -103,7 +105,8 @@ export class RoadService {
 			.subscribe(roadNetwork => {
 				this.log.debug('build intersection network')
 
-				const intersectionNetwork = new Graph<Position, Tile, void, Tile[]>()
+				const intersectionNetwork: Graph<Position, Tile, void, Graph<Position, Tile, void, void>>
+					= new Graph<Position, Tile, void, Graph<Position, Tile, void, void>>()
 
 				// 1
 				const roadMap = new Map<Position, GraphNode<Position, Tile, void, void>>(
@@ -133,11 +136,11 @@ export class RoadService {
 					const [rightIntersection, rightPath] = this.traverseUntilIntersection(roadNetwork.getNode(roadPosition), false)
 
 					// 4.2
-					const path: Position[] = [...leftPath, roadPosition, ...rightPath]
+					const path: Graph<Position, Tile, void, void> = Graph.merge(leftPath, rightPath)
 
 					// 4.3
-					path.forEach(r => {
-						roadMap.delete(r)
+					path.getNodes().forEach(r => {
+						roadMap.delete(r.key)
 					});
 
 					// 4
@@ -153,7 +156,7 @@ export class RoadService {
 						leftIntersection.key,
 						rightIntersection.key,
 						undefined,
-						path.map(p => roadNetwork.getNode(p).value)
+						path
 					)
 				}
 
@@ -161,7 +164,13 @@ export class RoadService {
 				intersectionMap.forEach(node => {
 					node.adjacentNodes().forEach(adjacent => {
 						if (intersectionNetwork.connected(node.key, adjacent.key)) return
-						intersectionNetwork.connect(node.key, adjacent.key, undefined, [])
+
+						const path: Graph<Position, Tile, void, void> = new Graph()
+						path.addNode(node.key, node.value)
+						path.addNode(adjacent.key, adjacent.value)
+						path.connect(node.key, adjacent.key)
+
+						intersectionNetwork.connect(node.key, adjacent.key, undefined, path)
 					})
 				})
 
@@ -173,26 +182,30 @@ export class RoadService {
 	private traverseUntilIntersection(
 		node: GraphNode<Position, Tile, void, void>,
 		traverseFirst: boolean,
-		path = [],
-		prevNode = undefined
-	): [GraphNode<Position, Tile, void, void>, Position[]] {
+		path: Graph<Position, Tile, void, void> = new Graph<Position, Tile, void, void>(),
+		prevNode: GraphNode<Position, Tile, void, void> = undefined
+	): [GraphNode<Position, Tile, void, void>, Graph<Position, Tile, void, void>] {
 		if (traverseFirst !== undefined) {
+			// add initial node to path
+			path.addNode(node.key, node.value)
+
 			// first pick based on `traverseFirst`. If value is true, pick index 0 edge to traverse; index 1 otherwise
 			return this.traverseUntilIntersection(
 				node.adjacentNodes()[traverseFirst ? 0 : 1],
 				undefined,
-				[],
+				path,
 				node
 			)
 		}
 		if (prevNode) {
+			// add current node to path
+			path.addNode(node.key, node.value)
+			path.connect(prevNode.key, node.key)
+
 			// check if current node is intersection
 			if (node.edges.length !== 2) {
 				return [node, path]
 			} else {
-				// add current node to path
-				path.push(node.key)
-
 				// continue traverse with node other than previous
 				const next = node.adjacentNodes()
 					.filter(n => !_.isEqual(n.key, prevNode.key))[0]

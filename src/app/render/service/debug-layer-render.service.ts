@@ -60,15 +60,23 @@ export class DebugLayerRenderService {
 			)
 			.subscribe(network => {
 				network.getEdges().forEach(edge => {
-					this.drawService.drawLine(this.canvas, camera, edge.nodes[0].key, edge.nodes[1].key, 2, 'yellow')
+					this.drawService.drawLine(this.canvas, camera, edge.nodes[0].key, edge.nodes[1].key, 2, 'red')
 				})
 				network.getNodes().forEach(node => {
-					this.drawService.drawDot(this.canvas, camera, node.key, 3, 'cyan')
+					this.drawService.drawDot(this.canvas, camera, node.key, 4, 'yellow')
 				})
 				network.getEdges().forEach(edge => {
-					edge.value.forEach(tile => {
-						this.drawService.drawDot(this.canvas, camera, tile.position, 2, 'red')
-					})
+					const nodes = edge.value.dfs(edge.nodes[0].key)
+
+					for (let i in nodes) {
+						this.drawService.drawDot(
+							this.canvas,
+							camera,
+							nodes[i].value.position,
+							2,
+							`hsl(120, 100%, ${((i as any) / (nodes.length - 1)) * 100}%)`
+						)
+					}
 				})
 			})
 	}

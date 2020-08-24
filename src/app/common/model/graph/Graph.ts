@@ -283,6 +283,29 @@ export class Graph<NK, N, EK, E> {
 	}
 
 	/**
+	 * Merge two graphs with the same type signature together
+	 *
+	 * @param graph1
+	 * @param graph2
+	 */
+	static merge<NK, N, EK, E>(graph1: Graph<NK, N, EK, E>, graph2: Graph<NK, N, EK, E>): Graph<NK, N, EK, E> {
+		const nodes: GraphNode<NK, N, EK, E>[] = [...graph1.getNodes(), ...graph2.getNodes()]
+		const edges: GraphEdge<NK, N, EK, E>[] = [...graph1.getEdges(), ...graph2.getEdges()]
+		const merged = new Graph<NK, N, EK, E>()
+
+		nodes.forEach(node => {
+				try {
+					merged.addNode(node.key, node.value)
+				} catch (e) {}
+			}
+		)
+
+		edges.forEach(edge => merged.connect(edge.nodes[0].key, edge.nodes[1].key, edge.key, edge.value))
+
+		return merged
+	}
+
+	/**
 	 * Get default element if map does not contain element with the specified key
 	 *
 	 * @param map
