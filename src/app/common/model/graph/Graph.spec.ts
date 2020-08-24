@@ -52,7 +52,7 @@ describe('Graph', () => {
 		graph.addNode(3)
 		graph.connect(1, 2, 12)
 
-		expect(graph.nodes.size).toEqual(3)
+		expect(graph.nodes.size()).toEqual(3)
 
 		const n1 = graph.getNode(1)
 		expect(n1).toBeDefined()
@@ -82,7 +82,7 @@ describe('Graph', () => {
 		graph.connect(2, 3, '23')
 		graph.connect(3, 1, '31')
 
-		expect(graph.nodes.size).toEqual(3)
+		expect(graph.nodes.size()).toEqual(3)
 
 		const n1 = graph.getNode(1)
 		expect(n1).toBeDefined()
@@ -125,22 +125,22 @@ describe('Graph', () => {
 	})
 
 	it('should traverse using BFS', () => {
-		expect(testGraph.bfs().length).toBe(testGraph.nodes.size)
+		expect(testGraph.bfs().length).toBe(testGraph.nodes.size())
 	})
 
 	it('should traverse using BFS until end node', () => {
 		const bfsResult = testGraph.bfs(1, 2)
-		expect(bfsResult.length).toBeLessThanOrEqual(testGraph.nodes.size)
+		expect(bfsResult.length).toBeLessThanOrEqual(testGraph.nodes.size())
 		expect(bfsResult.map(n => n.key).includes(2)).toBeTruthy()
 	})
 
 	it('should traverse using DFS', () => {
-		expect(testGraph.dfs().length).toBe(testGraph.nodes.size)
+		expect(testGraph.dfs().length).toBe(testGraph.nodes.size())
 	})
 
 	it('should traverse using DFS until end node', () => {
 		const dfsResult = testGraph.dfs(1, 2)
-		expect(dfsResult.length).toBeLessThanOrEqual(testGraph.nodes.size)
+		expect(dfsResult.length).toBeLessThanOrEqual(testGraph.nodes.size())
 		expect(dfsResult.map(n => n.key).includes(2)).toBeTruthy()
 	})
 
@@ -156,8 +156,8 @@ describe('Graph', () => {
 
 		const components = graph.getComponents()
 		expect(components.length).toBe(3)
-		expect(components[0].nodes.size).toBe(2)
-		expect(components[1].nodes.size).toBe(2)
+		expect(components[0].nodes.size()).toBe(2)
+		expect(components[1].nodes.size()).toBe(2)
 
 		graph.removeNode(5)
 
