@@ -78,7 +78,7 @@ export class Position {
 	 * Check for equality
 	 * @param position
 	 */
-	equals(position: Position): Boolean {
+	equals(position: Position): boolean {
 		return this.x === position.x && this.y === position.y
 	}
 

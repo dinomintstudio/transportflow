@@ -152,12 +152,14 @@ export class RoadService {
 						})
 
 					// 5
-					intersectionNetwork.connect(
-						leftIntersection.key,
-						rightIntersection.key,
-						undefined,
-						path
-					)
+					if (!_.isEqual(leftIntersection.key, rightIntersection.key)) {
+						intersectionNetwork.connect(
+							leftIntersection.key,
+							rightIntersection.key,
+							undefined,
+							path
+						)
+					}
 				}
 
 				// 7
@@ -179,13 +181,16 @@ export class RoadService {
 			})
 	}
 
-	private traverseUntilIntersection(
+	traverseUntilIntersection(
 		node: GraphNode<Position, Tile, void, void>,
 		traverseFirst: boolean,
 		path: Graph<Position, Tile, void, void> = new Graph<Position, Tile, void, void>(),
 		prevNode: GraphNode<Position, Tile, void, void> = undefined
 	): [GraphNode<Position, Tile, void, void>, Graph<Position, Tile, void, void>] {
 		if (traverseFirst !== undefined) {
+			// if node is already an intersection
+			if (node.edges.length !== 2) return [node, new Graph<Position, Tile, void, void>()]
+
 			// add initial node to path
 			path.addNode(node.key, node.value)
 

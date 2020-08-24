@@ -8,7 +8,7 @@ import {skip, takeUntil} from 'rxjs/operators'
  * a.subscribe(i => {
  *     b
  *         .pipe(untilNewFrom(a))
- *         .subscribe(() => console.log(i))
+ *         .subscribe(() => ...)
  * })
  *
  * `b` will complete when `a` emit new value.

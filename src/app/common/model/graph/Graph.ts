@@ -1,6 +1,7 @@
 import {GraphNode} from './GraphNode'
 import {GraphEdge} from './GraphEdge'
 import * as _ from 'lodash'
+import {Dictionary} from 'typescript-collections'
 
 /**
  * Undirected graph data structure
@@ -15,15 +16,15 @@ export class Graph<NK, N, EK, E> {
 	/**
 	 * Map of graph's nodes
 	 */
-	nodes: Map<NK, GraphNode<NK, N, EK, E>>
+	nodes: Dictionary<NK, GraphNode<NK, N, EK, E>>
 
 	/**
 	 * Initialize new graph
 	 */
 	constructor(nodes?: GraphNode<NK, N, EK, E>[]) {
-		this.nodes = nodes
-			? new Map<NK, GraphNode<NK, N, EK, E>>(nodes.map(n => [n.key, n]))
-			: new Map<NK, GraphNode<NK, N, EK, E>>()
+		this.nodes = new Dictionary<NK, GraphNode<NK, N, EK, E>>()
+
+		nodes && nodes.forEach(node => this.nodes.setValue(node.key, node))
 	}
 
 	/**
@@ -33,8 +34,17 @@ export class Graph<NK, N, EK, E> {
 	 * @param value
 	 */
 	addNode(key: NK, value: N): void {
-		if (this.nodes.has(key)) throw Error('node with such key already exists')
-		this.nodes.set(key, new GraphNode<NK, N, EK, E>(key, value))
+		if (this.nodes.containsKey(key)) throw Error('node with such key already exists')
+		this.nodes.setValue(key, new GraphNode<NK, N, EK, E>(key, value))
+	}
+
+	/**
+	 * Check whether node exists in graph
+	 *
+	 * @param key
+	 */
+	hasNode(key: NK): boolean {
+		return this.nodes.containsKey(key)
 	}
 
 	/**
@@ -43,7 +53,7 @@ export class Graph<NK, N, EK, E> {
 	 * @param key
 	 */
 	getNode(key: NK): GraphNode<NK, N, EK, E> {
-		const node = this.nodes.get(key)
+		const node = this.nodes.getValue(key)
 		if (!node) throw Error('no node with such key')
 		return node
 	}
@@ -72,7 +82,7 @@ export class Graph<NK, N, EK, E> {
 					)
 			})
 
-		this.nodes.delete(key)
+		this.nodes.remove(key)
 	}
 
 	/**
@@ -115,7 +125,7 @@ export class Graph<NK, N, EK, E> {
 	 */
 	adjacencyList(): string {
 		const lines = []
-		this.nodes.forEach((v, k) => {
+		this.nodes.forEach((k, v) => {
 			const adjacentKeys = v.adjacentNodes().map(n => n.key)
 			lines.push(`${k} -> ${adjacentKeys.length === 0 ? 'x' : adjacentKeys.join(', ')}`)
 		})
@@ -134,6 +144,19 @@ export class Graph<NK, N, EK, E> {
 
 		return _.includes(n1.adjacentNodes().map(n => n.key), key2) &&
 			_.includes(n2.adjacentNodes().map(n => n.key), key1)
+	}
+
+	/**
+	 * Get edge between two nodes
+	 *
+	 * @param key1
+	 * @param key2
+	 */
+	getEdgeBetween(key1: NK, key2: NK): GraphEdge<NK, N, EK, E> {
+		const n1 = this.getNode(key1)
+		const n2 = this.getNode(key2)
+
+		return this.getEdges().find(e => _.includes(e.nodes, n1) && _.includes(e.nodes, n2))
 	}
 
 	getEdges(): GraphEdge<NK, N, EK, E>[] {
@@ -164,9 +187,9 @@ export class Graph<NK, N, EK, E> {
 	 * @param endNodeKey
 	 */
 	bfs(startNodeKey?: NK, endNodeKey?: NK): GraphNode<NK, N, EK, E>[] {
-		if (this.nodes.size === 0) return []
+		if (this.nodes.size() === 0) return []
 		if (!startNodeKey) {
-			startNodeKey = this.nodes.keys().next().value
+			startNodeKey = this.nodes.keys()[0]
 		}
 
 		return this.bfsUtil(this.getNode(startNodeKey), endNodeKey, [])
@@ -179,9 +202,9 @@ export class Graph<NK, N, EK, E> {
 	 * @param goalKey
 	 */
 	dfs(startKey?: NK, goalKey?: NK): GraphNode<NK, N, EK, E>[] {
-		if (this.nodes.size === 0) return []
+		if (this.nodes.size() === 0) return []
 		if (!startKey) {
-			startKey = this.nodes.keys().next().value
+			startKey = this.nodes.keys()[0]
 		}
 
 		return this.dfsUtil(this.getNode(startKey), goalKey, [])

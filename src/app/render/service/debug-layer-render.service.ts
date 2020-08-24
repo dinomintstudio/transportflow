@@ -10,6 +10,8 @@ import {SingleCanvas} from '../model/canvas/SingleCanvas'
 import {filter, first} from 'rxjs/operators'
 import {ConfigService} from '../../common/service/config.service'
 import {RoadService} from '../../game-logic/service/road.service'
+import {NavigationService} from '../../game-logic/service/navigation.service'
+import {zipAdjacent} from '../../common/util/zip-adjacent'
 
 @Injectable({
 	providedIn: 'root'
@@ -29,12 +31,15 @@ export class DebugLayerRenderService {
 		private drawService: DrawService,
 		private renderDebugService: RenderDebugService,
 		private configService: ConfigService,
-		private roadService: RoadService
+		private roadService: RoadService,
+		private navigationService: NavigationService
 	) {
 		inject(injector, RenderService, injected => this.renderService = injected)
 	}
 
 	updateDebugLayer(): void {
+		this.navigationService.currentRoute.observable.subscribe(() => this.cameraService.camera.update())
+
 		this.cameraService.camera.observable
 			.subscribe(camera => {
 				this.renderDebugService.overlayVisible.observable
@@ -50,6 +55,7 @@ export class DebugLayerRenderService {
 
 	drawDebugLayer(camera: Camera): void {
 		this.drawRoadNetwork(camera)
+		this.drawCurrentRoute(camera)
 	}
 
 	drawRoadNetwork(camera: Camera): void {
@@ -68,16 +74,35 @@ export class DebugLayerRenderService {
 				network.getEdges().forEach(edge => {
 					const nodes = edge.value.dfs(edge.nodes[0].key)
 
-					for (let i in nodes) {
+					nodes.forEach((node, i) => {
+
 						this.drawService.drawDot(
 							this.canvas,
 							camera,
-							nodes[i].value.position,
+							node.value.position,
 							2,
 							`hsl(120, 100%, ${((i as any) / (nodes.length - 1)) * 100}%)`
 						)
-					}
+					})
 				})
+			})
+	}
+
+	drawCurrentRoute(camera: Camera): void {
+		this.navigationService.currentRoute.observable
+			.pipe(first())
+			.subscribe(route => {
+				zipAdjacent(route)
+					.forEach(([road1, road2], i) => {
+						this.drawService.drawLine(
+							this.canvas,
+							camera,
+							road1,
+							road2,
+							6,
+							`hsl(${((i as any) / (route.length - 1)) * 360}, 100%, 50%)`
+						)
+					})
 			})
 	}
 

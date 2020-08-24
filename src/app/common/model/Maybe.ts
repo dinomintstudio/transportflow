@@ -38,7 +38,7 @@ export class Maybe<T> {
 	 * Example:
 	 * <pre>
 	 * maybeNumber.ifPresent((number) => {
-	 *     console.log(number);
+	 *     // do something
 	 * });
 	 * </pre>
 	 * If the number is present (i.e. 6) then output will be 6.
